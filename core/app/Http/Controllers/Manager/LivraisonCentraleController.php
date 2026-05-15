@@ -402,6 +402,8 @@ class LivraisonCentraleController extends Controller
 
     public function deliveryUsineStore(Request $request)
     {
+        abort(403, "Cette action est disponible uniquement dans l'espace administrateur.");
+
         $request->validate([
             'code' => 'required',
             'quantite_confirme' => 'required'
@@ -437,6 +439,8 @@ class LivraisonCentraleController extends Controller
     }
     public function refouleUsineStore(Request $request)
     {
+        abort(403, "Cette action est disponible uniquement dans l'espace administrateur.");
+
         $request->validate([
             'code' => 'required',
         ]);
