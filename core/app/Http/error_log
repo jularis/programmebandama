@@ -1,0 +1,4 @@
+[06-Mar-2026 03:55:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Http\Kernel" not found in /home/programm/public_html/core/app/Http/Kernel.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Kernel.php on line 7

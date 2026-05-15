@@ -1,0 +1,92 @@
+[06-Mar-2026 03:54:17 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/AccountBaseController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/AccountBaseController.php on line 20
+[06-Mar-2026 03:54:37 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiAbreController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiAbreController.php on line 8
+[06-Mar-2026 03:54:38 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiAgroEvaluationContoller.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiAgroEvaluationContoller.php on line 21
+[06-Mar-2026 03:54:39 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiFormationStaffController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiFormationStaffController.php on line 18
+[06-Mar-2026 03:54:40 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiProgrammeController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiProgrammeController.php on line 8
+[06-Mar-2026 03:54:41 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiapplicationController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiapplicationController.php on line 18
+[06-Mar-2026 03:54:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiestimationController.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiestimationController.php on line 11
+[06-Mar-2026 03:54:43 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApievaluationController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApievaluationController.php on line 18
+[06-Mar-2026 03:54:43 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApigetlistedatasController.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApigetlistedatasController.php on line 7
+[06-Mar-2026 03:54:44 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApilivraisonController.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApilivraisonController.php on line 34
+[06-Mar-2026 03:54:45 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApilocaliteController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApilocaliteController.php on line 12
+[06-Mar-2026 03:54:46 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApimenageController.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApimenageController.php on line 26
+[06-Mar-2026 03:54:47 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiparcelleController.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiparcelleController.php on line 21
+[06-Mar-2026 03:54:48 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApiproducteurController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApiproducteurController.php on line 28
+[06-Mar-2026 03:54:49 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApisectionController.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApisectionController.php on line 10
+[06-Mar-2026 03:54:50 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApissrteclrmsController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApissrteclrmsController.php on line 18
+[06-Mar-2026 03:54:51 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApisuiviformationController.php:22
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApisuiviformationController.php on line 22
+[06-Mar-2026 03:54:51 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/ApisuiviparcelleController.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/ApisuiviparcelleController.php on line 23
+[06-Mar-2026 03:54:52 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/AuthController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/AuthController.php on line 16
+[06-Mar-2026 03:54:53 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Routing\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Controller.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Controller.php on line 12
+[06-Mar-2026 03:54:53 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/LeaveSettingController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/LeaveSettingController.php on line 12
+[06-Mar-2026 03:55:50 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/SiteController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/SiteController.php on line 19
+[06-Mar-2026 03:55:51 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/TicketController.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/TicketController.php on line 7

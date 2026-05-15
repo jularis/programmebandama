@@ -1,0 +1,264 @@
+[06-Mar-2026 03:54:54 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ActionSocialeController.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ActionSocialeController.php on line 21
+[06-Mar-2026 03:54:55 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ActiviteCommunautaireController.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ActiviteCommunautaireController.php on line 18
+[06-Mar-2026 03:54:56 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AgroapprovisionnementController.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AgroapprovisionnementController.php on line 27
+[06-Mar-2026 03:54:58 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AgrodeforestationController.php:22
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AgrodeforestationController.php on line 22
+[06-Mar-2026 03:54:59 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AgrodistributionController copy.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AgrodistributionController copy.php on line 24
+[06-Mar-2026 03:54:59 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AgrodistributionController.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AgrodistributionController.php on line 27
+[06-Mar-2026 03:55:00 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AgroevaluationController.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AgroevaluationController.php on line 24
+[06-Mar-2026 03:55:01 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AgropostplantingController.php:30
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AgropostplantingController.php on line 30
+[06-Mar-2026 03:55:02 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ApplicationController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ApplicationController.php on line 28
+[06-Mar-2026 03:55:02 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ArchivageController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ArchivageController.php on line 20
+[06-Mar-2026 03:55:03 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AttendanceController.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AttendanceController.php on line 34
+[06-Mar-2026 03:55:04 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AttendanceReportController.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AttendanceReportController.php on line 9
+[06-Mar-2026 03:55:05 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/AttendanceSettingController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/AttendanceSettingController.php on line 15
+[06-Mar-2026 03:55:06 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/CooperativeSettingController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/CooperativeSettingController.php on line 20
+[06-Mar-2026 03:55:07 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/DepartmentController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/DepartmentController.php on line 16
+[06-Mar-2026 03:55:08 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/DesignationController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/DesignationController.php on line 14
+[06-Mar-2026 03:55:09 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmergencyContactController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmergencyContactController.php on line 8
+[06-Mar-2026 03:55:10 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeController.php:65
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeController.php on line 65
+[06-Mar-2026 03:55:10 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeDocController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeDocController.php on line 12
+[06-Mar-2026 03:55:11 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeFileController.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeFileController.php on line 11
+[06-Mar-2026 03:55:11 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeShiftChangeRequestController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeShiftChangeRequestController.php on line 15
+[06-Mar-2026 03:55:13 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeShiftController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeShiftController.php on line 14
+[06-Mar-2026 03:55:14 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeShiftScheduleController.php:28
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeShiftScheduleController.php on line 28
+[06-Mar-2026 03:55:15 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeVisaController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EmployeeVisaController.php on line 12
+[06-Mar-2026 03:55:16 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/EstimationController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/EstimationController.php on line 20
+[06-Mar-2026 03:55:17 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ExpenseReportsController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ExpenseReportsController.php on line 8
+[06-Mar-2026 03:55:17 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/FormController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/FormController.php on line 12
+[06-Mar-2026 03:55:18 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/FormationController.php:34
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/FormationController.php on line 34
+[06-Mar-2026 03:55:19 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/FormationStaffController.php:30
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/FormationStaffController.php on line 30
+[06-Mar-2026 03:55:19 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/HolidayController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/HolidayController.php on line 20
+[06-Mar-2026 03:55:20 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ImageController.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ImageController.php on line 7
+[06-Mar-2026 03:55:21 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ImportController.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ImportController.php on line 10
+[06-Mar-2026 03:55:21 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/InspectionController.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/InspectionController.php on line 24
+[06-Mar-2026 03:55:23 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveController.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveController.php on line 24
+[06-Mar-2026 03:55:24 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveFileController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveFileController.php on line 12
+[06-Mar-2026 03:55:24 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveReportController.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveReportController.php on line 13
+[06-Mar-2026 03:55:25 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveSettingController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveSettingController.php on line 15
+[06-Mar-2026 03:55:26 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveTypeController.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LeaveTypeController.php on line 16
+[06-Mar-2026 03:55:27 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LeavesQuotaController.php:14
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LeavesQuotaController.php on line 14
+[06-Mar-2026 03:55:28 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LivraisonCentraleController.php:42
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LivraisonCentraleController.php on line 42
+[06-Mar-2026 03:55:29 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LivraisonController.php:45
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LivraisonController.php on line 45
+[06-Mar-2026 03:55:29 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/LocaliteSettingController.php:23
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/LocaliteSettingController.php on line 23
+[06-Mar-2026 03:55:30 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ManagerController.php:33
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ManagerController.php on line 33
+[06-Mar-2026 03:55:31 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ManagerTicketController.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ManagerTicketController.php on line 8
+[06-Mar-2026 03:55:32 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/MenageController.php:26
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/MenageController.php on line 26
+[06-Mar-2026 03:55:33 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/OLDEmployeeController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/OLDEmployeeController.php on line 20
+[06-Mar-2026 03:55:34 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/OLDLivraisonController.php:39
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/OLDLivraisonController.php on line 39
+[06-Mar-2026 03:55:35 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/OLDParcelleController.php:25
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/OLDParcelleController.php on line 25
+[06-Mar-2026 03:55:36 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ParcelleController.php:27
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ParcelleController.php on line 27
+[06-Mar-2026 03:55:37 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/PresentationCoopController.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/PresentationCoopController.php on line 13
+[06-Mar-2026 03:55:38 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ProducteurController.php:40
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ProducteurController.php on line 40
+[06-Mar-2026 03:55:39 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/ProgrammeSettingController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/ProgrammeSettingController.php on line 12
+[06-Mar-2026 03:55:39 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/SectionSettingController.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/SectionSettingController.php on line 17
+[06-Mar-2026 03:55:40 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/SettingController.php:52
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/SettingController.php on line 52
+[06-Mar-2026 03:55:41 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/SettingsController.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/SettingsController.php on line 9
+[06-Mar-2026 03:55:41 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/SiteController.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/SiteController.php on line 19
+[06-Mar-2026 03:55:42 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/SsrteclmrsController.php:25
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/SsrteclmrsController.php on line 25
+[06-Mar-2026 03:55:43 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/StaffController.php:20
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/StaffController.php on line 20
+[06-Mar-2026 03:55:44 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/SuiviParcelleController.php:32
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/SuiviParcelleController.php on line 32
+[06-Mar-2026 03:55:45 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TimeLogSettingController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TimeLogSettingController.php on line 12
+[06-Mar-2026 03:55:46 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TimelogCalendarController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TimelogCalendarController.php on line 12
+[06-Mar-2026 03:55:47 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TimelogController.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TimelogController.php on line 21
+[06-Mar-2026 03:55:47 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TimelogReportController.php:15
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TimelogReportController.php on line 15
+[06-Mar-2026 03:55:48 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TrainersController.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TrainersController.php on line 13
+[06-Mar-2026 03:55:49 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TrainingController.php:11
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TrainingController.php on line 11
+[06-Mar-2026 03:55:50 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\Controller" not found in /home/programm/public_html/core/app/Http/Controllers/Manager/TrainingTypeController.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Http/Controllers/Manager/TrainingTypeController.php on line 12

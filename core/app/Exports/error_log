@@ -1,0 +1,111 @@
+[06-Mar-2026 03:53:17 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ActionSocialeAutreBeneficiaireExport.php on line 12
+[06-Mar-2026 03:53:17 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ActionSocialeExport.php on line 11
+[06-Mar-2026 03:53:18 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ActionSocialeLocaliteExport.php on line 11
+[06-Mar-2026 03:53:19 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ActionSocialePartenaireExport.php on line 13
+[06-Mar-2026 03:53:19 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/AgroEvaluationEspeceArbreExport.php on line 13
+[06-Mar-2026 03:53:20 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/AgroEvaluationExport.php on line 12
+[06-Mar-2026 03:53:21 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ApplicationMaladieExport.php on line 15
+[06-Mar-2026 03:53:21 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ApplicationMatiereActiveExport.php on line 14
+[06-Mar-2026 03:53:22 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ApplicationPesticideExport.php on line 16
+[06-Mar-2026 03:53:23 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ApplicationsExport.php on line 11
+[06-Mar-2026 03:53:24 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/AttendanceByMemberExport.php on line 17
+[06-Mar-2026 03:53:26 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/programm/public_html/core/app/Exports/AttendanceExport.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/AttendanceExport.php on line 19
+[06-Mar-2026 03:53:26 UTC] PHP Fatal error:  Uncaught Error: Class "App\Http\Controllers\AccountBaseController" not found in /home/programm/public_html/core/app/Exports/EmployeeTimelogs.php:24
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/EmployeeTimelogs.php on line 24
+[06-Mar-2026 03:53:27 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportActionSociales.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportActionSociales.php on line 8
+[06-Mar-2026 03:53:28 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ExportAgroapprovisionnements.php on line 12
+[06-Mar-2026 03:53:28 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ExportAgrodistributions.php on line 14
+[06-Mar-2026 03:53:29 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportAgroevaluations.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportAgroevaluations.php on line 13
+[06-Mar-2026 03:53:30 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportApplications.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportApplications.php on line 7
+[06-Mar-2026 03:53:31 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ExportEstimations.php on line 10
+[06-Mar-2026 03:53:32 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportFormations.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportFormations.php on line 7
+[06-Mar-2026 03:53:32 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportInspections.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportInspections.php on line 7
+[06-Mar-2026 03:53:33 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ExportMenages.php on line 10
+[06-Mar-2026 03:53:35 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportParcelles.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportParcelles.php on line 7
+[06-Mar-2026 03:53:36 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportProducteurs.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportProducteurs.php on line 7
+[06-Mar-2026 03:53:36 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportProducteursAll.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportProducteursAll.php on line 7
+[06-Mar-2026 03:53:37 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportSsrteclmrs.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportSsrteclmrs.php on line 7
+[06-Mar-2026 03:53:38 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ExportStaffs.php on line 10
+[06-Mar-2026 03:53:39 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportStockMagasinCentral.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportStockMagasinCentral.php on line 7
+[06-Mar-2026 03:53:40 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportStockMagasinSection.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportStockMagasinSection.php on line 7
+[06-Mar-2026 03:53:41 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\WithMultipleSheets" not found in /home/programm/public_html/core/app/Exports/ExportSuiviParcelles.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ExportSuiviParcelles.php on line 7
+[06-Mar-2026 03:53:42 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InfosAutresActivitesExport.php on line 14
+[06-Mar-2026 03:53:42 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InfosCertificationExport.php on line 12
+[06-Mar-2026 03:53:44 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InfosMobilesExport.php on line 15
+[06-Mar-2026 03:53:45 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InfosProducteurExport.php on line 11
+[06-Mar-2026 03:53:46 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InfosTypeculturesExport.php on line 13
+[06-Mar-2026 03:53:48 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InsectesExport.php on line 12
+[06-Mar-2026 03:53:49 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InspectionQuestionnairesExport.php on line 10
+[06-Mar-2026 03:53:49 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/InspectionsExport.php on line 11
+[06-Mar-2026 03:53:50 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/LieutravauxdangereuxExport.php on line 13
+[06-Mar-2026 03:53:51 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/LieutravauxlegersExport.php on line 13
+[06-Mar-2026 03:53:52 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ParcelleAgroForesterieExport.php on line 12
+[06-Mar-2026 03:53:52 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ParcelleTypeProtectionExport.php on line 11
+[06-Mar-2026 03:53:53 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ParcellesExport.php on line 10
+[06-Mar-2026 03:53:55 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/ProducteursExport.php on line 10
+[06-Mar-2026 03:53:56 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/RaisonarretecolesExport.php on line 12
+[06-Mar-2026 03:53:56 UTC] PHP Fatal error:  Uncaught Error: Interface "Maatwebsite\Excel\Concerns\FromCollection" not found in /home/programm/public_html/core/app/Exports/ShiftScheduleExport.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/programm/public_html/core/app/Exports/ShiftScheduleExport.php on line 19
+[06-Mar-2026 03:53:57 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SsrteclmrsExport.php on line 10
+[06-Mar-2026 03:53:58 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/StockCentralLivraisonExport.php on line 13
+[06-Mar-2026 03:53:59 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/StockSectionLivraisonExport.php on line 12
+[06-Mar-2026 03:54:00 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/StockSectionLivraisonProducteursExport.php on line 13
+[06-Mar-2026 03:54:00 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviFormationFormationVisiteursExport.php on line 11
+[06-Mar-2026 03:54:01 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviFormationProducteurExport.php on line 11
+[06-Mar-2026 03:54:02 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviFormationThemeSousThemeExport.php on line 14
+[06-Mar-2026 03:54:03 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviFormationTypeFormationThemeExport.php on line 12
+[06-Mar-2026 03:54:06 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviFormationsExport.php on line 11
+[06-Mar-2026 03:54:06 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesAgroforesterieExport.php on line 11
+[06-Mar-2026 03:54:07 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesAnimalExport.php on line 12
+[06-Mar-2026 03:54:08 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesAutreParasiteExport.php on line 14
+[06-Mar-2026 03:54:09 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesExport.php on line 11
+[06-Mar-2026 03:54:10 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesInsecteAmiExport.php on line 16
+[06-Mar-2026 03:54:10 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesIntrantAnneeDerniereExport.php on line 13
+[06-Mar-2026 03:54:11 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesOmbrageExport.php on line 13
+[06-Mar-2026 03:54:13 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesParasiteExport.php on line 11
+[06-Mar-2026 03:54:14 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/SuiviParcellesTraitementExport.php on line 15
+[06-Mar-2026 03:54:16 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/TravauxdangereuxExport.php on line 14
+[06-Mar-2026 03:54:16 UTC] PHP Fatal error:  Trait "Maatwebsite\Excel\Concerns\Exportable" not found in /home/programm/public_html/core/app/Exports/TravauxlegersExport.php on line 12
