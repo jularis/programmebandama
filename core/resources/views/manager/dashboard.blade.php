@@ -1,5 +1,23 @@
 @extends('manager.layouts.app')
 @section('panel')
+<div class="card b-radius--10 mb-3">
+    <div class="card-body py-3">
+        <form action="" method="GET" class="d-flex align-items-center gap-3 flex-wrap">
+            <label class="mb-0 fw-bold text-secondary">@lang('Campagne')</label>
+            <select name="campagne" class="form-control" style="max-width:280px;" onchange="this.form.submit()">
+                <option value="">@lang('Toutes les campagnes')</option>
+                @foreach($campagnes as $camp)
+                    <option value="{{ $camp->id }}" @selected($campagne_id == $camp->id)>{{ $camp->nom }}</option>
+                @endforeach
+            </select>
+            @if($campagne_id)
+                <a href="{{ route('manager.dashboard') }}" class="btn btn-sm btn-outline--secondary">
+                    <i class="las la-times"></i> @lang('Réinitialiser')
+                </a>
+            @endif
+        </form>
+    </div>
+</div>
 <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4">
 @can('manager.traca.producteur.index')
                    <div class="col">
@@ -126,7 +144,13 @@
 
 
 @push('breadcrumb-plugins')
-    <div class="d-flex flex-wrap justify-content-end">
+    <div class="d-flex flex-wrap justify-content-end gap-3 align-items-center">
+        @if($campagne_id)
+            <span class="badge badge--primary" style="font-size:13px;">
+                <i class="las la-calendar"></i>
+                {{ $campagnes->firstWhere('id', $campagne_id)?->nom }}
+            </span>
+        @endif
         <h3>{{ __(auth()->user()->cooperative->name) }}</h3>
     </div>
 @endpush
