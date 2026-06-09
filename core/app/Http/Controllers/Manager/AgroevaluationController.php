@@ -29,16 +29,20 @@ class AgroevaluationController extends Controller
         $pageTitle      = "Evaluation des besoins en arbres";
         $manager   = auth()->user();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->get();
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->pluck('nom', 'id');
         $agroevaluations = Agroevaluation::dateFilter()->searchable([])->latest('id')->joinRelationship('producteur.localite.section')->where('sections.cooperative_id', $manager->cooperative_id)->where(function ($q) {
             if (request()->localite != null) {
                 $q->where('localite_id', request()->localite);
+            }
+            if (request()->campagne != null) {
+                $q->where('agroevaluations.campagne_id', request()->campagne);
             }
             if (request()->status != null) {
                 $q->where('agroevaluations.status', request()->status);
             }
         })->with('producteur', 'producteur.localite')->paginate(getPaginate());
 
-        return view('manager.agroevaluation.index', compact('pageTitle', 'agroevaluations', 'localites'));
+        return view('manager.agroevaluation.index', compact('pageTitle', 'agroevaluations', 'localites', 'campagnes'));
     }
 
     public function create()
@@ -47,7 +51,7 @@ class AgroevaluationController extends Controller
         $manager   = auth()->user();
         // $producteurs  = Producteur::with('localite')->get();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->orderBy('nom')->get();
-        $campagnes = Campagne::active()->pluck('nom', 'id');
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->pluck('nom', 'id');
         //$especesarbres  = Agroespecesarbre::orderby('strate', 'asc')->orderby('nom', 'asc')->get();
         $especesarbres  = Agroespecesarbre::where('strate', '<>', 0)
             ->orderby('strate', 'asc')
@@ -69,6 +73,7 @@ class AgroevaluationController extends Controller
     public function store(Request $request)
     {
         $validationRule = [
+            'campagne'    => 'required|exists:campagnes,id',
             'localite'    => 'required|exists:localites,id',
             'producteur'    => 'required|exists:producteurs,id',
             'especesarbre'            => 'required|array',
@@ -90,9 +95,7 @@ class AgroevaluationController extends Controller
         } else {
             $agroevaluation = new Agroevaluation();
         }
-       // $campagne = Campagne::active()->where('cooperative_id',auth()->user()->cooperative_id)->first();
-        $campagne = Campagne::active()->first();
-        $agroevaluation->campagne_id  = $campagne->id;
+        $agroevaluation->campagne_id  = $request->campagne;
         $agroevaluation->producteur_id  = $request->producteur;
         $agroevaluation->quantite  = array_sum($request->quantite);
         $agroevaluation->save();
@@ -136,6 +139,7 @@ class AgroevaluationController extends Controller
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->orderBy('nom')->get();
 
         $evaluation   = Agroevaluation::findOrFail($id);
+        $campagnes    = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->pluck('nom', 'id');
         $producteurs  = Producteur::joinRelationship('localite.section')
         ->where([['cooperative_id', $manager->cooperative_id],['producteurs.status', 1]])->where('producteurs.id', $evaluation->producteur_id)->first();
         $especesarbres  = Agroespecesarbre::orderby('strate', 'asc')->orderby('nom', 'asc')->get();
@@ -148,7 +152,7 @@ class AgroevaluationController extends Controller
             }
         }
 
-        return view('manager.agroevaluation.edit', compact('pageTitle', 'evaluation', 'especesarbres', 'producteurs', 'dataEspece', 'dataQuantite'));
+        return view('manager.agroevaluation.edit', compact('pageTitle', 'evaluation', 'campagnes', 'especesarbres', 'producteurs', 'dataEspece', 'dataQuantite'));
     }
     public function show($id){
         $pageTitle = "Détails de l'évaluation AgroForesterie";

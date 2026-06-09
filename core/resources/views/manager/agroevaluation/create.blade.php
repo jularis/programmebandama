@@ -13,6 +13,19 @@
                     ]) !!}
 
                     <div class="form-group row">
+                        <label class="col-sm-4 control-label">@lang('Campagne')</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <select class="form-control" name="campagne" id="campagne" required>
+                                <option value="">@lang('Selectionner une campagne')</option>
+                                @foreach ($campagnes as $campId => $campNom)
+                                    <option value="{{ $campId }}" @selected(old('campagne', $campagnes->keys()->first()) == $campId)>
+                                        {{ $campNom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Localite')</label>
                         <div class="col-xs-12 col-sm-8">
                             <select class="form-control" name="localite" id="localite" required>

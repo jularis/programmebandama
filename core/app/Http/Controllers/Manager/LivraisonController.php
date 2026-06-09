@@ -353,16 +353,25 @@ $campagne = Campagne::where('id', $request->campagne)->first();
                 ];
                 $product = LivraisonProduct::where([['campagne_id', $request->campagne], ['parcelle_id', $parcelle[$i]], ['certificat', $certificat[$i]], ['type_produit', $typeproduit[$i]]])->first();
                 if ($product != null) {
-                    $productinfo = $product->livraison_info_id;
                     $product->qty = $product->qty - $quantite[$i];
                     $product->qty_sortant = $product->qty_sortant + $quantite[$i];
                     $product->save();
 
-                    $prod = StockMagasinSection::where('livraison_info_id', $productinfo)->first();
-                    $prod->stocks_entrant = $prod->stocks_entrant - $quantite[$i];
-                    $prod->stocks_sortant = $prod->stocks_sortant + $quantite[$i];
-
-                    $prod->save();
+                    // Distribution FIFO : stocks_entrant reste immuable, on incrémente stocks_sortant
+                    $remaining = $quantite[$i];
+                    $stockRecords = StockMagasinSection::where('magasin_section_id', $request->sender_magasin)
+                        ->where('campagne_id', $request->campagne)
+                        ->orderBy('id', 'asc')
+                        ->get();
+                    foreach ($stockRecords as $stockRecord) {
+                        if ($remaining <= 0) break;
+                        $available = $stockRecord->stocks_entrant - $stockRecord->stocks_sortant;
+                        if ($available <= 0) continue;
+                        $toDeduct = min($remaining, $available);
+                        $stockRecord->stocks_sortant += $toDeduct;
+                        $stockRecord->save();
+                        $remaining -= $toDeduct;
+                    }
                 }
             }
             $i++;
@@ -573,9 +582,13 @@ $campagne = Campagne::where('id', $request->campagne)->first();
 
     public function invoice($id)
     {
-        $id                  = decrypt($id);
-        $pageTitle           = "Facture";
-        $livraisonInfo         = LivraisonInfo::with('payment')->findOrFail($id);
+        $id            = decrypt($id);
+        $pageTitle     = "Facture";
+        $livraisonInfo = LivraisonInfo::with([
+            'payment',
+            'receiverCooperative',
+            'productDetails.parcelle.producteur.programme',
+        ])->findOrFail($id);
 
         return view('manager.livraison.invoice', compact('pageTitle', 'livraisonInfo'));
     }

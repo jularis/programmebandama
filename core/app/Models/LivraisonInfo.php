@@ -83,6 +83,11 @@ class LivraisonInfo extends Model
     {
         return $this->hasMany(LivraisonProduct::class, 'livraison_info_id', 'id');
     }
+
+    public function productDetails()
+    {
+        return $this->hasMany(LivraisonProductDetail::class, 'livraison_info_id', 'id');
+    }
     public function scelles()
     {
         return $this->hasMany(LivraisonScelle::class, 'livraison_info_id', 'id');

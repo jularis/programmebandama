@@ -100,8 +100,10 @@
                                         <td>
                                             @if($produit->status == Status::COURIER_DISPATCH)
                                                 <span class="badge badge--dark">@lang('En attente de reception')</span>
-                                            @else($produit->status == Status::COURIER_DELIVERYQUEUE)
+                                            @elseif($produit->status == Status::COURIER_DELIVERYQUEUE)
                                                 <span class="badge badge--success">@lang("Receptionnée")</span>
+                                            @elseif($produit->status == Status::COURIER_DELIVERED)
+                                                <span class="badge badge--danger">@lang("Rejeté")</span>
                                             @endif
                                         </td>
                                         <td>
@@ -109,10 +111,16 @@
                                                 title="" class="btn btn-sm btn-outline--info">
                                                 <i class="las la-file-invoice"></i> @lang("Détails livraisons")
                                             </a>
-                                            @if ($produit->status == 1)
-                                                <button class="btn btn-sm btn-outline--secondary  delivery"
-                                                    data-code="{{ $produit->numero_connaissement }}"><i class="las la-truck"></i>
-                                                    @lang('Confirmer la reception')</button>
+                                            @if ($produit->status == Status::COURIER_DISPATCH)
+                                                <button class="btn btn-sm btn-outline--secondary delivery"
+                                                    data-code="{{ $produit->numero_connaissement }}">
+                                                    <i class="las la-truck"></i> @lang('Confirmer la reception')
+                                                </button>
+                                                <button class="btn btn-sm btn-outline--danger reject-stock"
+                                                    data-id="{{ encrypt($produit->id) }}"
+                                                    data-code="{{ $produit->numero_connaissement }}">
+                                                    <i class="las la-times-circle"></i> @lang('Rejeter le stock')
+                                                </button>
                                             @endif
                                         </td>
                                     </tr>
@@ -160,6 +168,29 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="rejectStockModal" tabindex="-1" role="dialog" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">@lang('Rejeter le stock envoyé')</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Fermer">
+                        <span class="fa fa-times"></span>
+                    </button>
+                </div>
+                <form id="rejectStockForm" method="POST">
+                    @csrf
+                    <div class="modal-body">
+                        <p>@lang('Êtes-vous sûr de vouloir rejeter ce stock ?') <strong id="rejectStockCode"></strong></p>
+                        <p class="text-danger"><small>@lang('Cette action restituera le stock au magasin de section et ne peut pas être annulée.')</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn--dark" data-bs-dismiss="modal">@lang('Annuler')</button>
+                        <button type="submit" class="btn btn--danger">@lang('Confirmer le rejet')</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('breadcrumb-plugins')
@@ -182,6 +213,15 @@
             $('.delivery').on('click', function() {
                 var modal = $('#deliveryBy');
                 modal.find('input[name=code]').val($(this).data('code'))
+                modal.modal('show');
+            });
+
+            $('.reject-stock').on('click', function() {
+                var id   = $(this).data('id');
+                var code = $(this).data('code');
+                var modal = $('#rejectStockModal');
+                modal.find('#rejectStockCode').text(code);
+                modal.find('#rejectStockForm').attr('action', '{{ url("manager/livraison/magcentral/stock/reject") }}/' + id);
                 modal.modal('show');
             });
         })(jQuery)

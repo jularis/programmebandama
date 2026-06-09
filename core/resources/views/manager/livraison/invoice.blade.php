@@ -18,7 +18,7 @@
                     <div style="width:30%;">
                     <div class="text-center">
                     <?php $numeroProducteurs=''; ?>
-                @foreach($livraisonInfo->products as $prodc)
+                @foreach($livraisonInfo->productDetails as $prodc)
                             <?php $numeroProducteurs .= $prodc->parcelle->producteur->nom.' '.$prodc->parcelle->producteur->prenoms.'('.$prodc->parcelle->producteur->codeProdapp.')'."\n"; ?>
                             @endforeach
                             <?php
@@ -72,7 +72,7 @@
                                 </thead>
                                 <tbody>
 
-                                    @foreach ($livraisonInfo->products as $livraisonProductInfo)
+                                    @foreach ($livraisonInfo->productDetails as $livraisonProductInfo)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $livraisonProductInfo->parcelle->producteur->programme->libelle }}</td>

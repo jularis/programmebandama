@@ -9,10 +9,21 @@
                          <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang('Coopérative')</label>
                                 <div class="col-xs-12 col-sm-8">
-                                
                                 {!! Form::text('cooperative', $approvisionnement->cooperative->name, array('placeholder' => __('Localite'),'class' => 'form-control', 'readonly')) !!}
                                 </div>
-                            </div> 
+                            </div>
+                        <div class="form-group row">
+                            <label class="col-sm-4 control-label">@lang('Campagne')</label>
+                            <div class="col-xs-12 col-sm-8">
+                                <select class="form-control" name="campagne" id="campagne" required>
+                                    <option value="">@lang('Selectionner une campagne')</option>
+                                    @foreach ($campagnes as $campId => $campNom)
+                                        <option value="{{ $campId }}" @selected($approvisionnement->campagne_id == $campId)>
+                                            {{ $campNom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group row">
             {{ Form::label(__("Espèce D'arbres"), null, ['class' => 'col-sm-4 control-label']) }}
     <div class="col-xs-12 col-sm-8">

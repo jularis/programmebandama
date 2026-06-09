@@ -1,5 +1,17 @@
 @extends('admin.layouts.master')
 @section('content')
+    <div id="android-apk-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#1a7a4a; color:#fff; padding:14px 20px; text-align:center; box-shadow:0 -2px 8px rgba(0,0,0,0.3);">
+        <span style="font-size:15px; margin-right:12px;">📱 Téléchargez l'application FieldConnect pour Android</span>
+        <a href="{{ url('/assets/FieldConnect_base.apk') }}" download="FieldConnect.apk"
+           style="background:#fff; color:#1a7a4a; font-weight:700; padding:7px 18px; border-radius:4px; text-decoration:none; font-size:14px;">
+            ⬇ Télécharger l'APK
+        </a>
+    </div>
+    <script>
+        if (/Android/i.test(navigator.userAgent)) {
+            document.getElementById('android-apk-banner').style.display = 'block';
+        }
+    </script>
     <div class="login-main">
         <div class="container custom-container">
             <div class="row justify-content-center">

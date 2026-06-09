@@ -19,11 +19,12 @@ class StockCentralLivraisonExport implements FromView, WithTitle
 
     public function view(): View
     {
-        // TODO: Implement view() method.
-        return view('manager.livraison-centrale.StockAllExcel',[
-            'stockscentral' => StockMagasinCentral::where('cooperative_id',auth()->user()->cooperative_id)->get()
+        return view('manager.livraison-centrale.StockAllExcel', [
+            'stockscentral' => StockMagasinCentral::where('cooperative_id', auth()->user()->cooperative_id)
+                ->with(['cooperative', 'campagne', 'campagnePeriode', 'magasinSection', 'magasinCentral', 'transporteur.entreprise', 'vehicule', 'remorque'])
+                ->get(),
         ]);
-    } 
+    }
     public function title(): string
     {
         Return "Stock Central";

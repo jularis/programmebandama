@@ -277,7 +277,7 @@ class LivraisonCentraleController extends Controller
                     'parcelle_id' => $parcelle[$i],
                     'created_at'      => now(),
                 ];
-                $prod = LivraisonMagasinCentralProducteur::where([['campagne_id', $request->campagne], ['stock_magasin_central_id', $stock_magasin_central[$i]], ['producteur_id', $item], ['type_produit', $typeproduit]])->first();
+                $prod = LivraisonMagasinCentralProducteur::where([['campagne_id', $request->campagne], ['stock_magasin_central_id', $stock_magasin_central[$i]], ['producteur_id', $item], ['parcelle_id', $parcelle[$i]], ['type_produit', $typeproduit]])->first();
                 if ($prod != null) {
 
                     $prod->quantite = $prod->quantite - $quantite[$i];
@@ -384,6 +384,60 @@ class LivraisonCentraleController extends Controller
         $contents['totalsacs'] = $totalsacs;
 
         return $contents;
+    }
+
+    public function rejectStock($id)
+    {
+        $stock = StockMagasinCentral::with('products')->where('cooperative_id', auth()->user()->cooperative_id)->findOrFail(decrypt($id));
+
+        if ($stock->status !== Status::COURIER_DISPATCH) {
+            $notify[] = ['error', 'Ce stock a déjà été réceptionné et ne peut plus être rejeté.'];
+            return back()->withNotify($notify);
+        }
+
+        $totalToRestore = 0;
+
+        foreach ($stock->products as $produit) {
+            $livraisonProduct = LivraisonProduct::where([
+                ['campagne_id', $produit->campagne_id],
+                ['parcelle_id', $produit->parcelle_id],
+                ['type_produit', $produit->type_produit],
+            ])->first();
+
+            if ($livraisonProduct) {
+                $livraisonProduct->qty += $produit->quantite;
+                $livraisonProduct->qty_sortant = max(0, $livraisonProduct->qty_sortant - $produit->quantite);
+                $livraisonProduct->save();
+            }
+
+            $totalToRestore += $produit->quantite;
+        }
+
+        // Restauration LIFO sur StockMagasinSection
+        if ($totalToRestore > 0) {
+            $remaining = $totalToRestore;
+            $stockRecords = StockMagasinSection::where('magasin_section_id', $stock->magasin_section_id)
+                ->where('campagne_id', $stock->campagne_id)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            foreach ($stockRecords as $stockRecord) {
+                if ($remaining <= 0) break;
+                $canRestore = min($remaining, $stockRecord->stocks_sortant);
+                if ($canRestore <= 0) continue;
+                $stockRecord->stocks_sortant -= $canRestore;
+                $stockRecord->save();
+                $remaining -= $canRestore;
+            }
+        }
+
+        LivraisonMagasinCentralProducteur::where('stock_magasin_central_id', $stock->id)->delete();
+
+        $stock->status = Status::COURIER_DELIVERED;
+        $stock->save();
+
+        $notify[] = ['success', 'Le stock envoyé a été rejeté avec succès.'];
+        return back()->withNotify($notify);
     }
 
     public function deliveryStore(Request $request)

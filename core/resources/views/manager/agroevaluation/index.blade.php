@@ -29,6 +29,15 @@
                                 </select>
                             </div> --}}
                             <div class="flex-grow-1">
+                                <label>@lang('Campagne')</label>
+                                <select name="campagne" class="form-control">
+                                    <option value="">@lang('Toutes')</option>
+                                    @foreach($campagnes as $campId => $campNom)
+                                    <option value="{{ $campId }}">{{ $campNom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex-grow-1">
                                 <label>@lang('Date')</label>
                                 <input name="date" type="text" class="dates form-control" placeholder="@lang('Date de debut - Date de fin')" autocomplete="off" value="{{ request()->date }}">
                             </div>
@@ -160,6 +169,9 @@
             let url=new URL(window.location).searchParams;
             if(url.get('localite') != undefined && url.get('localite') != ''){
                 $('select[name=localite]').find(`option[value=${url.get('localite')}]`).attr('selected',true);
+            }
+            if(url.get('campagne') != undefined && url.get('campagne') != ''){
+                $('select[name=campagne]').find(`option[value=${url.get('campagne')}]`).attr('selected',true);
             }
             if(url.get('status') != undefined && url.get('status') != ''){
                 $('select[name=status]').find(`option[value=${url.get('status')}]`).attr('selected',true);

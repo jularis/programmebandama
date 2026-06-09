@@ -32,13 +32,17 @@ class AgroapprovisionnementController extends Controller
         $pageTitle      = "Gestion des approvisionnements";
         $manager   = auth()->user();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->get();
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->pluck('nom', 'id');
         $approvisionnements = Agroapprovisionnement::dateFilter()->searchable([])->latest('id')->where('cooperative_id', $manager->cooperative_id)->where(function ($q) {
             if (request()->localite != null) {
                 $q->where('localite_id', request()->localite);
             }
-        })->with('cooperative')->paginate(getPaginate());
+            if (request()->campagne != null) {
+                $q->where('campagne_id', request()->campagne);
+            }
+        })->with('cooperative', 'campagne')->paginate(getPaginate());
 
-        return view('manager.approvisionnement.index', compact('pageTitle', 'approvisionnements', 'localites'));
+        return view('manager.approvisionnement.index', compact('pageTitle', 'approvisionnements', 'localites', 'campagnes'));
     }
     public function section(Request $request)
     {
@@ -60,8 +64,9 @@ class AgroapprovisionnementController extends Controller
     {
         $pageTitle = "Ajouter un approvisionnement";
         $manager   = auth()->user();
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->pluck('nom', 'id');
         $especesarbres  = Agroespecesarbre::orderby('strate', 'asc')->orderby('nom', 'asc')->get();
-        return view('manager.approvisionnement.create', compact('pageTitle', 'especesarbres'));
+        return view('manager.approvisionnement.create', compact('pageTitle', 'campagnes', 'especesarbres'));
     }
     public function create_section(Request $request)
     {
@@ -98,6 +103,7 @@ class AgroapprovisionnementController extends Controller
     public function store(Request $request)
     {
         $validationRule = [
+            'campagne'                => 'required|exists:campagnes,id',
             'especesarbre'            => 'required|array',
             'quantite'            => 'required|array',
         ];
@@ -112,17 +118,8 @@ class AgroapprovisionnementController extends Controller
             $approvisionnement = new Agroapprovisionnement();
         }
         $manager   = auth()->user();
-        $campagne = Campagne::active()->where('cooperative_id', auth()->user()->cooperative_id)->first();
 
-        // if(!$request->id) {
-        //     $hasCooperative = Agroapprovisionnement::where([['cooperative_id', $manager->cooperative_id],['campagne_id', $campagne->id]])->exists();
-        //     if ($hasCooperative) {
-        //         $notify[] = ['error', 'Cette coopérative a déjà été approvisionnée pour cette campagne.'];
-        //         return back()->withNotify($notify)->withInput();
-        //     }
-        // }
-
-        $approvisionnement->campagne_id = $campagne->id;
+        $approvisionnement->campagne_id = $request->campagne;
         $approvisionnement->total = array_sum($request->quantite);
         $approvisionnement->cooperative_id = $manager->cooperative_id;
 
@@ -184,17 +181,17 @@ class AgroapprovisionnementController extends Controller
             $approvisionnement = new AgroapprovisionnementSection();
         }
         $manager   = auth()->user();
-        $campagne = Campagne::active()->where('cooperative_id', auth()->user()->cooperative_id)->first();
+        $parentApprov = Agroapprovisionnement::findOrFail($request->agroapprovisionnement);
 
         if (!$request->id) {
-            $hasSection = AgroapprovisionnementSection::where([['section_id', $request->section], ['campagne_id', $campagne->id]])->exists();
+            $hasSection = AgroapprovisionnementSection::where([['section_id', $request->section], ['campagne_id', $parentApprov->campagne_id]])->exists();
             if ($hasSection) {
                 $notify[] = ['error', 'Cette section a déjà été approvisionnée pour cette campagne.'];
                 return back()->withNotify($notify)->withInput();
             }
         }
 
-        $approvisionnement->campagne_id = $campagne->id;
+        $approvisionnement->campagne_id = $parentApprov->campagne_id;
         $approvisionnement->agroapprovisionnement_id = $request->agroapprovisionnement;
         $approvisionnement->total = array_sum($request->quantite);
         $approvisionnement->section_id = $request->section;
@@ -243,10 +240,11 @@ class AgroapprovisionnementController extends Controller
     public function edit($id)
     {
         $pageTitle = "Mise à jour de la approvisionnement";
-
+        $manager   = auth()->user();
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->pluck('nom', 'id');
         $especesarbres  = Agroespecesarbre::orderby('strate', 'asc')->orderby('nom', 'asc')->get();
         $approvisionnement   = Agroapprovisionnement::find($id);
-        return view('manager.approvisionnement.edit', compact('pageTitle', 'especesarbres', 'approvisionnement'));
+        return view('manager.approvisionnement.edit', compact('pageTitle', 'campagnes', 'especesarbres', 'approvisionnement'));
     }
     public function show_section($id)
     {
@@ -281,10 +279,9 @@ class AgroapprovisionnementController extends Controller
                 return back()->withNotify($notify);
         }
         $manager   = auth()->user();
-        $campagne = Campagne::active()->where('cooperative_id', auth()->user()->cooperative_id)->first();
+        $parentApprov = Agroapprovisionnement::findOrFail($approvisionnement->agroapprovisionnement_id);
 
-
-        $approvisionnement->campagne_id = $campagne->id;
+        $approvisionnement->campagne_id = $parentApprov->campagne_id;
         $approvisionnement->agroapprovisionnement_id = $request->agroapprovisionnement;
         $approvisionnement->total = array_sum($request->quantite);
         $approvisionnement->section_id = $request->section;
