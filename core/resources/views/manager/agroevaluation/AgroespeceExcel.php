@@ -48,9 +48,9 @@
             <td><?php echo $c->agroevaluation->producteur->codeProd; ?></td>
             <td><?php echo stripslashes($c->agroevaluation->producteur->nom); ?></td>
             <td><?php echo stripslashes($c->agroevaluation->producteur->prenoms); ?></td>
-            <td><?php echo stripslashes($c->agroespecesarbre->nom); ?></td>
-            <td><?php echo stripslashes($c->agroespecesarbre->strate); ?></td>
-            <td><?php echo $c->total; ?></td>
+            <td><?php echo stripslashes($c->agroespecesarbre->nom ?? null); ?></td>
+            <td><?php echo stripslashes($c->agroespecesarbre->strate ?? null); ?></td>
+            <td><?php echo $c->total ?? null; ?></td>
             <td><?php echo date('d-m-Y', strtotime($c->created_at)); ?></td>
         </tr>
         </tbody>

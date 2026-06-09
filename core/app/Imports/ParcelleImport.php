@@ -3,19 +3,19 @@
 namespace App\Imports;
 
 use App\Models\Parcelle;
-use App\Models\Producteur;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
 class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
 {
+  public int $created = 0;
+  public int $updated = 0;
+  public array $missingProducteurs = [];
+
   /**
    * @param Collection $collection
    */
@@ -26,77 +26,71 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
       'codeproducteur' => 'required',
     ];
   }
+
   public function collection(Collection $collection)
   {
+    if (!count($collection)) {
+      return;
+    }
 
-    $j = 0;
-    $k = '';
-    if (count($collection)) {
+    foreach ($collection as $row) {
+      $codeProd = trim((string) $row['codeproducteur']);
+      $verification = DB::table('producteurs')
+        ->orWhere('codeProd', $codeProd)
+        ->orWhere('codeProdapp', $codeProd)
+        ->first();
 
-      foreach ($collection as $row) {
-
-        $codeProd = $row['codeproducteur']; //Get the user emails
-        $verification = DB::table('producteurs')->orWhere('codeProd', $codeProd)->orWhere('codeProdapp', $codeProd)->first();
-        if ($verification != null) {
-          if ($row['codeparcelle']) {
-            $codeParc = $row['codeparcelle'];
-          } else {
-            $codeProd = $verification->codeProdapp;
-            $codeParc = $this->generecodeparc($verification->id, $codeProd);
-          }
-
-          $superficie = $row['superficie'];
-          $superficie = Str::before($superficie, ' ');
-          if (Str::contains($superficie, ",")) {
-            $superficie = Str::replaceFirst(',', '.', $superficie);
-            if (Str::contains($superficie, ",")) {
-              $superficie = Str::replaceFirst('m²', '', $superficie);
-            }
-          }
-
-          $insert_data = array(
-            'producteur_id' => $verification->id,
-            'codeParc' => $codeParc,
-            'anneeCreation' => $row['anneecreation'],
-            'typedeclaration' => 'Verbale',
-            'culture' => $row['cultureparcelle'],
-            'superficie' => is_numeric(trim($superficie)) ? round(trim($superficie), 2) : trim($superficie),
-            'latitude' => round($row['latitude'], 6),
-            'longitude' => round($row['longitude'], 6),
-            'userid' => auth()->user()->id,
-            'created_at' => NOW(),
-            'updated_at' => NOW()
-          );
-          DB::table('parcelles')->insert($insert_data);
-          $j++;
-        } else {
-          $k .= $codeProd . ' , ';
-          $notify[] = ['error', "Les Producteurs dont les codes suivent : $k n'existent pas dans la base."];
-          return back()->withNotify($notify);
-        }
+      if ($verification == null) {
+        $this->missingProducteurs[] = $codeProd;
+        continue;
       }
 
-      if (!empty($j)) {
-        $notify[] = ['success', "$j Parcelles ont été crée avec succès"];
-        return back()->withNotify($notify);
-        if ($k != '') {
-          $notify[] = ['error', "Les Producteurs dont les codes suivent : $k n'existent pas dans la base."];
-          return back()->withNotify($notify);
-        }
+      if ($row['codeparcelle']) {
+        $codeParc = trim((string) $row['codeparcelle']);
       } else {
-        if ($k != '') {
+        $codeProd = $verification->codeProdapp;
+        $codeParc = $this->generecodeparc($verification->id, $codeProd);
+      }
 
-          $notify[] = ['error', "Les Producteurs dont les codes suivent : $k n'existent pas dans la base."];
-          return back()->withNotify($notify);
+      $superficie = $row['superficie'];
+      $superficie = Str::before($superficie, ' ');
+      if (Str::contains($superficie, ',')) {
+        $superficie = Str::replaceFirst(',', '.', $superficie);
+        if (Str::contains($superficie, ',')) {
+          $superficie = Str::replaceFirst('m2', '', $superficie);
         }
       }
-    } else {
 
-      $notify[] = ['error', "Il n'y a aucune données dans le fichier"];
-      return back()->withNotify($notify);
+      $latitude = is_numeric($row['latitude']) ? round($row['latitude'], 6) : null;
+      $longitude = is_numeric($row['longitude']) ? round($row['longitude'], 6) : null;
+
+      $data = [
+        'producteur_id' => $verification->id,
+        'codeParc' => $codeParc,
+        'anneeCreation' => $row['anneecreation'],
+        'typedeclaration' => 'Verbale',
+        'culture' => $row['cultureparcelle'],
+        'superficie' => is_numeric(trim($superficie)) ? round(trim($superficie), 2) : trim($superficie),
+        'latitude' => $latitude,
+        'longitude' => $longitude,
+        'userid' => auth()->user()->id,
+        'updated_at' => now(),
+      ];
+
+      $parcelle = Parcelle::where('producteur_id', $verification->id)
+        ->where('codeParc', $codeParc)
+        ->first();
+
+      if ($parcelle) {
+        $parcelle->update($data);
+        $this->updated++;
+      } else {
+        $data['created_at'] = now();
+        DB::table('parcelles')->insert($data);
+        $this->created++;
+      }
     }
   }
-
 
   private function generecodeparc($idProd, $codeProd)
   {

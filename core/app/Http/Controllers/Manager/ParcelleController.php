@@ -972,8 +972,17 @@ class ParcelleController extends Controller
 
     public function  uploadContent(Request $request)
     {
-        Excel::import(new ParcelleImport, $request->file('uploaded_file'));
-        return back();
+        $import = new ParcelleImport();
+        Excel::import($import, $request->file('uploaded_file'));
+
+        $notify[] = ['success', " $import->created Parcelles creees et $import->updated Parcelles mises a jour avec succes"];
+
+        if (!empty($import->missingProducteurs)) {
+            $codes = implode(' , ', array_unique($import->missingProducteurs));
+            $notify[] = ['error', "Les Producteurs dont les codes suivent : $codes n'existent pas dans la base."];
+        }
+
+        return back()->withNotify($notify);
     }
 
     public function delete($id)
