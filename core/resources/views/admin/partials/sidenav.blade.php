@@ -16,6 +16,13 @@
                     </a>
                 </li>
  
+                <li class="sidebar-menu-item {{ menuActive('admin.aichat*') }}">
+                    <a href="{{ route('admin.aichat.index') }}" class="nav-link">
+                        <i class="menu-icon las la-robot"></i>
+                        <span class="menu-title">@lang('Assistant IA')</span>
+                    </a>
+                </li>
+
                 <li class="sidebar-menu-item {{ menuActive('admin.all') }}">
                     <a href="{{ route('admin.all') }}" class="nav-link ">
                         <i class="menu-icon las la-users"></i>

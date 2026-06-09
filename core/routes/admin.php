@@ -25,7 +25,14 @@ Route::namespace('Auth')->group(function () {
 });
 
 Route::middleware('admin')->group(function () {
-    
+
+    // ── Assistant IA ──────────────────────────────
+    Route::controller('AiChatController')->prefix('aichat')->name('aichat.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/chat', 'chat')->name('chat');
+        Route::post('/clear', 'clearHistory')->name('clear');
+    });
+
     Route::controller('AdminController')->group(function () {
         Route::get('/change/{lang?}', 'changeLanguage')->name('lang');
         Route::get('dashboard', 'dashboard')->name('dashboard');
