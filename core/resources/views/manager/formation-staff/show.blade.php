@@ -9,15 +9,14 @@
             <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
                     <h5 class="mb-1">
-                        {{ $localite ? $localite->nom : '—' }}
-                        <span class="badge badge--primary ms-2">{{ $formation->formation_type }}</span>
+                        {{ $formation->cooperative->name ?? '—' }}
                         @php echo $formation->statusBadge; @endphp
                     </h5>
                     @if($formation->campagne)
                         <small class="text-muted"><i class="las la-calendar"></i> Campagne : {{ $formation->campagne->nom ?? $formation->campagne->id }}</small>
                     @endif
                 </div>
-                <a href="{{ route('manager.suivi.formation.edit', $formation->id) }}" class="btn btn--primary h-45">
+                <a href="{{ route('manager.formation-staff.edit', $formation->id) }}" class="btn btn--primary h-45">
                     <i class="la la-pen"></i> Modifier
                 </a>
             </div>
@@ -34,15 +33,7 @@
                 <table class="table table-striped mb-0">
                     <tbody>
                         <tr>
-                            <th width="45%">Localité</th>
-                            <td>{{ $localite ? $localite->nom : '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Type de formation</th>
-                            <td>{{ $formation->formation_type ?? '—' }}</td>
-                        </tr>
-                        <tr>
-                            <th>Lieu de formation</th>
+                            <th width="45%">Lieu de formation</th>
                             <td>{{ $formation->lieu_formation ?? '—' }}</td>
                         </tr>
                         @if($formation->date_debut_formation && $formation->date_fin_formation)
@@ -69,23 +60,37 @@
         </div>
     </div>
 
-    {{-- Producteurs --}}
+    {{-- Formateurs --}}
     <div class="col-lg-6 mb-30">
         <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0"><i class="las la-users"></i> Producteurs présents</h5>
-                <span class="badge badge--primary">{{ $producteurs->count() }}</span>
+            <div class="card-header">
+                <h5 class="card-title mb-0"><i class="las la-chalkboard-teacher"></i> Formateur(s)</h5>
             </div>
-            <div class="card-body" style="max-height:300px; overflow-y:auto;">
-                @if($producteurs->isNotEmpty())
-                    <ol class="mb-0 ps-3">
-                        @foreach($producteurs as $p)
-                            <li>{{ stripslashes($p->nom) }} {{ stripslashes($p->prenoms) }}</li>
-                        @endforeach
-                    </ol>
-                @else
-                    <p class="text-muted mb-0">Aucun producteur enregistré.</p>
-                @endif
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <tbody>
+                        <tr>
+                            <th width="40%">Entreprise(s)</th>
+                            <td>
+                                @forelse($formation->entreprises->unique('nom_entreprise') as $e)
+                                    {{ $e->nom_entreprise }}@if(!$loop->last), @endif
+                                @empty
+                                    <span class="text-muted">—</span>
+                                @endforelse
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Formateur(s)</th>
+                            <td>
+                                @forelse($formation->formateurs as $f)
+                                    {{ $f->nom_formateur }} {{ $f->prenom_formateur }}@if(!$loop->last), @endif
+                                @empty
+                                    <span class="text-muted">—</span>
+                                @endforelse
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -102,7 +107,7 @@
                         <tr>
                             <th width="35%">Modules</th>
                             <td>
-                                @forelse($typeformations as $m)
+                                @forelse($modules as $m)
                                     <span class="badge badge--success">{{ $m->nom }}</span>
                                 @empty
                                     <span class="text-muted">—</span>
@@ -119,73 +124,57 @@
                                 @endforelse
                             </td>
                         </tr>
-                        <tr>
-                            <th>Sous-thèmes</th>
-                            <td>
-                                @forelse($sousThemes as $st)
-                                    <span class="badge badge--warning">{{ $st->nom }}</span>
-                                @empty
-                                    <span class="text-muted">—</span>
-                                @endforelse
-                            </td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    {{-- Formateurs --}}
+    {{-- Participants staff --}}
     <div class="col-lg-6 mb-30">
         <div class="card h-100">
-            <div class="card-header">
-                <h5 class="card-title mb-0"><i class="las la-chalkboard-teacher"></i> Formateur(s)</h5>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="las la-users"></i> Participants (Staff)</h5>
+                <span class="badge badge--primary">{{ $staffsListe->count() }}</span>
             </div>
-            <div class="card-body p-0">
-                <table class="table table-striped mb-0">
-                    <tbody>
-                        @if($formation->formateur_externe == 'oui')
-                        <tr>
-                            <th width="40%">Entreprise(s)</th>
-                            <td>
-                                @forelse($formation->entreprises->unique('nom_entreprise') as $e)
-                                    {{ $e->nom_entreprise }}@if(!$loop->last), @endif
-                                @empty
-                                    <span class="text-muted">—</span>
-                                @endforelse
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Formateur(s) externe(s)</th>
-                            <td>
-                                @forelse($formation->formateurs as $f)
-                                    {{ $f->nom_formateur }} {{ $f->prenom_formateur }}@if(!$loop->last), @endif
-                                @empty
-                                    <span class="text-muted">—</span>
-                                @endforelse
-                            </td>
-                        </tr>
-                        @else
-                        <tr>
-                            <th width="40%">Formateur interne</th>
-                            <td>
-                                @if($staff)
-                                    {{ $staff->lastname }} {{ $staff->firstname }}
+            <div class="card-body" style="max-height:300px; overflow-y:auto;">
+                @if($staffsListe->isNotEmpty())
+                    <ol class="mb-0 ps-3">
+                        @foreach($staffsListe as $item)
+                            <li>
+                                @if($item->user)
+                                    {{ $item->user->lastname }} {{ $item->user->firstname }}
                                 @else
-                                    <span class="text-muted">—</span>
+                                    <span class="text-muted">Utilisateur supprimé</span>
                                 @endif
-                            </td>
-                        </tr>
-                        @endif
-                        <tr>
-                            <th>Type formateur</th>
-                            <td>{{ $formation->formateur_externe == 'oui' ? 'Externe' : 'Interne' }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                            </li>
+                        @endforeach
+                    </ol>
+                @else
+                    <p class="text-muted mb-0">Aucun participant enregistré.</p>
+                @endif
             </div>
         </div>
     </div>
+
+    {{-- Visiteurs --}}
+    @if($visiteurs->isNotEmpty())
+    <div class="col-lg-6 mb-30">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0"><i class="las la-user-friends"></i> Visiteurs</h5>
+                <span class="badge badge--info">{{ $visiteurs->count() }}</span>
+            </div>
+            <div class="card-body" style="max-height:300px; overflow-y:auto;">
+                <ol class="mb-0 ps-3">
+                    @foreach($visiteurs as $v)
+                        <li>{{ $v->visiteur }}</li>
+                    @endforeach
+                </ol>
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- Observation --}}
     @if($formation->observation_formation)
@@ -202,7 +191,7 @@
     @endif
 
     {{-- Documents --}}
-    @if($formation->photo_formation || $formation->photo_docListePresence || $formation->docListePresence || $formation->rapport_formation)
+    @if($formation->photo_formation || $formation->rapport_formation)
     <div class="col-lg-12 mb-30">
         <div class="card">
             <div class="card-header">
@@ -211,7 +200,7 @@
             <div class="card-body">
                 <div class="row g-3">
                     @if($formation->photo_formation)
-                    <div class="col-md-3 col-sm-6 text-center">
+                    <div class="col-md-4 col-sm-6 text-center">
                         <p class="text-muted small mb-1">Photo de la formation</p>
                         <a href="{{ asset('core/storage/app/' . $formation->photo_formation) }}" target="_blank">
                             <img src="{{ asset('core/storage/app/' . $formation->photo_formation) }}"
@@ -219,26 +208,8 @@
                         </a>
                     </div>
                     @endif
-                    @if($formation->photo_docListePresence)
-                    <div class="col-md-3 col-sm-6 text-center">
-                        <p class="text-muted small mb-1">Photo liste de présence</p>
-                        <a href="{{ asset('core/storage/app/' . $formation->photo_docListePresence) }}" target="_blank">
-                            <img src="{{ asset('core/storage/app/' . $formation->photo_docListePresence) }}"
-                                 alt="Photo liste présence" class="img-fluid rounded" style="max-height:160px; object-fit:cover;">
-                        </a>
-                    </div>
-                    @endif
-                    @if($formation->docListePresence)
-                    <div class="col-md-3 col-sm-6 text-center">
-                        <p class="text-muted small mb-1">Liste de présence</p>
-                        <a href="{{ asset('core/storage/app/' . $formation->docListePresence) }}" target="_blank"
-                           class="btn btn-outline--primary btn-sm">
-                            <i class="las la-download"></i> Télécharger
-                        </a>
-                    </div>
-                    @endif
                     @if($formation->rapport_formation)
-                    <div class="col-md-3 col-sm-6 text-center">
+                    <div class="col-md-4 col-sm-6 text-center">
                         <p class="text-muted small mb-1">Rapport de formation</p>
                         <a href="{{ asset('core/storage/app/' . $formation->rapport_formation) }}" target="_blank"
                            class="btn btn-outline--success btn-sm">
@@ -256,5 +227,5 @@
 @endsection
 
 @push('breadcrumb-plugins')
-    <x-back route="{{ route('manager.suivi.formation.index') }}" />
+    <x-back route="{{ route('manager.formation-staff.index') }}" />
 @endpush

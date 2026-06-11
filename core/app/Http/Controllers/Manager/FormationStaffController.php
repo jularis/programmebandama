@@ -213,6 +213,22 @@ class FormationStaffController extends Controller
         return view('manager.formation-staff.edit', compact('pageTitle', 'formation', 'themes', 'staffs', 'dataUser', 'visiteurStaff', 'entreprises', 'formateurs', 'moduleFormationStaffs', 'themes', 'themesSelected', 'modules', 'entreprisess', 'formateurSelected'));
     }
 
+    public function show($id)
+    {
+        $pageTitle = "Détails de la formation STAFF";
+        $formation = FormationStaff::with(['cooperative', 'campagne', 'entreprises', 'formateurs', 'formationStaffModuleTheme', 'formationStaffEntrepriseFormateur'])->findOrFail($id);
+
+        $staffsListe = FormationStaffListe::with('user')->where('formation_staff_id', $id)->get();
+        $visiteurs   = FormationStaffVisiteur::where('formation_staff_id', $id)->get();
+
+        $modulesIds  = $formation->formationStaffModuleTheme->pluck('module_formation_staff_id')->toArray();
+        $themesIds   = $formation->formationStaffModuleTheme->pluck('theme_formation_staff_id')->toArray();
+        $modules     = ModuleFormationStaff::whereIn('id', $modulesIds)->get(['nom']);
+        $themes      = ThemeFormationStaff::whereIn('id', $themesIds)->get(['nom']);
+
+        return view('manager.formation-staff.show', compact('pageTitle', 'formation', 'staffsListe', 'visiteurs', 'modules', 'themes'));
+    }
+
     public function status($id)
     {
         return FormationStaff::changeStatus($id);

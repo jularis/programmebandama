@@ -140,6 +140,10 @@
                                         </td>
                                         <td> @php echo $formation->statusBadge; @endphp </td>
                                         <td>
+                                            <a href="{{ route('manager.suivi.formation.show', $formation->id) }}"
+                                                class="btn btn-sm btn--primary ml-1">
+                                                <i class="las la-eye"></i> @lang('Détails')
+                                            </a>
                                             <a href="{{ route('manager.suivi.formation.visiteur.visiteurs',$formation->id) }}"
                                                 class="icon-btn btn--info ml-1">@lang('Visiteurs')</a>
                                                 <a href="{{ route('manager.suivi.formation.exportExcel.formationAll',['id'=>encrypt($formation->id)]) }}" class="btn  btn-outline--success ml-1"><i

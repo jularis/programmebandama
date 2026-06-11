@@ -94,7 +94,10 @@
                                         </td>
                                         <td> @php echo $formation->statusBadge; @endphp </td>
                                         <td>
-
+                                            <a href="{{ route('manager.formation-staff.show', $formation->id) }}"
+                                                class="btn btn-sm btn--primary ml-1">
+                                                <i class="las la-eye"></i> @lang('Détails')
+                                            </a>
                                             <button type="button" class="btn btn-sm btn-outline--primary"
                                                 data-bs-toggle="dropdown" aria-expanded="false"><i
                                                     class="las la-ellipsis-v"></i>@lang('Action')

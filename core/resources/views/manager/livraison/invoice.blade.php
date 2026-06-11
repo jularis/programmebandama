@@ -11,7 +11,7 @@
                         <br>
                         @lang('Date de livraison: ') {{ showDateTime($livraisonInfo->estimate_date, 'd/m/Y') }}
                         <br>
-                            <b>@lang('Cooperative de reception'):</b> {{ __($livraisonInfo->receiverCooperative->name) }}
+                            <b>@lang('Cooperative de reception'):</b> {{ __($livraisonInfo->receiverCooperative->name ?? '—') }}
 
                     </h3>
                 </div>
@@ -19,7 +19,9 @@
                     <div class="text-center">
                     <?php $numeroProducteurs=''; ?>
                 @foreach($livraisonInfo->productDetails as $prodc)
+                            @if($prodc->parcelle && $prodc->parcelle->producteur)
                             <?php $numeroProducteurs .= $prodc->parcelle->producteur->nom.' '.$prodc->parcelle->producteur->prenoms.'('.$prodc->parcelle->producteur->codeProdapp.')'."\n"; ?>
+                            @endif
                             @endforeach
                             <?php
 
@@ -73,16 +75,20 @@
                                 <tbody>
 
                                     @foreach ($livraisonInfo->productDetails as $livraisonProductInfo)
+                                        @php
+                                            $parcelle   = $livraisonProductInfo->parcelle;
+                                            $producteur = $parcelle?->producteur;
+                                            $programme  = $producteur?->programme;
+                                        @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $livraisonProductInfo->parcelle->producteur->programme->libelle }}</td>
-                                            <td>{{ $livraisonProductInfo->parcelle->producteur->nom }} {{ $livraisonProductInfo->parcelle->producteur->prenoms }}</td>
-                                            <td>{{ $livraisonProductInfo->parcelle->codeParc }}</td>
+                                            <td>{{ $programme->libelle ?? '—' }}</td>
+                                            <td>{{ $producteur->nom ?? '—' }} {{ $producteur->prenoms ?? '' }}</td>
+                                            <td>{{ $parcelle->codeParc ?? '—' }}</td>
                                             <td>{{ __(@$livraisonProductInfo->certificat) }}</td>
                                             <td>{{ __(@$livraisonProductInfo->type_produit) }}</td>
                                             <td>{{ $livraisonProductInfo->qty }} </td>
-                                            <td>
-                                                {{ getAmount($livraisonProductInfo->fee) }} {{ $general->cur_sym }}</td>
+                                            <td>{{ getAmount($livraisonProductInfo->fee) }} {{ $general->cur_sym }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

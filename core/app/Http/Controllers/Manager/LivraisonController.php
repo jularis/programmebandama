@@ -293,13 +293,17 @@ $campagne = Campagne::where('id', $request->campagne)->first();
     public function sectionStore(Request $request)
     {
         $request->validate([
-            'magasin_central' => 'required',
-            'sender_magasin' =>  'required',
-            'sender_transporteur' =>  'required',
-            'sender_vehicule' =>  'required',
-            'producteur_id' => 'required|array',
-            'type' => 'required',
-            'estimate_date'    => 'required|date|date_format:Y-m-d',
+            'magasin_central'      => 'required',
+            'sender_magasin'       => 'required',
+            'sender_transporteur'  => 'required',
+            'sender_vehicule'      => 'required',
+            'producteur_id'        => 'required|array',
+            'type'                 => 'required',
+            'estimate_date'        => 'required|date|date_format:Y-m-d',
+            'poidsnet'             => 'required|numeric|gt:0',
+            'nombresacs'           => 'required|integer|min:0',
+            'quantite'             => 'required|array|min:1',
+            'quantite.*'           => 'required|numeric|min:0',
         ]);
 
         $manager = auth()->user();
@@ -326,16 +330,37 @@ $campagne = Campagne::where('id', $request->campagne)->first();
         $livraison->vehicule_id = $request->sender_vehicule;
         $livraison->remorque_id = $request->sender_remorque;
         $livraison->date_livraison = $request->estimate_date;
+
+        $quantite    = $request->quantite ?? [];
+        $typeproduit = $request->typeproduit ?? [];
+        $producteurs = $request->producteurs ?? [];
+        $parcelle    = $request->parcelle ?? [];
+        $certificat  = $request->certificat ?? [];
+
+        // Validation préalable : s'assurer qu'aucune quantité ne dépasse le stock disponible
+        foreach ($producteurs as $i => $item) {
+            $qty = (float) ($quantite[$i] ?? 0);
+            if ($qty <= 0) continue;
+
+            $product = LivraisonProduct::where([
+                ['campagne_id', $request->campagne],
+                ['parcelle_id', $parcelle[$i]],
+                ['certificat',  $certificat[$i]],
+                ['type_produit', $typeproduit[$i]],
+            ])->first();
+
+            $disponible = $product ? max(0, (float) $product->qty) : 0;
+            if ($product === null || $qty > $disponible) {
+                $notify[] = ['error', "Stock insuffisant : quantité demandée ({$qty} kg) dépasse le stock disponible ({$disponible} kg) pour la ligne " . ($i + 1) . "."];
+                return back()->withNotify($notify);
+            }
+        }
+
         // dd(json_encode($request->all()));
         $livraison->save();
 
         $i = 0;
         $data = [];
-        $quantite = $request->quantite;
-        $typeproduit = $request->typeproduit;
-        $producteurs = $request->producteurs;
-        $parcelle = $request->parcelle;
-        $certificat = $request->certificat;
 
         foreach ($producteurs as $item) {
 
@@ -353,7 +378,7 @@ $campagne = Campagne::where('id', $request->campagne)->first();
                 ];
                 $product = LivraisonProduct::where([['campagne_id', $request->campagne], ['parcelle_id', $parcelle[$i]], ['certificat', $certificat[$i]], ['type_produit', $typeproduit[$i]]])->first();
                 if ($product != null) {
-                    $product->qty = $product->qty - $quantite[$i];
+                    $product->qty = max(0, $product->qty - $quantite[$i]);
                     $product->qty_sortant = $product->qty_sortant + $quantite[$i];
                     $product->save();
 
@@ -504,14 +529,15 @@ $campagne = Campagne::where('id', $request->campagne)->first();
                     } else {
                         $read = 'readonly';
                     }
+                    $qtyMax = max(0, (float) $data->qty);
                     $results .= '<tr>
         <td colspan="2"><h5>' . $data->parcelle->producteur->nom . ' ' . $data->parcelle->producteur->prenoms . '(' . $data->parcelle->producteur->codeProdapp . ')</h5>
         <input type="hidden" name="producteurs[]" value="' . $data->parcelle->producteur_id . '"/></td>
         <td style="width: 300px;"><input type="hidden" name="parcelle[]" value="' . $data->parcelle_id . '"/><input type="hidden" name="certificat[]" value="' . $data->certificat . '"/>' . $data->certificat . '</td>
         <td style="width: 300px;"><input type="hidden" name="typeproduit[]" value="' . $data->type_produit . '"/>' . $data->type_produit . '</td>
-        <td style="width: 400px;"> <input type="number" name="quantite[]" value="' . $data->qty . '" min="0" max="' . $data->qty . '"  class="form-control quantity" style="width: 115px;"/></td>
+        <td style="width: 400px;"> <input type="number" name="quantite[]" value="' . $qtyMax . '" min="0" max="' . $qtyMax . '" class="form-control quantity" style="width: 115px;"/></td>
         </tr>';
-                    $total = $total + $data->qty;
+                    $total = $total + $qtyMax;
                     $totalsacs = $totalsacs + $data->nb_sacs_entrant;
                     $v++;
                 }

@@ -114,9 +114,10 @@ class FormationController extends Controller
 
         if ($request->id) {
             $formation = SuiviFormation::findOrFail($request->id);
-            $message = "La formation a été mise à jour avec succès";
+            $isUpdate = true;
         } else {
             $formation = new SuiviFormation();
+            $isUpdate = false;
         }
         $campagne = Campagne::active()->first();
         $formation->localite_id  = $request->localite;
@@ -177,7 +178,8 @@ class FormationController extends Controller
 
             if (($request->producteur != null)) {
                 SuiviFormationProducteur::where('suivi_formation_id', $id)->delete();
-                foreach ($request->producteur as $data) {
+                foreach (array_unique($request->producteur) as $data) {
+                    if ($data == '') continue;
                     $datas[] = [
                         'suivi_formation_id' => $id,
                         'producteur_id' => $data,
@@ -228,8 +230,12 @@ class FormationController extends Controller
                 FormationProducteurFormateur::insert($datas4);
             }
         }
-        $notify[] = ['success', isset($message) ? $message : 'Le formation a été crée avec succès.'];
-        return back()->withNotify($notify);
+        if ($isUpdate) {
+            $notify[] = ['success', 'La formation a été mise à jour avec succès.'];
+            return back()->withNotify($notify);
+        }
+        $notify[] = ['success', 'Le formation a été créé avec succès.'];
+        return redirect()->route('manager.suivi.formation.edit', $formation->id)->withNotify($notify);
     }
 
     public function edit($id)
@@ -280,11 +286,8 @@ class FormationController extends Controller
     public function show($id)
     {
         $pageTitle = "Détails de la formation";
-        $manager   = auth()->user();
-        $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->get();
-        $formation   = SuiviFormation::findOrFail($id);
-        $localite = Localite::where('id', $formation->localite_id)->first();
-        $typeformations  = TypeFormation::all();
+        $formation = SuiviFormation::with(['localite', 'campagne', 'entreprises', 'formateurs', 'formationProducteur', 'typeFormationTheme', 'themeSousTheme'])->findOrFail($id);
+        $localite = $formation->localite;
         $idProducteurs = $formation->formationProducteur->pluck('producteur_id')->toArray();
         $producteurs = Producteur::whereIn('id', $idProducteurs)->get(['nom', 'prenoms']);
         $typeformationsId = $formation->typeFormationTheme->pluck('type_formation_id')->toArray();
@@ -293,8 +296,8 @@ class FormationController extends Controller
         $themes = ThemesFormation::whereIn('id', $themesId)->get(['nom']);
         $sousThemesId = $formation->themeSousTheme->pluck('sous_theme_id')->toArray();
         $sousThemes = SousThemeFormation::whereIn('id', $sousThemesId)->get(['nom']);
-        $staffs = User::where('id', $formation->user_id)->get(['firstname', 'lastname']);
-        return view('manager.formation.show', compact('pageTitle', 'localite', 'formation', 'producteurs', 'typeformations', 'themes', 'sousThemes', 'staffs'));
+        $staff = $formation->user_id ? User::find($formation->user_id, ['firstname', 'lastname']) : null;
+        return view('manager.formation.show', compact('pageTitle', 'localite', 'formation', 'producteurs', 'typeformations', 'themes', 'sousThemes', 'staff'));
     }
 
     public function visiteur($id)

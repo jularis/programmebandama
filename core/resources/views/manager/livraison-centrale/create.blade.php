@@ -271,7 +271,7 @@
                                             <div class="col-md-5 d-flex justify-content-between">
                                                 <span class="fw-bold">@lang('Nombre de sacs'):</span>
                                                 <div> <input type="number" name="nombresacs" id="nombresacs"
-                                                        class="form-control" required /></div>
+                                                        class="form-control" min="0" required /></div>
                                             </div>
 
                                         </div>
@@ -383,13 +383,12 @@
         $('#producteurs').change(function() {
 
             $.ajax({
-                type: 'GET',
+                type: 'POST',
                 url: "{{ route('manager.livraison.magcentral.get.listeproducteur') }}",
                 data: $('#flocal').serialize(),
                 success: function(html) {
                     $('#listeprod').html(html.results);
-                    $('#poidsnet').val(html.total);
-
+                    update_amounts();
                 }
             });
         });
@@ -406,29 +405,41 @@
                 }
             });
         }
-        $('#flocal').change('keyup change blur', function() {
+        $(document).on('input change', '#listeprod .quantity', function() {
             update_amounts();
         });
 
         function update_amounts() {
             var sum = 0;
-            var sumsacs = 0;
 
             $('#listeprod > tr').each(function() {
+                var $qtyInput = $(this).find('.quantity');
+                var qty = parseFloat($qtyInput.val()) || 0;
 
-                var qty = $(this).find('.quantity').val();
-                var qtysacs = $(this).find('.nbsacs').val();
-                sum = parseFloat(sum) + parseFloat(qty);
-                sumsacs = parseFloat(sumsacs) + parseFloat(qtysacs);
-
+                if (qty < 0) {
+                    qty = 0;
+                    $qtyInput.val(0);
+                }
+                sum += qty;
             });
             $('#poidsnet').val(sum);
-            /*$('#nombresacs').val(sumsacs);
-            $("#nombresacs").attr({
-                "max": sumsacs,
-                "min": 0
-            }); */
         }
+
+        $('#flocal').on('submit', function(e) {
+            var poids = parseFloat($('#poidsnet').val()) || 0;
+            var sacs  = parseFloat($('#nombresacs').val());
+
+            if (poids <= 0) {
+                e.preventDefault();
+                alert('Le poids total doit être supérieur à 0. Veuillez sélectionner des lots avec un stock disponible.');
+                return false;
+            }
+            if (isNaN(sacs) || sacs < 0) {
+                e.preventDefault();
+                alert('Le nombre de sacs ne peut pas être négatif.');
+                return false;
+            }
+        });
 
         $('.dates').datepicker({
             language: 'fr',

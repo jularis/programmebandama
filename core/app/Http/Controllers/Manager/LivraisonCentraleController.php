@@ -226,72 +226,92 @@ class LivraisonCentraleController extends Controller
         // dd(response()->json($request));
 
         $request->validate([
-            'magasin_central' => 'required',
-            'sender_transporteur' =>  'required',
-            'sender_vehicule' =>  'required',
-            'type' => 'required',
-            'estimate_date'    => 'required|date|date_format:Y-m-d',
+            'magasin_central'      => 'required',
+            'sender_transporteur'  => 'required',
+            'sender_vehicule'      => 'required',
+            'type'                 => 'required',
+            'estimate_date'        => 'required|date|date_format:Y-m-d',
+            'poidsnet'             => 'required|numeric|gt:0',
+            'nombresacs'           => 'required|integer|min:0',
+            'quantite'             => 'required|array|min:1',
+            'quantite.*'           => 'required|numeric|min:0',
         ]);
+
+        $quantite             = $request->quantite;
+        $typeproduit          = $request->type;
+        $producteurs          = $request->producteurs;
+        $certificat           = $request->certificat;
+        $parcelle             = $request->parcelle;
+        $stock_magasin_central = $request->stock_magasin_central;
+
+        // Vérification du stock disponible avant tout enregistrement
+        foreach ($producteurs as $i => $item) {
+            $qty = (float) ($quantite[$i] ?? 0);
+            if ($qty <= 0) continue;
+            $prod = LivraisonMagasinCentralProducteur::where([
+                ['campagne_id',            $request->campagne],
+                ['stock_magasin_central_id', $stock_magasin_central[$i]],
+                ['producteur_id',          $item],
+                ['parcelle_id',            $parcelle[$i]],
+                ['type_produit',           $typeproduit],
+            ])->first();
+            $disponible = $prod ? (float) $prod->quantite : 0;
+            // Bloquer uniquement si le stock disponible est positif et dépasse la demande
+            if ($disponible > 0 && $qty > $disponible) {
+                $notify[] = ['error', "Stock insuffisant : quantité demandée ({$qty} kg) dépasse le stock disponible ({$disponible} kg) pour la ligne " . ($i + 1) . "."];
+                return back()->withNotify($notify);
+            }
+        }
 
         $manager = auth()->user();
         $livraison = new Connaissement();
         $campagne = Campagne::active()->first();
         $periode = CampagnePeriode::where([['campagne_id', $campagne->id], ['periode_debut', '<=', gmdate('Y-m-d')], ['periode_fin', '>=', gmdate('Y-m-d')]])->latest()->first();
 
-        $livraison->cooperative_id   = $manager->cooperative_id;
-        $livraison->campagne_id    = $request->campagne;
+        $livraison->cooperative_id      = $manager->cooperative_id;
+        $livraison->campagne_id         = $request->campagne;
         $livraison->campagne_periode_id = $request->periode;
         $livraison->magasin_centraux_id = $request->magasin_central;
-        $livraison->numeroCU = $request->code . $request->lastcode;
-        $livraison->type_produit = $request->type;
-        $livraison->quantite_livre = $request->poidsnet;
-        $livraison->sacs_livre = $request->nombresacs;
-        $livraison->transporteur_id = $request->sender_transporteur;
-        $livraison->vehicule_id = $request->sender_vehicule;
-        $livraison->remorque_id = $request->sender_remorque;
-        $livraison->numeroCMC = json_encode($request->connaissement_id);
-        $livraison->date_livraison = $request->estimate_date;
+        $livraison->numeroCU            = $request->code . $request->lastcode;
+        $livraison->type_produit        = $request->type;
+        $livraison->quantite_livre      = $request->poidsnet;
+        $livraison->sacs_livre          = $request->nombresacs;
+        $livraison->transporteur_id     = $request->sender_transporteur;
+        $livraison->vehicule_id         = $request->sender_vehicule;
+        $livraison->remorque_id         = $request->sender_remorque;
+        $livraison->numeroCMC           = json_encode($request->connaissement_id);
+        $livraison->date_livraison      = $request->estimate_date;
 
         $livraison->save();
 
         $i = 0;
         $data = [];
-        $quantite = $request->quantite;
-        $typeproduit = $request->type;
-        $producteurs = $request->producteurs;
-        $certificat = $request->certificat;
-        $parcelle = $request->parcelle;
-        $stock_magasin_central = $request->stock_magasin_central;
         foreach ($producteurs as $item) {
 
             if ($quantite[$i] > 0) {
                 $data[] = [
-                    'connaissement_id' => $livraison->id,
-                    'producteur_id' => $item,
-                    'campagne_id' => $request->campagne,
-                    'campagne_periode_id' => $request->periode,
-                    'quantite' => $quantite[$i],
+                    'connaissement_id'       => $livraison->id,
+                    'producteur_id'          => $item,
+                    'campagne_id'            => $request->campagne,
+                    'campagne_periode_id'    => $request->periode,
+                    'quantite'               => $quantite[$i],
                     'stock_magasin_central_id' => $stock_magasin_central[$i],
-                    'type_produit' => $typeproduit,
-                    'certificat' => $certificat,
-                    'parcelle_id' => $parcelle[$i],
-                    'created_at'      => now(),
+                    'type_produit'           => $typeproduit,
+                    'certificat'             => $certificat,
+                    'parcelle_id'            => $parcelle[$i],
+                    'created_at'             => now(),
                 ];
                 $prod = LivraisonMagasinCentralProducteur::where([['campagne_id', $request->campagne], ['stock_magasin_central_id', $stock_magasin_central[$i]], ['producteur_id', $item], ['parcelle_id', $parcelle[$i]], ['type_produit', $typeproduit]])->first();
                 if ($prod != null) {
-
-                    $prod->quantite = $prod->quantite - $quantite[$i];
-                    $prod->quantite_sortant = $prod->quantite_sortant + $quantite[$i];
-
+                    $prod->quantite          = max(0, $prod->quantite - $quantite[$i]);
+                    $prod->quantite_sortant  = $prod->quantite_sortant + $quantite[$i];
                     $prod->save();
                 }
 
                 $stockCent = StockMagasinCentral::where('id', $stock_magasin_central[$i])->first();
                 if ($stockCent != null) {
-
-                    $stockCent->stocks_mag_entrant = $stockCent->stocks_mag_entrant - $quantite[$i];
+                    $stockCent->stocks_mag_entrant = max(0, $stockCent->stocks_mag_entrant - $quantite[$i]);
                     $stockCent->stocks_mag_sortant = $stockCent->stocks_mag_sortant + $quantite[$i];
-
                     $stockCent->save();
                 }
             }
@@ -314,7 +334,7 @@ class LivraisonCentraleController extends Controller
         $periode = CampagnePeriode::where([['campagne_id', $campagne->id]])->latest()->first();
         $contents = '';
         if (request()->type || request()->magasin_central || request()->certificat) {
-            $stocks = LivraisonMagasinCentralProducteur::joinRelationship('stockMagasinCentral')->where([['livraison_magasin_central_producteurs.campagne_id', $input['campagne']], ['stocks_mag_entrant', '>', 0], ['quantite', '>', 0]])
+            $stocks = LivraisonMagasinCentralProducteur::joinRelationship('stockMagasinCentral')->where([['livraison_magasin_central_producteurs.campagne_id', $input['campagne']], ['quantite', '>', 0]])
             ->when(request()->magasin_central, function ($query, $magasin_central) {
                 $query->where('stock_magasin_centraux.magasin_centraux_id', $magasin_central);
             })
@@ -345,7 +365,9 @@ class LivraisonCentraleController extends Controller
         $totalsacs = 0;
         $campagne = Campagne::active()->first();
         if(request()->connaissement_id) {
-            $stock = LivraisonMagasinCentralProducteur::joinRelationship('stockMagasinCentral')->where([['livraison_magasin_central_producteurs.campagne_id', request()->campagne], ['stocks_mag_entrant', '>', 0], ['quantite', '>', 0]])
+            // On ne filtre plus sur stocks_mag_entrant pour éviter d'exclure des lots
+            // dont le total a été incorrectement dégradé ; on se base sur quantite > 0.
+            $stock = LivraisonMagasinCentralProducteur::joinRelationship('stockMagasinCentral')->where([['livraison_magasin_central_producteurs.campagne_id', request()->campagne], ['quantite', '>', 0]])
             ->when(request()->magasin_central, function ($query, $magasin_central) {
                 $query->where('stock_magasin_centraux.magasin_centraux_id', $magasin_central);
             })
@@ -365,11 +387,12 @@ class LivraisonCentraleController extends Controller
                 $tv = count($stock);
                 foreach ($stock as $data) {
 
+                    $qtyMax = max(0, (float) $data->quantite);
                     $results .= '<tr><td colspan="2"><h5>' . $data->producteur->nom . ' ' . $data->producteur->prenoms . '(' . $data->producteur->codeProdapp . ')</h5><input type="hidden" name="producteurs[]" value="' . $data->producteur_id . '"/><input type="hidden" name="parcelle[]" value="' . $data->parcelle_id . '"/></td>
                     <td style="width: 300px;"><input type="hidden" name="typeproduit[]" value="' . $data->type_produit . '"/>' . $data->type_produit . '<input type="hidden" name="stock_magasin_central[]" value="' . $data->stock_magasin_central_id . '"/></td>
-                    <td style="width: 400px;"> <input type="number" name="quantite[]" value="' . $data->quantite . '" min="0" max="' . $data->quantite . '"  class="form-control quantity" style="width: 115px;"/></td></tr>';
+                    <td style="width: 400px;"> <input type="number" name="quantite[]" value="' . $qtyMax . '" min="0" data-max="' . $qtyMax . '" class="form-control quantity" style="width: 115px;"/></td></tr>';
 
-                    $total = $total + $data->quantite;
+                    $total = $total + $qtyMax;
                     // $totalsacs = $totalsacs+$data->nb_sacs_entrant;
                     $v++;
                 }
