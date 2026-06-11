@@ -44,29 +44,33 @@ class LivraisonCentraleController extends Controller
     public function index()
     {
         $staff = auth()->user();
-        $livraisonProd = LivraisonMagasinCentralProducteur::dateFilter()->joinRelationship('stockMagasinCentral')->with('stockMagasinCentral', 'campagne', 'producteur', 'campagnePeriode')
+        $livraisonProd = LivraisonMagasinCentralProducteur::dateFilter()
+            ->joinRelationship('stockMagasinCentral')
+            ->with('stockMagasinCentral', 'campagne', 'campagnePeriode', 'producteur', 'parcelle')
             ->where('cooperative_id', $staff->cooperative_id)
-            ->when(request()->code, function ($query, $code) {
-                $query->where('numero_connaissement', $code);
-            })
             ->when(request()->magasin, function ($query, $magasin) {
-                $query->where('stock_magasin_central_id', $magasin);
+                $query->where('stock_magasin_centraux.magasin_centraux_id', $magasin);
+            })
+            ->when(request()->campagne, function ($query, $campagne) {
+                $query->where('livraison_magasin_central_producteurs.campagne_id', $campagne);
             })
             ->when(request()->produit, function ($query, $produit) {
-                $query->whereIn('livraison_magasin_central_producteurs.type_produit', json_decode($produit));
+                $query->where('livraison_magasin_central_producteurs.type_produit', $produit);
             })
-            ->when(request()->producteur, function ($query, $producteur) {
-                $query->where('producteur_id', $producteur);
+            ->when(request()->search, function ($query, $search) {
+                $query->where('numero_connaissement', 'like', "%$search%");
             })
             ->select('livraison_magasin_central_producteurs.*')
             ->orderBy('livraison_magasin_central_producteurs.id', 'desc')
             ->paginate(getPaginate());
 
-        $total = $livraisonProd->sum('quantite');
-        $pageTitle    = "Livraison des Magasins de Section ($total)";
-        $magasins  = MagasinCentral::where('cooperative_id', $staff->cooperative_id)->get();
-        $sections = Section::get();
-        return view('manager.livraison-centrale.index', compact('pageTitle', 'livraisonProd', 'total', 'sections', 'magasins'));
+        $totalEntrant  = $livraisonProd->sum('quantite');
+        $totalSortant  = $livraisonProd->sum('quantite_sortant');
+        $pageTitle     = "Enregistrements au Magasin Central";
+        $magasins      = MagasinCentral::where('cooperative_id', $staff->cooperative_id)->get();
+        $allcampagnes  = Campagne::where('cooperative_id', $staff->cooperative_id)->get();
+        $sections      = Section::get();
+        return view('manager.livraison-centrale.index', compact('pageTitle', 'livraisonProd', 'totalEntrant', 'totalSortant', 'sections', 'magasins', 'allcampagnes'));
     }
 
     public function stock()
