@@ -116,10 +116,12 @@
                                                     data-code="{{ $produit->numero_connaissement }}">
                                                     <i class="las la-truck"></i> @lang('Confirmer la reception')
                                                 </button>
+                                            @endif
+                                            @if (in_array($produit->status, [Status::COURIER_DISPATCH, Status::COURIER_DELIVERYQUEUE]))
                                                 <button class="btn btn-sm btn-outline--danger reject-stock"
                                                     data-id="{{ encrypt($produit->id) }}"
                                                     data-code="{{ $produit->numero_connaissement }}">
-                                                    <i class="las la-times-circle"></i> @lang('Rejeter le stock')
+                                                    <i class="las la-times-circle"></i> @lang('Rejeter le stock envoyé')
                                                 </button>
                                             @endif
                                         </td>

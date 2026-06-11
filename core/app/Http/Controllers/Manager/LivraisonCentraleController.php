@@ -417,8 +417,18 @@ class LivraisonCentraleController extends Controller
     {
         $stock = StockMagasinCentral::with('products')->where('cooperative_id', auth()->user()->cooperative_id)->findOrFail(decrypt($id));
 
-        if ($stock->status !== Status::COURIER_DISPATCH) {
-            $notify[] = ['error', 'Ce stock a déjà été réceptionné et ne peut plus être rejeté.'];
+        if ($stock->status === Status::COURIER_DELIVERED) {
+            $notify[] = ['error', 'Ce stock a déjà été rejeté.'];
+            return back()->withNotify($notify);
+        }
+
+        if (!in_array($stock->status, [Status::COURIER_DISPATCH, Status::COURIER_DELIVERYQUEUE])) {
+            $notify[] = ['error', 'Ce stock ne peut pas être rejeté.'];
+            return back()->withNotify($notify);
+        }
+
+        if ($stock->status === Status::COURIER_DELIVERYQUEUE && $stock->stocks_mag_sortant > 0) {
+            $notify[] = ['error', 'Ce stock ne peut pas être rejeté car une partie a déjà été expédiée vers l\'usine (' . showAmount($stock->stocks_mag_sortant) . ' kg).'];
             return back()->withNotify($notify);
         }
 
