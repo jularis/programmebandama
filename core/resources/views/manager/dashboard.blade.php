@@ -141,14 +141,9 @@
 
 @can('manager.suivi.formation.index')
 <?php
-$modPivotData = [];
+$modParticipants = [];
 foreach($modules as $row) {
-    $mod = $row->module;
-    if (!isset($modPivotData[$mod])) {
-        $modPivotData[$mod] = ['F' => 0, 'M' => 0];
-    }
-    $sk = strtoupper(substr($row->sexe_producteur ?? 'M', 0, 1));
-    $modPivotData[$mod][$sk === 'F' ? 'F' : 'M'] += $row->nombre_producteurs;
+    $modParticipants[$row->module] = $row->nombre_producteurs;
 }
 ?>
 <div class="row mt-4">
@@ -164,40 +159,26 @@ foreach($modules as $row) {
                             <tr>
                                 <th>Module</th>
                                 <th class="text-center">Sessions</th>
-                                <th class="text-center">Prod. Femmes</th>
-                                <th class="text-center">Prod. Hommes</th>
-                                <th class="text-center">Total Producteurs</th>
+                                <th class="text-center">Participants (Staff)</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($formation as $f)
-                            <?php
-                            $nbF = $modPivotData[$f->nom]['F'] ?? 0;
-                            $nbM = $modPivotData[$f->nom]['M'] ?? 0;
-                            ?>
                             <tr>
                                 <td>{{ $f->nom }}</td>
                                 <td class="text-center">{{ $f->nombre }}</td>
-                                <td class="text-center">{{ $nbF }}</td>
-                                <td class="text-center">{{ $nbM }}</td>
-                                <td class="text-center"><strong>{{ $nbF + $nbM }}</strong></td>
+                                <td class="text-center"><strong>{{ $modParticipants[$f->nom] ?? 0 }}</strong></td>
                             </tr>
                             @empty
-                            <tr><td colspan="5" class="text-center text-muted">Aucune formation enregistrée</td></tr>
+                            <tr><td colspan="3" class="text-center text-muted">Aucune formation enregistrée</td></tr>
                             @endforelse
                         </tbody>
                         @if($formation->count() > 0)
                         <tfoot class="table-secondary">
-                            <?php
-                            $totF   = array_sum(array_column($modPivotData, 'F'));
-                            $totM   = array_sum(array_column($modPivotData, 'M'));
-                            ?>
                             <tr>
                                 <th>Total</th>
                                 <th class="text-center">{{ $formation->sum('nombre') }}</th>
-                                <th class="text-center">{{ $totF }}</th>
-                                <th class="text-center">{{ $totM }}</th>
-                                <th class="text-center">{{ $totF + $totM }}</th>
+                                <th class="text-center">{{ array_sum($modParticipants) }}</th>
                             </tr>
                         </tfoot>
                         @endif
@@ -254,39 +235,14 @@ $total = $total2 = $total3 = $total4 = $total5 = $total6 = $total7 = $total9 = a
                 $total3[] = (int) $data->nombre;
             }
              
-            $totalsexe=$sexe=$xAxisData=array();
-             
-            foreach(@$modules as $data){
+            $xAxisData = $totalParticipants = array();
 
-              $xLabel = Str::between($data->module,"(",")")  ?: $data->module;
-              if(!in_array($xLabel,$xAxisData))
-              {
-                $xAxisData[] = utf8_encode(Str::remove("\r\n",utf8_decode($xLabel)));
-              }
-                foreach($modules as $data2){
-                  if($data->sexe_producteur ==$data2->sexe_producteur){
-                    $totalsexe[] = $data2->nombre_producteurs;
-                  } 
-                }
-                $totalsexe = implode(",",$totalsexe);
-                if(!in_array($data->sexe_producteur,$sexe)){
-                  
-                  $sexe[]=$data->sexe_producteur;
-                  $donnees3[] = "
-                  { name:'$data->sexe_producteur',
-                    nameTextStyle: {
-                      fontStyle: 'oblique'
-                    },
-                    type: 'bar', 
-                    stack: 'one',
-                    data: [$totalsexe]
-                  }";
-                }
-                
-              
-              $totalsexe=array();
-                
+            foreach(@$modules as $data){
+                $xLabel = Str::between($data->module,"(",")")  ?: $data->module;
+                $xAxisData[]       = utf8_encode(Str::remove("\r\n", utf8_decode($xLabel)));
+                $totalParticipants[] = (int) $data->nombre_producteurs;
             }
+            $donnees3[] = "{ name:'Participants', type:'bar', label:{show:true}, data:[".implode(",",$totalParticipants)."] }";
 
             foreach(@$parcellespargenre as $data){
               $labels[] = utf8_encode(Str::remove("\r\n",utf8_decode($data->genre)));

@@ -81,30 +81,28 @@ class ManagerController extends Controller
                                         ->groupBy('date')
                                         ->get();
 
-        // Formations par Modules
-        $formation = TypeFormationTheme::joinRelationship('typeFormation')
-                                        ->joinRelationship('suiviFormation.localite.section')
-                                        ->where('sections.cooperative_id', $coop_id)
-                                        ->when($campagne_id, fn($q) => $q->where('suivi_formations.campagne_id', $campagne_id))
-                                        ->select('type_formations.nom', DB::raw('count(DISTINCT type_formation_themes.suivi_formation_id) as nombre'))
-                                        ->groupBy('type_formation_themes.type_formation_id')
-                                        ->get();
+        // Formations par Modules (table réelle : formation_staffs / formation_staff_module_themes)
+        $campagneFilter = $campagne_id ? "AND fs.campagne_id = $campagne_id" : '';
+        $formation = DB::select('SELECT
+            mfs.nom,
+            COUNT(DISTINCT fsmt.formation_staff_id) AS nombre
+        FROM formation_staff_module_themes fsmt
+        INNER JOIN module_formation_staffs mfs ON fsmt.module_formation_staff_id = mfs.id
+        INNER JOIN formation_staffs fs ON fsmt.formation_staff_id = fs.id
+        WHERE fs.cooperative_id = '.$coop_id.' '.$campagneFilter.'
+        GROUP BY fsmt.module_formation_staff_id, mfs.nom');
+        $formation = collect($formation);
 
-        $campagneFilter = $campagne_id ? "AND s.campagne_id = $campagne_id" : '';
-        // Producteurs formés par Module
+        // Participants formés par Module
         $modules = DB::select('SELECT
-            tyf.nom AS module,
-            p.sexe AS sexe_producteur,
-            COUNT(DISTINCT sfp.producteur_id) AS nombre_producteurs
-        FROM suivi_formation_producteurs sfp
-        INNER JOIN suivi_formations s ON sfp.suivi_formation_id = s.id
-        INNER JOIN localites lo ON s.localite_id = lo.id
-        INNER JOIN sections sec ON lo.section_id = sec.id
-        INNER JOIN type_formation_themes tf ON s.id = tf.suivi_formation_id
-        INNER JOIN type_formations tyf ON tyf.id = tf.type_formation_id
-        INNER JOIN producteurs p ON sfp.producteur_id = p.id
-        WHERE sec.cooperative_id = '.$coop_id.' '.$campagneFilter.'
-        GROUP BY tf.type_formation_id, p.sexe');
+            mfs.nom AS module,
+            COUNT(DISTINCT fsl.user_id) AS nombre_producteurs
+        FROM formation_staff_listes fsl
+        INNER JOIN formation_staffs fs ON fsl.formation_staff_id = fs.id
+        INNER JOIN formation_staff_module_themes fsmt ON fs.id = fsmt.formation_staff_id
+        INNER JOIN module_formation_staffs mfs ON fsmt.module_formation_staff_id = mfs.id
+        WHERE fs.cooperative_id = '.$coop_id.' '.$campagneFilter.'
+        GROUP BY fsmt.module_formation_staff_id, mfs.nom');
         // Nombre de parcelles
         $parcellespargenre = Parcelle::joinRelationship('producteur.localite.section')
         ->where([['cooperative_id', $coop_id],['producteurs.status', 1]])->select('producteurs.sexe as genre',DB::raw('count(parcelles.id) as nombre'))->groupBy('producteurs.sexe')->get();
