@@ -86,7 +86,7 @@ class ManagerController extends Controller
                                         ->joinRelationship('suiviFormation.localite.section')
                                         ->where('cooperative_id', $coop_id)
                                         ->when($campagne_id, fn($q) => $q->where('suivi_formations.campagne_id', $campagne_id))
-                                        ->select('type_formations.nom',DB::raw('count(type_formation_themes.id) as nombre'))
+                                        ->select('type_formations.nom',DB::raw('count(DISTINCT type_formation_themes.suivi_formation_id) as nombre'))
                                         ->groupBy('type_formation_id')
                                         ->get();
 
@@ -95,7 +95,7 @@ class ManagerController extends Controller
         $modules = DB::select('SELECT
         tyf.nom AS module,
         p.sexe AS sexe_producteur,
-        COUNT(sf.producteur_id) AS nombre_producteurs
+        COUNT(DISTINCT sf.producteur_id) AS nombre_producteurs
     FROM
         suivi_formation_producteurs sf
     INNER JOIN
