@@ -1,8 +1,8 @@
 @extends('manager.layouts.master')
 @section('content')
     <div id="android-apk-banner" style="display:none; position:fixed; bottom:0; left:0; right:0; z-index:9999; background:#1a7a4a; color:#000; padding:14px 20px; text-align:center; box-shadow:0 -2px 8px rgba(0,0,0,0.3);">
-        <span style="font-size:15px; margin-right:12px;color:#000000;">📱 Téléchargez l'application FieldConnect pour Android</span>
-        <a href="{{ url('/assets/Programme_Bandama_base.apk') }}" download="FieldConnect.apk"
+        <span style="font-size:15px; margin-right:12px;color:#000000;">📱 Téléchargez l'application Programme Bandama pour Android</span>
+        <a href="{{ url('/assets/Programme_Bandama_base.apk') }}" download="Programme_Bandama_base.apk"
            style="background:#fff; color:#1a7a4a; font-weight:700; padding:7px 18px; border-radius:4px; text-decoration:none; font-size:14px;">
             ⬇ Télécharger l'APK
         </a>
