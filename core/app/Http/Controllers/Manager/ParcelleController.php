@@ -334,21 +334,24 @@ class ParcelleController extends Controller
 
 
                 $parcelle = Parcelle::where([['producteur_id', $producteur->id], ['codeParc', $data['codeParcelle']]])->first();
+                // Fallback : chercher par codeParc seul si non trouvé avec producteur_id
+                if ($parcelle == null && !empty($data['codeParcelle'])) {
+                    $parcelle = Parcelle::where('codeParc', $data['codeParcelle'])->first();
+                }
 
                 if ($parcelle != null) {
 
-                    $centroid = $this->calculateCentroid($data['coordinates']);
-                    $superficie = substr($this->calculatePolygonArea($data['coordinates']), 0, 5);
+                    $centroid   = $this->calculateCentroid($data['coordinates']);
+                    $superficie = $this->calculatePolygonArea($data['coordinates']);
 
-                    $parcelle->producteur_id  = $producteur->id;
-                    $parcelle->codeParc  = isset($data['codeParcelle']) ? $data['codeParcelle'] : null;
-                    $parcelle->typedeclaration  = 'GPS';
-                    $parcelle->culture  = 'CACAO';
-                    $parcelle->superficie = round($superficie, 2);
-                    //dd($parcelle->superficie);
-                    $parcelle->latitude = round($centroid['lat'], 6);
-                    $parcelle->longitude = round($centroid['lng'], 6);
-                    $parcelle->waypoints = $data['coordinates'];
+                    $parcelle->producteur_id   = $producteur->id;
+                    $parcelle->codeParc        = $data['codeParcelle'] ?? null;
+                    $parcelle->typedeclaration = 'GPS';
+                    $parcelle->culture         = 'CACAO';
+                    $parcelle->superficie      = round($superficie, 2);
+                    $parcelle->latitude        = round($centroid['lat'], 6);
+                    $parcelle->longitude       = round($centroid['lng'], 6);
+                    $parcelle->waypoints       = $data['coordinates'];
                     $parcelle->save();
                     $i++;
                 } else {
@@ -470,63 +473,63 @@ class ParcelleController extends Controller
         return $dataArray;
     }
 
-    private function calculateCentroid($coordinates)
+    private function parseCoordinates($coordinates)
     {
-        /*
-        Calcule le centroïde d'un polygone à partir de ses coordonnées.
-
-        Args:
-            $coordinates (str): Les coordonnées du polygone.
-
-        Returns:
-            str: Les coordonnées du centroïde.
-        */
-        // Convertir les coordonnées en une liste de tuples
-        $coords = array_map(function ($coord) {
-            return array_map('floatval', explode(',', $coord));
-        }, explode(' ', $coordinates));
-
-        // Calculer la somme des coordonnées
-        $sum_x = array_sum(array_column($coords, 0));
-        $sum_y = array_sum(array_column($coords, 1));
-
-        // Calculer le centroïde
-        $centroid_x = $sum_x / count($coords);
-        $centroid_y = $sum_y / count($coords);
-
-        // Retourner les coordonnées du centroïde
-
-        return array('lat' => number_format($centroid_y, 6), 'lng' => number_format($centroid_x, 6));
+        // Normalise espaces, tabulations et sauts de ligne puis filtre les éléments vides
+        $parts = preg_split('/\s+/', trim($coordinates));
+        $coords = [];
+        foreach ($parts as $part) {
+            $part = trim($part);
+            if ($part === '') continue;
+            $values = array_map('floatval', explode(',', $part));
+            if (count($values) >= 2) {
+                $coords[] = [$values[0], $values[1]]; // [longitude, latitude]
+            }
+        }
+        return $coords;
     }
 
+    private function calculateCentroid($coordinates)
+    {
+        $coords = $this->parseCoordinates($coordinates);
+        if (empty($coords)) {
+            return ['lat' => 0, 'lng' => 0];
+        }
 
-    // Fonction pour calculer la superficie du polygone
+        $sum_x = array_sum(array_column($coords, 0));
+        $sum_y = array_sum(array_column($coords, 1));
+        $n     = count($coords);
+
+        return [
+            'lat' => number_format($sum_y / $n, 6),
+            'lng' => number_format($sum_x / $n, 6),
+        ];
+    }
+
     private function calculatePolygonArea($coordinates)
     {
-        /*
-        Calcule l'aire d'un polygone à partir de ses coordonnées.
+        $coords = $this->parseCoordinates($coordinates);
+        $n      = count($coords);
+        if ($n < 3) return 0;
 
-        Args:
-            $coordinates (str): Les coordonnées du polygone.
+        // Latitude moyenne pour la conversion degrés → mètres
+        $avgLat = array_sum(array_column($coords, 1)) / $n;
+        $latM   = 111320.0;                          // mètres par degré de latitude
+        $lngM   = 111320.0 * cos(deg2rad($avgLat)); // mètres par degré de longitude
 
-        Returns:
-            float: L'aire du polygone.
-        */
-        // Convertir les coordonnées en une liste de tuples
-        $coords = array_map(function ($coord) {
-            return array_map('floatval', explode(',', $coord));
-        }, explode(' ', $coordinates));
-
-        // Calculer l'aire
+        // Formule de Shoelace en mètres
         $area = 0.0;
-        for ($i = 0; $i < count($coords); $i++) {
-            $j = ($i + 1) % count($coords);
-            $area += $coords[$i][0] * $coords[$j][1] - $coords[$j][0] * $coords[$i][1];
+        for ($i = 0; $i < $n; $i++) {
+            $j     = ($i + 1) % $n;
+            $xi    = $coords[$i][0] * $lngM;
+            $yi    = $coords[$i][1] * $latM;
+            $xj    = $coords[$j][0] * $lngM;
+            $yj    = $coords[$j][1] * $latM;
+            $area += $xi * $yj - $xj * $yi;
         }
-        $area /= 2.0;
 
-        // Retourner l'aire
-        return abs($area) * 0.0001;
+        // Convertir m² en hectares (1 ha = 10 000 m²)
+        return abs($area) / 2.0 / 10000.0;
     }
 
     private function verifylocalite($nom)
