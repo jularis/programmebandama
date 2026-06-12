@@ -139,9 +139,9 @@ if(isset($parcelles) && count($parcelles)){
                         $coordo1 = isset($coords2[1]) ? $coords2[1] : null;
                         $coordo2 = isset($coords2[0]) ? $coords2[0] : null;
                         if($i==$nombre){
-                            $polygon .='{ lat: ' . $coordo1 . ', lng: ' . $coordo2 . ' }';
+                            $polygon .='[' . $coordo1 . ',' . $coordo2 . ']';
                         }else{
-                            $polygon .='{ lat: ' . $coordo1 . ', lng: ' . $coordo2 . ' },';
+                            $polygon .='[' . $coordo1 . ',' . $coordo2 . '],';
                         }
                     }
 
@@ -186,83 +186,54 @@ if(isset($parcelles) && count($parcelles)){
 @endpush
 @push('style-lib')
     <link rel="stylesheet" href="{{ asset('assets/fcadmin/css/vendor/datepicker.min.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 @endpush
 
 @push('script')
-<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
- <script async src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_MAPS_KEY')}}" ></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 @endpush
 @push('script')
     <script>
-    let map;
-let infoWindow;
-//var locationsWaypoints = <?php //echo $pointsWaypoints; ?>;
+    var map = L.map('map').setView([6.8817026, -5.5004615], 8);
 
-window.onload = function () {
-  map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 8,
-    center: { lat: 6.8817026, lng: -5.5004615 },
-    mapTypeId: "terrain",
-  });
-  @if(isset($parcelles) && count($parcelles))
-  // Define the LatLng coordinates for the polygon.
-@foreach($cooperatives as $coopera)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
+    }).addTo(map);
 
-var locations<?php echo $coopera->id; ?> = <?php echo Str::replace('"','',json_encode($pointsPolygon[$coopera->id])); ?>;
-  var total = <?php echo $nombreTotal[$coopera->id]; ?>;
-  const triangleCoords<?php echo $coopera->id; ?> = <?php echo Str::replace('"','',json_encode($seriescoordonates[$coopera->id])); ?>;
-  const polygons<?php echo $coopera->id; ?> = [];
-// Construct polygons
-for (let i = 0; i < total; i++) {
+    @if(isset($parcelles) && count($parcelles))
+    @foreach($cooperatives as $coopera)
 
-    const polygon = new google.maps.Polygon({
-        paths: triangleCoords<?php echo $coopera->id; ?>[i],
-        strokeColor: "#DD160B",
-        strokeOpacity: 0.8,
-        strokeWeight: 3,
-        fillColor: "#DD160B",
-        fillOpacity: 0.35,
-    });
+    var locations<?php echo $coopera->id; ?> = <?php echo Str::replace('"','',json_encode($pointsPolygon[$coopera->id])); ?>;
+    var total<?php echo $coopera->id; ?> = <?php echo $nombreTotal[$coopera->id]; ?>;
+    const triangleCoords<?php echo $coopera->id; ?> = <?php echo Str::replace('"','',json_encode($seriescoordonates[$coopera->id])); ?>;
+    var polygonsGroup<?php echo $coopera->id; ?> = [];
 
-    polygons<?php echo $coopera->id; ?>.push(polygon);
+    for (let i = 0; i < total<?php echo $coopera->id; ?>; i++) {
+        if (!triangleCoords<?php echo $coopera->id; ?>[i] || triangleCoords<?php echo $coopera->id; ?>[i].length === 0) continue;
 
-    const infoWindow = new google.maps.InfoWindow({
-        content: getInfoWindowContent(locations<?php echo $coopera->id; ?>[i]),
-    });
+        var polygon<?php echo $coopera->id; ?> = L.polygon(triangleCoords<?php echo $coopera->id; ?>[i], {
+            color: '<?php echo $coopera->color; ?>',
+            fillColor: '<?php echo $coopera->color; ?>',
+            fillOpacity: 0.35,
+            weight: 3,
+            opacity: 0.8
+        }).addTo(map);
 
-    google.maps.event.addListener(polygon, 'click', function (event) {
-        infoWindow.setPosition(event.latLng);
-        infoWindow.open(map);
-    });
-
-    google.maps.event.addListener(polygon, 'mouseout', function () {
-        infoWindow.close();
-    });
-
-
-    polygon.setMap(map);
-
-}
-// Calcul du centre du polygone
-const bounds = new google.maps.LatLngBounds();
-  for (let i = 0; i < total; i++) {
-    triangleCoords<?php echo $coopera->id; ?>[i].forEach((coord) => {
-      bounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
-    });
-  }
-  map.fitBounds(bounds);
-
-@endforeach
-
-@endif
-
-}
-function getInfoWindowContent(location) {
-        return `${location[0]}`;
+        polygon<?php echo $coopera->id; ?>.bindPopup(locations<?php echo $coopera->id; ?>[i][0]);
+        polygonsGroup<?php echo $coopera->id; ?>.push(polygon<?php echo $coopera->id; ?>);
     }
 
-$('form select').on('change', function(){
-    $(this).closest('form').submit();
-});
+    if (polygonsGroup<?php echo $coopera->id; ?>.length > 0) {
+        var group<?php echo $coopera->id; ?> = L.featureGroup(polygonsGroup<?php echo $coopera->id; ?>);
+        map.fitBounds(group<?php echo $coopera->id; ?>.getBounds());
+    }
+
+    @endforeach
+    @endif
+
+    $('form select').on('change', function(){
+        $(this).closest('form').submit();
+    });
     </script>
 @endpush

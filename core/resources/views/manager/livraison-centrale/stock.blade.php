@@ -200,7 +200,7 @@
 <a href="{{ route('manager.livraison.magcentral.create') }}" class="btn  btn-outline--primary h-45 addNewCooperative">
         <i class="las la-plus"></i>@lang("Enregistrer un Connaissement vers Usine")
     </a>
-<a href="{{ route('manager.livraison.exportExcel.magcentralAll') }}" class="btn  btn-outline--warning h-45"><i class="las la-cloud-download-alt"></i> @lang('Exporter en Excel')</a>
+<a href="{{ route('manager.livraison.exportExcel.magcentralAll', request()->only(['date', 'magasin'])) }}" class="btn  btn-outline--warning h-45"><i class="las la-cloud-download-alt"></i> @lang('Exporter en Excel')</a>
 @endpush
 
 @push('style-lib')

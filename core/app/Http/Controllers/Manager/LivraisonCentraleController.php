@@ -77,15 +77,17 @@ class LivraisonCentraleController extends Controller
     {
 
         $staff = auth()->user();
-        $stocks = StockMagasinCentral::dateFilter()->where([['cooperative_id', $staff->cooperative_id]])
+        $baseQuery = StockMagasinCentral::dateFilter()
+            ->where('cooperative_id', $staff->cooperative_id)
             ->when(request()->magasin, function ($query, $magasin) {
                 $query->where('magasin_section_id', $magasin);
-            })
+            });
+
+        $total  = (clone $baseQuery)->sum('stocks_mag_entrant');
+        $stocks = (clone $baseQuery)
             ->orderBy('stock_magasin_centraux.id', 'desc')
             ->with('cooperative', 'vehicule', 'transporteur', 'campagne', 'magasinCentral', 'magasinSection', 'campagnePeriode', 'vehicule.marque')
             ->paginate(getPaginate());
-
-        $total = $stocks->sum('stocks_mag_entrant');
         $pageTitle    = "Stock des Magasins Centraux (" . showAmount($total) . ") Kg";
         $magasins  = MagasinCentral::where('cooperative_id', $staff->cooperative_id)->with('cooperative')->get();
         $sections = Section::get();
@@ -608,6 +610,6 @@ class LivraisonCentraleController extends Controller
     public function exportExcel()
     {
         $filename = 'stock-magasin-central-' . gmdate('dmYhms') . '.xlsx';
-        return Excel::download(new ExportStockMagasinCentral, $filename);
+        return Excel::download(new ExportStockMagasinCentral(request()->date, request()->magasin), $filename);
     }
 }

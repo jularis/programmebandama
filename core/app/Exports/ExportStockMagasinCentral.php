@@ -1,22 +1,26 @@
 <?php
 
 namespace App\Exports;
- 
+
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class ExportStockMagasinCentral implements WithMultipleSheets
 {
-     
-  public function sheets(): array 
-    {    
-      $feuilles=array();  
-    //   $feuilles[] = new StockSectionLivraisonProducteursExport();  
+    protected $date;
+    protected $magasin;
 
-    $sheets = [ new StockCentralLivraisonExport(), ];
-    $sheets = array_merge($sheets, $feuilles);
-   
-
-    return $sheets; 
+    public function __construct($date = null, $magasin = null)
+    {
+        $this->date    = $date;
+        $this->magasin = $magasin;
     }
-        
+
+    public function sheets(): array
+    {
+        $feuilles = [];
+        $sheets   = [new StockCentralLivraisonExport($this->date, $this->magasin)];
+        $sheets   = array_merge($sheets, $feuilles);
+
+        return $sheets;
+    }
 }

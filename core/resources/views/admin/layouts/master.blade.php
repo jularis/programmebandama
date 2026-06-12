@@ -22,7 +22,6 @@
 <link rel="stylesheet" href="{{asset('assets/templates/basic/css/custom.css')}}"> 
 <script src="{{asset('assets/global/js/jquery-3.6.0.min.js')}}"></script>
 <script src="{{ asset('assets/vendor/jquery/modernizr.min.js') }}"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_MAPS_KEY')}}"></script>
 <style>
 .navbar__action-list li label { 
     display: none;
