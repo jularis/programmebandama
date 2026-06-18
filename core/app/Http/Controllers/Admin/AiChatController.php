@@ -390,13 +390,14 @@ PROMPT;
     {
         $query = DB::table('cooperatives as c')
             ->leftJoin('sections as s', 'c.id', '=', 's.cooperative_id')
-            ->leftJoin('producteurs as p', 'c.id', '=', 'p.cooperative_id')
+            ->leftJoin('localites as l', 's.id', '=', 'l.section_id')
+            ->leftJoin('producteurs as p', 'l.id', '=', 'p.localite_id')
             ->select(
-                'c.id', 'c.name', 'c.code', 'c.adresse', 'c.status',
+                'c.id', 'c.name', 'c.code', 'c.address', 'c.status',
                 DB::raw('COUNT(DISTINCT s.id) as nb_sections'),
                 DB::raw('COUNT(DISTINCT p.id) as nb_producteurs')
             )
-            ->groupBy('c.id', 'c.name', 'c.code', 'c.adresse', 'c.status');
+            ->groupBy('c.id', 'c.name', 'c.code', 'c.address', 'c.status');
 
         if (!empty($input['search'])) {
             $q = '%' . $input['search'] . '%';
