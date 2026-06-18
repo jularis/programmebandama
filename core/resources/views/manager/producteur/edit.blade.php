@@ -103,7 +103,7 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Section')</label>
                         <div class="col-xs-12 col-sm-8">
-                            <select class="form-control" name="section" id="section" required disabled>
+                            <select class="form-control" name="section" id="section" required>
                                 <option value="">@lang('Selectionner une option')</option>
                                 @foreach ($sections as $section)
                                     <option value="{{ $section->id }}" @selected($section->id == $producteur->localite->section->id)>

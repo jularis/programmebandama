@@ -39,6 +39,7 @@ class SectionSettingController extends Controller
 
     public function store(StoreSectionRequest $request){
         $valitedData = $request->validated();
+        $valitedData['cooperative_id'] = auth()->user()->cooperative_id;
 
         Section::create($valitedData);
 
@@ -64,6 +65,7 @@ class SectionSettingController extends Controller
     public function update(UpdateSectionRequest $request, $id)
     {
         $valitedData = $request->validated();
+        $valitedData['cooperative_id'] = auth()->user()->cooperative_id;
         $section = Section::findOrFail($id);
         $section->update($valitedData);
         
