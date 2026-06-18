@@ -31,6 +31,11 @@ PROMPT;
         $this->tools = $this->buildTools();
     }
 
+    private function model(): string
+    {
+        return env('ANTHROPIC_MODEL', 'claude-sonnet-4-5');
+    }
+
     private function getClient(): Client
     {
         if (!$this->client) {
@@ -49,7 +54,7 @@ PROMPT;
             [
                 'name' => 'get_statistics',
                 'description' => 'Obtenir les statistiques globales : nombre total de producteurs, parcelles, coopératives, livraisons, formations, stocks, etc.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => new \stdClass(),
                     'required' => [],
@@ -58,7 +63,7 @@ PROMPT;
             [
                 'name' => 'get_producteurs',
                 'description' => 'Rechercher et lister des producteurs. Filtrable par nom/prénom, code, coopérative, section.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'search'         => ['type' => 'string',  'description' => 'Recherche par nom, prénom ou code'],
@@ -72,7 +77,7 @@ PROMPT;
             [
                 'name' => 'get_parcelles',
                 'description' => 'Rechercher et lister des parcelles. Filtrable par culture, producteur, coopérative.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'culture'        => ['type' => 'string',  'description' => 'Type de culture (ex: cacao, café)'],
@@ -86,7 +91,7 @@ PROMPT;
             [
                 'name' => 'get_livraisons',
                 'description' => 'Informations sur les livraisons : quantités, paiements, par coopérative ou période.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'cooperative_id' => ['type' => 'integer', 'description' => 'ID coopérative'],
@@ -100,7 +105,7 @@ PROMPT;
             [
                 'name' => 'get_cooperatives',
                 'description' => 'Lister les coopératives avec nom, code, nombre de producteurs et sections.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'search' => ['type' => 'string', 'description' => 'Recherche par nom ou code'],
@@ -111,7 +116,7 @@ PROMPT;
             [
                 'name' => 'get_stocks',
                 'description' => 'État des stocks dans les magasins centraux et sections.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'cooperative_id' => ['type' => 'integer', 'description' => 'ID coopérative'],
@@ -123,7 +128,7 @@ PROMPT;
             [
                 'name' => 'get_formations',
                 'description' => 'Informations sur les formations des producteurs et du staff.',
-                'inputSchema' => [
+                'input_schema' => [
                     'type' => 'object',
                     'properties' => [
                         'cooperative_id' => ['type' => 'integer', 'description' => 'ID coopérative'],
@@ -165,7 +170,7 @@ PROMPT;
 
         try {
             $response = $this->getClient()->messages->create(
-                model: 'claude-opus-4-8',
+                model: $this->model(),
                 maxTokens: 4096,
                 system: $this->systemPrompt,
                 tools: $this->tools,
@@ -180,7 +185,7 @@ PROMPT;
                         $toolResult = $this->executeToolCall($block->name, (array) $block->input);
                         $toolResults[] = [
                             'type' => 'tool_result',
-                            'toolUseID' => $block->id,
+                            'tool_use_id' => $block->id,
                             'content' => $toolResult,
                         ];
                     }
@@ -190,7 +195,7 @@ PROMPT;
                 $messages[] = ['role' => 'user', 'content' => $toolResults];
 
                 $response = $this->getClient()->messages->create(
-                    model: 'claude-opus-4-8',
+                    model: $this->model(),
                     maxTokens: 4096,
                     system: $this->systemPrompt,
                     tools: $this->tools,
