@@ -35,13 +35,19 @@ class ProducteurImport implements ToCollection, WithHeadingRow, WithValidation
         $cooperatives_id = auth()->user()->cooperative_id;
         $j=0;
         $k='';
+        $l='';
         if(count($collection)){
 
         foreach($collection as $row)
          {
 
       $local_nom = trim($row['localites']); //Get user names
-  $localite = DB::table('localites')->where('nom',$local_nom)->first();
+  $localite = DB::table('localites as loc')
+    ->join('sections as sec', 'loc.section_id', '=', 'sec.id')
+    ->where('loc.nom', $local_nom)
+    ->where('sec.cooperative_id', $cooperatives_id)
+    ->select('loc.id')
+    ->first();
 
   if($localite !=null)
   {
@@ -161,10 +167,16 @@ $nationalite = Country::where('iso',$nationalite)->first();
     $k .=$codeProd.' , ';
    }
 
+    }else{
+      $l .=$local_nom.' , ';
     }
 
   }
-  if(!empty($K)){
+  if(!empty($l)){
+    $notify[] = ['error',"Les localités suivantes n'appartiennent pas à votre coopérative ou n'existent pas : $l"];
+          return back()->withNotify($notify);
+   }
+  if(!empty($k)){
     $notify[] = ['error',"Les producteurs dont les codes suivent : $k existent déjà dans la base."];
           return back()->withNotify($notify);
    }
