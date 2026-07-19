@@ -173,14 +173,14 @@
                         </div>
                     </li>
                 @endif
-                @if (Auth::user()->can('manager.suivi.ssrteclmrs.index') || Auth::user()->can('manager.suivi.menage.index'))
+                @if (Auth::user()->can('manager.suivi.ssrteclmrs.index') || Auth::user()->can('manager.suivi.menage.index') || Auth::user()->can('manager.suivi.enfanttravailleur.index'))
                     <li class="sidebar-menu-item sidebar-dropdown">
                         <a href="javascript:void(0)"
-                            class="{{ menuActive(['manager.suivi.menage.*', 'manager.suivi.ssrteclmrs.*'], 3) }}">
+                            class="{{ menuActive(['manager.suivi.menage.*', 'manager.suivi.ssrteclmrs.*', 'manager.suivi.enfanttravailleur.*'], 3) }}">
                             <i class=" menu-icon las la-universal-access"></i>
                             <span class="menu-title">@lang('SSRTE') </span>
                         </a>
-                        <div class="sidebar-submenu {{ menuActive(['manager.suivi.menage.*'], 2) }} ">
+                        <div class="sidebar-submenu {{ menuActive(['manager.suivi.menage.*', 'manager.suivi.enfanttravailleur.*'], 2) }} ">
                             <ul>
                                 @can('manager.suivi.ssrteclmrs.index')
                                     {{-- <li class="sidebar-menu-item {{ menuActive('manager.suivi.ssrteclmrs.index') }}">
@@ -195,6 +195,14 @@
                                         <a href="{{ route('manager.suivi.menage.index') }}" class="nav-link">
                                             <i class="menu-icon las la-dot-circle"></i>
                                             <span class="menu-title">@lang('Enquete Menage')</span>
+                                        </a>
+                                    </li>
+                                @endcan
+                                @can('manager.suivi.enfanttravailleur.index')
+                                    <li class="sidebar-menu-item {{ menuActive('manager.suivi.enfanttravailleur.index') }}">
+                                        <a href="{{ route('manager.suivi.enfanttravailleur.index') }}" class="nav-link">
+                                            <i class="menu-icon las la-dot-circle"></i>
+                                            <span class="menu-title">@lang('Suivi Enfant Travailleur')</span>
                                         </a>
                                     </li>
                                 @endcan

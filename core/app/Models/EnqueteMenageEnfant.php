@@ -48,4 +48,9 @@ class EnqueteMenageEnfant extends Model
     {
         return $this->hasMany(EnqueteMenageEnfantMesureCommunaute::class, 'enfant_id');
     }
+
+    public function suivis()
+    {
+        return $this->hasMany(SuiviEnfantTravailleur::class, 'enfant_id')->latest('id');
+    }
 }

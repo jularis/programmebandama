@@ -10,6 +10,7 @@ use App\Http\Controllers\Manager\StaffController;
 use App\Http\Controllers\Manager\ImportController;
 use App\Http\Controllers\Manager\MenageController;
 use App\Http\Controllers\Manager\EnqueteMenageController;
+use App\Http\Controllers\Manager\SuiviEnfantTravailleurController;
 use App\Http\Controllers\Manager\HolidayController;
 use App\Http\Controllers\Manager\ManagerController;
 use App\Http\Controllers\Manager\SettingController;
@@ -417,6 +418,18 @@ Route::middleware('auth')->group(function () {
             Route::post('status/{id}', [EnqueteMenageController::class,'status'])->name('status');
             Route::post('delete/{id}', [EnqueteMenageController::class, 'delete'])->name('delete');
             Route::get('/exportMenagesExcel', [EnqueteMenageController::class,'exportExcel'])->name('exportExcel.menageAll');
+        });
+
+        //Manage Suivi Enfant Travailleur
+        Route::name('suivi.enfanttravailleur.')->prefix('enfanttravailleur')->group(function () {
+            Route::get('list', [SuiviEnfantTravailleurController::class,'index'])->name('index');
+            Route::get('create', [SuiviEnfantTravailleurController::class,'create'])->name('create');
+            Route::post('store', [SuiviEnfantTravailleurController::class,'store'])->name('store');
+            Route::get('edit/{id}', [SuiviEnfantTravailleurController::class,'edit'])->name('edit');
+            Route::get('show/{id}', [SuiviEnfantTravailleurController::class,'show'])->name('show');
+            Route::post('status/{id}', [SuiviEnfantTravailleurController::class,'status'])->name('status');
+            Route::post('delete/{id}', [SuiviEnfantTravailleurController::class, 'delete'])->name('delete');
+            Route::get('/exportSuiviExcel', [SuiviEnfantTravailleurController::class,'exportExcel'])->name('exportExcel.suiviAll');
         });
 
 
