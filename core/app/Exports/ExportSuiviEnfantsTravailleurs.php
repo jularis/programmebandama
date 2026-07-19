@@ -14,7 +14,20 @@ class ExportSuiviEnfantsTravailleurs implements FromView
     public function view(): View
     {
         return view('manager.suivienfanttravailleur.SuivisEnfantsTravailleursAllExcel', [
-            'suivis' => SuiviEnfantTravailleur::with(['enfant'])
+            'suivis' => SuiviEnfantTravailleur::with([
+                'enfant.menage.producteur',
+                'enfant.menage.localite',
+                'actionsRemediation',
+                'raisonsNonScolarisation',
+                'raisonsPasExtrait',
+                'situationsPfte',
+                'raisonsTravailAbus',
+                'mesuresEnfant',
+                'mesuresMenage',
+                'mesuresCommunaute',
+                'themes',
+                'outils',
+            ])
                 ->whereHas('enfant.menage.producteur.localite.section', function ($q) {
                     $q->where('cooperative_id', auth()->user()->cooperative_id);
                 })

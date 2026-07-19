@@ -14,7 +14,19 @@ class ExportVisitePlantations implements FromView
     public function view(): View
     {
         return view('manager.visiteplantation.VisitePlantationsAllExcel', [
-            'visitePlantations' => VisitePlantation::with(['producteur', 'localite', 'enfants'])
+            'visitePlantations' => VisitePlantation::with([
+                'producteur',
+                'localite',
+                'section',
+                'raisonsRefus',
+                'enfants.raisonsNonScolarisation',
+                'enfants.raisonsPasExtrait',
+                'enfants.situationsPfte',
+                'enfants.raisonsTravailAbus',
+                'enfants.mesuresEnfant',
+                'enfants.mesuresMenage',
+                'enfants.mesuresCommunaute',
+            ])
                 ->joinRelationship('producteur.localite.section')
                 ->where('cooperative_id', auth()->user()->cooperative_id)
                 ->get(),
