@@ -14,7 +14,21 @@ class ExportEnqueteMenages implements FromView
     public function view(): View
     {
         return view('manager.enquetemenage.EnqueteMenagesAllExcel', [
-            'enqueteMenages' => EnqueteMenage::with(['producteur', 'localite', 'enfants'])
+            'enqueteMenages' => EnqueteMenage::with([
+                'producteur',
+                'localite',
+                'section',
+                'raisonsRefus',
+                'themes',
+                'outils',
+                'enfants.raisonsNonScolarisation',
+                'enfants.raisonsPasExtrait',
+                'enfants.situationsPfte',
+                'enfants.raisonsTravailAbus',
+                'enfants.mesuresEnfant',
+                'enfants.mesuresMenage',
+                'enfants.mesuresCommunaute',
+            ])
                 ->joinRelationship('producteur.localite.section')
                 ->where('cooperative_id', auth()->user()->cooperative_id)
                 ->get(),
