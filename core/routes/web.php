@@ -9,6 +9,7 @@ use App\Http\Controllers\Manager\LeaveController;
 use App\Http\Controllers\Manager\StaffController;
 use App\Http\Controllers\Manager\ImportController;
 use App\Http\Controllers\Manager\MenageController;
+use App\Http\Controllers\Manager\EnqueteMenageController;
 use App\Http\Controllers\Manager\HolidayController;
 use App\Http\Controllers\Manager\ManagerController;
 use App\Http\Controllers\Manager\SettingController;
@@ -406,16 +407,16 @@ Route::middleware('auth')->group(function () {
             Route::post('/uploadcontent', [EstimationController::class,'uploadContent'])->name('uploadcontent');
         });
 
-        //Manage Suivi Menage
+        //Manage Suivi Menage (Enquête Ménage PFTE)
         Route::name('suivi.menage.')->prefix('menage')->group(function () {
-            Route::get('list', [MenageController::class,'index'])->name('index');
-            Route::get('create', [MenageController::class,'create'])->name('create');
-            Route::post('store', [MenageController::class,'store'])->name('store');
-            Route::get('edit/{id}', [MenageController::class,'edit'])->name('edit');
-            Route::get('show/{id}', [MenageController::class,'show'])->name('show');
-            Route::post('status/{id}', [MenageController::class,'status'])->name('status');
-            Route::post('delete/{id}', [MenageController::class, 'delete'])->name('delete');
-            Route::get('/exportMenagesExcel', [MenageController::class,'exportExcel'])->name('exportExcel.menageAll');
+            Route::get('list', [EnqueteMenageController::class,'index'])->name('index');
+            Route::get('create', [EnqueteMenageController::class,'create'])->name('create');
+            Route::post('store', [EnqueteMenageController::class,'store'])->name('store');
+            Route::get('edit/{id}', [EnqueteMenageController::class,'edit'])->name('edit');
+            Route::get('show/{id}', [EnqueteMenageController::class,'show'])->name('show');
+            Route::post('status/{id}', [EnqueteMenageController::class,'status'])->name('status');
+            Route::post('delete/{id}', [EnqueteMenageController::class, 'delete'])->name('delete');
+            Route::get('/exportMenagesExcel', [EnqueteMenageController::class,'exportExcel'])->name('exportExcel.menageAll');
         });
 
 

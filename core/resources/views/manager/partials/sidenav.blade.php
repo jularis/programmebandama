@@ -183,12 +183,12 @@
                         <div class="sidebar-submenu {{ menuActive(['manager.suivi.menage.*'], 2) }} ">
                             <ul>
                                 @can('manager.suivi.ssrteclmrs.index')
-                                    <li class="sidebar-menu-item {{ menuActive('manager.suivi.ssrteclmrs.index') }}">
+                                    {{-- <li class="sidebar-menu-item {{ menuActive('manager.suivi.ssrteclmrs.index') }}">
                                         <a href="{{ route('manager.suivi.ssrteclmrs.index') }}" class="nav-link">
                                             <i class="menu-icon las la-dot-circle"></i>
                                             <span class="menu-title">@lang('SSRTE-CLMRS')</span>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                 @endcan
                                 @can('manager.suivi.menage.index')
                                     <li class="sidebar-menu-item {{ menuActive('manager.suivi.menage.index') }}">
@@ -307,7 +307,7 @@
                                             <span class="menu-title">@lang('Conges')</span>
                                         </a>
                                     </li>
-                                @endcan 
+                                @endcan
                                 @can('manager.formation-staff.index')
                                     <li class="sidebar-menu-item {{ menuActive('manager.formation-staff.*') }}">
                                         <a href="{{ route('manager.formation-staff.index') }}" class="nav-link">
@@ -331,7 +331,7 @@
                 @endif
                 @if (Auth::user()->can('manager.communaute.action.sociale.index') ||
                         Auth::user()->can('manager.communaute.activite.communautaire.index'))
-                        
+
                     <li class="sidebar-menu-item sidebar-dropdown">
                         <a href="javascript:void(0)"
                             class="{{ menuActive(['manager.communaute.action.sociale.*', 'manager.communaute.activite.communautaire.*'], 3) }}">
