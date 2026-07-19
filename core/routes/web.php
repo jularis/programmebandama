@@ -11,6 +11,7 @@ use App\Http\Controllers\Manager\ImportController;
 use App\Http\Controllers\Manager\MenageController;
 use App\Http\Controllers\Manager\EnqueteMenageController;
 use App\Http\Controllers\Manager\SuiviEnfantTravailleurController;
+use App\Http\Controllers\Manager\VisitePlantationController;
 use App\Http\Controllers\Manager\HolidayController;
 use App\Http\Controllers\Manager\ManagerController;
 use App\Http\Controllers\Manager\SettingController;
@@ -430,6 +431,18 @@ Route::middleware('auth')->group(function () {
             Route::post('status/{id}', [SuiviEnfantTravailleurController::class,'status'])->name('status');
             Route::post('delete/{id}', [SuiviEnfantTravailleurController::class, 'delete'])->name('delete');
             Route::get('/exportSuiviExcel', [SuiviEnfantTravailleurController::class,'exportExcel'])->name('exportExcel.suiviAll');
+        });
+
+        //Manage Visite Plantation
+        Route::name('suivi.visiteplantation.')->prefix('visiteplantation')->group(function () {
+            Route::get('list', [VisitePlantationController::class,'index'])->name('index');
+            Route::get('create', [VisitePlantationController::class,'create'])->name('create');
+            Route::post('store', [VisitePlantationController::class,'store'])->name('store');
+            Route::get('edit/{id}', [VisitePlantationController::class,'edit'])->name('edit');
+            Route::get('show/{id}', [VisitePlantationController::class,'show'])->name('show');
+            Route::post('status/{id}', [VisitePlantationController::class,'status'])->name('status');
+            Route::post('delete/{id}', [VisitePlantationController::class, 'delete'])->name('delete');
+            Route::get('/exportPlantationExcel', [VisitePlantationController::class,'exportExcel'])->name('exportExcel.plantationAll');
         });
 
 
