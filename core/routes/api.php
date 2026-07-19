@@ -4,10 +4,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController; 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ApiAbreController;
-use App\Http\Controllers\ApimenageController; 
+use App\Http\Controllers\ApimenageController;
 use App\Http\Controllers\ApisectionController;
+use App\Http\Controllers\ApienquetemenageController;
+use App\Http\Controllers\ApivisiteplantationController;
+use App\Http\Controllers\ApisuivienfanttravailleurController;
 use App\Http\Controllers\ApilocaliteController; 
 use App\Http\Controllers\ApiparcelleController; 
 use App\Http\Controllers\ApiProgrammeController;
@@ -55,6 +58,12 @@ Route::match(['POST'],'getproducteurupdate', [ApiproducteurController::class, 'g
 Route::match(['POST'],'getstaff', [ApiproducteurController::class, 'getstaff']);
 
 Route::match(['POST'],'apimenage', [ApimenageController::class, 'store']);
+
+// PFTE : Enquête Ménage, Suivi Enfant Travailleur, Visite Plantation
+Route::match(['POST'],'apienquetemenage', [ApienquetemenageController::class, 'store']);
+Route::match(['POST'],'apisuivienfanttravailleur', [ApisuivienfanttravailleurController::class, 'store']);
+Route::match(['POST'],'getenfantsmenage', [ApisuivienfanttravailleurController::class, 'getenfants']);
+Route::match(['POST'],'apivisiteplantation', [ApivisiteplantationController::class, 'store']);
 // gestion des livraisons
 Route::match(['POST'],'getmagasinsection', [ApilivraisonController::class, 'getMagasinsection']);
 Route::match(['POST'],'getmagasincentraux', [ApilivraisonController::class, 'getMagasincentraux']);
