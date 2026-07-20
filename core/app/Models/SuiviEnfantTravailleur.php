@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\EtatSoumissionBadge;
 use App\Traits\GlobalStatus;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
@@ -9,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SuiviEnfantTravailleur extends Model
 {
-    use Searchable, GlobalStatus, SoftDeletes;
+    use Searchable, GlobalStatus, EtatSoumissionBadge, SoftDeletes;
 
     protected $table = 'suivi_enfant_travailleurs';
     protected $guarded = [];

@@ -38,6 +38,7 @@
                                     <th>@lang('Date Enquete')</th>
                                     <th>@lang("Nb. d'enfants")</th>
                                     <th>@lang('Statut fin')</th>
+                                    <th>@lang('Contenu')</th>
                                     <th>@lang('Status')</th>
                                     <th>@lang('Action')</th>
                                 </tr>
@@ -62,6 +63,7 @@
                                         <td>
                                             <span>{{ $data->statutFin }}</span>
                                         </td>
+                                        <td> @php echo $data->etatSoumissionBadge; @endphp </td>
                                         <td> @php echo $data->statusBadge; @endphp </td>
                                         <td>
                                             <button type="button" class="btn btn-sm btn-outline--primary" data-bs-toggle="dropdown" aria-expanded="false"><i

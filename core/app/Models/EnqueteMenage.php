@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\EtatSoumissionBadge;
 use App\Traits\GlobalStatus;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Kirschbaum\PowerJoins\PowerJoins;
 
 class EnqueteMenage extends Model
 {
-    use Searchable, GlobalStatus, PowerJoins, SoftDeletes;
+    use Searchable, GlobalStatus, EtatSoumissionBadge, PowerJoins, SoftDeletes;
 
     protected $table = 'enquete_menages';
     protected $guarded = [];
