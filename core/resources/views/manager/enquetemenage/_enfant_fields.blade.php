@@ -42,7 +42,7 @@
     <div class="form-group row">
         <label class="col-sm-4 control-label">@lang('Lien de parenté avec le/la producteur/rice')</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][lienParente]" class="form-control lienParente" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][lienParente]" class="form-control lienParente" @if($readonly) disabled @else required @endif>
                 <option value="">@lang('Selectionner une option')</option>
                 @foreach ($lienParenteEnfant as $lien)
                     <option value="{{ $lien }}" @selected(($enfant->lienParente ?? '') == $lien)>{{ $lien }}</option>
@@ -53,13 +53,13 @@
     <div class="form-group row autreLienParenteWrap">
         <label class="col-sm-4 control-label">@lang('Préciser cet autre lien de parenté avec le/la producteur/rice')</label>
         <div class="col-xs-12 col-sm-8">
-            <input type="text" name="enfants[{{ $index }}][autreLienParente]" class="form-control" value="{{ $enfant->autreLienParente ?? '' }}" @if($readonly) disabled @endif>
+            <input type="text" name="enfants[{{ $index }}][autreLienParente]" class="form-control" value="{{ $enfant->autreLienParente ?? '' }}" @if($readonly) disabled @else required @endif>
         </div>
     </div>
     <div class="form-group row">
         <label class="col-sm-4 control-label">@lang("Si l'enfant ne vit pas avec ses parents (père et/ou mère), quelles sont les raisons?")</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][raisonNeVitPasParents]" class="form-control raisonNeVitPasParents" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][raisonNeVitPasParents]" class="form-control raisonNeVitPasParents" @if($readonly) disabled @else required @endif>
                 <option value="">@lang('Selectionner une option')</option>
                 @foreach ($raisonsNeVitPasParents as $raison)
                     <option value="{{ $raison }}" @selected(($enfant->raisonNeVitPasParents ?? '') == $raison)>{{ $raison }}</option>
@@ -70,7 +70,7 @@
     <div class="form-group row autreRaisonNeVitPasParentsWrap">
         <label class="col-sm-4 control-label">@lang('Préciser cette autre raison pour laquelle l\'enfant ne vit pas avec son père et/ou sa mère')</label>
         <div class="col-xs-12 col-sm-8">
-            <input type="text" name="enfants[{{ $index }}][autreRaisonNeVitPasParents]" class="form-control" value="{{ $enfant->autreRaisonNeVitPasParents ?? '' }}" @if($readonly) disabled @endif>
+            <input type="text" name="enfants[{{ $index }}][autreRaisonNeVitPasParents]" class="form-control" value="{{ $enfant->autreRaisonNeVitPasParents ?? '' }}" @if($readonly) disabled @else required @endif>
         </div>
     </div>
 
@@ -88,7 +88,7 @@
     <div class="form-group row niveauScolaireWrap">
         <label class="col-sm-4 control-label">@lang("Si scolarisé ou descolarisé, quel est le niveau scolaire ou dernier niveau ateint?")</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][niveauScolaire]" class="form-control" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][niveauScolaire]" class="form-control" @if($readonly) disabled @else required @endif>
                 <option value="">@lang('Selectionner une option')</option>
                 @foreach ($niveauEtude as $niveau)
                     <optgroup label="{{ $niveau->nom }}">
@@ -103,7 +103,7 @@
     <div class="form-group row raisonNonScolarisationWrap">
         <label class="col-sm-4 control-label">@lang("Pourquoi l'enfant n'est il pas scolarisé/est il déscolarisé ?")</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][raisonNonScolarisation][]" class="form-control select2-multi-select raisonNonScolarisation" multiple="multiple" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][raisonNonScolarisation][]" class="form-control select2-multi-select raisonNonScolarisation" multiple="multiple" @if($readonly) disabled @else required @endif>
                 @foreach ($raisonsNonScolarisation as $raison)
                     <option value="{{ $raison }}" @selected(in_array($raison, $selRaisonsNonScolarisation))>{{ $raison }}</option>
                 @endforeach
@@ -113,14 +113,14 @@
     <div class="form-group row autreRaisonNonScolarisationWrap">
         <label class="col-sm-4 control-label">@lang('Préciser cette raison pour laquelle l\'enfant n\'est pas scolairsé / est descolarisé')</label>
         <div class="col-xs-12 col-sm-8">
-            <input type="text" name="enfants[{{ $index }}][autreRaisonNonScolarisation]" class="form-control" value="{{ $enfant->autreRaisonNonScolarisation ?? '' }}" @if($readonly) disabled @endif>
+            <input type="text" name="enfants[{{ $index }}][autreRaisonNonScolarisation]" class="form-control" value="{{ $enfant->autreRaisonNonScolarisation ?? '' }}" @if($readonly) disabled @else required @endif>
         </div>
     </div>
 
     <div class="form-group row">
         <label class="col-sm-4 control-label">@lang("L'enfent a-t-il un extrait de naissance?")</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][extraitNaissance]" class="form-control extraitNaissance" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][extraitNaissance]" class="form-control extraitNaissance" @if($readonly) disabled @else required @endif>
                 <option value="">@lang('Selectionner une option')</option>
                 <option value="Oui" @selected(($enfant->extraitNaissance ?? '') == 'Oui')>Oui</option>
                 <option value="Non" @selected(($enfant->extraitNaissance ?? '') == 'Non')>Non</option>
@@ -130,16 +130,81 @@
     <div class="form-group row raisonPasExtraitWrap">
         <label class="col-sm-4 control-label">@lang("Pourquoi l'enfant n'a-t'il pas d'extrait de naissance?")</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][raisonPasExtrait][]" class="form-control select2-multi-select" multiple="multiple" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][raisonPasExtrait][]" class="form-control select2-multi-select" multiple="multiple" @if($readonly) disabled @else required @endif>
                 @foreach ($raisonsPasExtrait as $raison)
                     <option value="{{ $raison }}" @selected(in_array($raison, $selRaisonsPasExtrait))>{{ $raison }}</option>
                 @endforeach
             </select>
         </div>
     </div>
+        <!-- Nouveaux champs ajoutés après la question sur l'extrait de naissance -->
+        <div class="form-group row">
+            <label class="col-sm-4 control-label">@lang("L'enfant est-il présent et disponible lors de cette visite?")</label>
+            <div class="col-xs-12 col-sm-8">
+                <select name="enfants[{{ $index }}][presentDisponible]" class="form-control presentDisponible" @if($readonly) disabled @endif>
+                    <option value="">@lang('Selectionner une option')</option>
+                    <option value="0" @selected(($enfant->presentDisponible ?? '') === '0')>Non</option>
+                    <option value="1" @selected(($enfant->presentDisponible ?? '') === '1')>Oui</option>
+                </select>
+            </div>
+        </div>
 
-    <div class="form-group row">
-        <label class="col-sm-4 control-label">@lang('Quelle(s) est/sont la/les situation(s) pour laquelle/lesquelles vous estimez qu\'il y a besoin d\'apporter du soutien pour cet enfant, sa famille ou sa communauté?')</label>
+        <div class="form-group row raisonAbsentWrap">
+            <label class="col-sm-4 control-label">@lang("Pourquoi l'enfant est-il/elle absent(e)?")</label>
+            <div class="col-xs-12 col-sm-8">
+                <select name="enfants[{{ $index }}][raisonAbsent]" class="form-control" @if($readonly) disabled @endif>
+                    <option value="">@lang('Selectionner une option')</option>
+                    <option value="0" @selected(($enfant->raisonAbsent ?? '') === '0')>Départ des parents</option>
+                    <option value="1" @selected(($enfant->raisonAbsent ?? '') === '1')>L'enfant ne vit pas dans la localité</option>
+                    <option value="2" @selected(($enfant->raisonAbsent ?? '') === '2')>L'enfant est décédé</option>
+                    <option value="3" @selected(($enfant->raisonAbsent ?? '') === '3')>L'enfant est scolarisé loin de chez lui (temporaire)</option>
+                    <option value="4" @selected(($enfant->raisonAbsent ?? '') === '4')>Vacances scolaires</option>
+                    <option value="5" @selected(($enfant->raisonAbsent ?? '') === '5')>Sorties scolaires</option>
+                    <option value="6" @selected(($enfant->raisonAbsent ?? '') === '6')>L'enfant est à la ferme</option>
+                    <option value="7" @selected(($enfant->raisonAbsent ?? '') === '7')>Autre (temporaire)</option>
+                    <option value="8" @selected(($enfant->raisonAbsent ?? '') === '8')>Autre (permanent)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-4 control-label">@lang("Combien d'heures l'enfant a-t-il travaillé, toutes taches confondues, au cours des 7 derniers jours ? (heures par semaine)")</label>
+            <div class="col-xs-12 col-sm-8">
+                <input type="number" min="0" max="168" name="enfants[{{ $index }}][heuresTravailSemaine]" class="form-control" value="{{ $enfant->heuresTravailSemaine ?? '' }}" @if($readonly) disabled @endif>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-4 control-label">@lang("Sur combien de jours l'enfant a-t-il fait ces heures de travail, au cours des 7 derniers jours ? (jours par semaine)")</label>
+            <div class="col-xs-12 col-sm-8">
+                <select name="enfants[{{ $index }}][joursTravail]" class="form-control" @if($readonly) disabled @endif>
+                    <option value="">@lang('Selectionner une option')</option>
+                    <option value="0" @selected(($enfant->joursTravail ?? '') === '0')>L'enfant n'a fait aucune tâche</option>
+                    <option value="1" @selected(($enfant->joursTravail ?? '') === '1')>Sur 1 jour</option>
+                    <option value="2" @selected(($enfant->joursTravail ?? '') === '2')>Sur 2 jours</option>
+                    <option value="3" @selected(($enfant->joursTravail ?? '') === '3')>Sur 3 jours</option>
+                    <option value="4" @selected(($enfant->joursTravail ?? '') === '4')>Sur 4 jours</option>
+                    <option value="5" @selected(($enfant->joursTravail ?? '') === '5')>Sur 5 jours</option>
+                    <option value="6" @selected(($enfant->joursTravail ?? '') === '6')>Sur 6 jours</option>
+                    <option value="7" @selected(($enfant->joursTravail ?? '') === '7')>Sur 7 jours</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-4 control-label">@lang("Combien d'heures l'enfant a-t-il travaillé, toutes taches confondues, au cours de la journée la plus chargée de la semaine écoulée ?")</label>
+            <div class="col-xs-12 col-sm-8">
+                <select name="enfants[{{ $index }}][heuresJourChargee]" class="form-control" @if($readonly) disabled @endif>
+                    <option value="">@lang('Selectionner une option')</option>
+                    @for ($h = 0; $h <= 24; $h++)
+                        <option value="{{ $h }}" @selected(($enfant->heuresJourChargee ?? '') == $h)>{{ $h }}h</option>
+                    @endfor
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-4 control-label">@lang('Quelle(s) est/sont la/les situation(s) pour laquelle/lesquelles vous estimez qu\'il y a besoin d\'apporter du soutien pour cet enfant, sa famille ou sa communauté?')</label>
         <div class="col-xs-12 col-sm-8">
             <select name="enfants[{{ $index }}][situationsPfte][]" class="form-control select2-multi-select situationsPfte" multiple="multiple" @if($readonly) disabled @endif>
                 @foreach ($situationsPfte as $situation)
@@ -168,7 +233,7 @@
     <div class="form-group row">
         <label class="col-sm-4 control-label">@lang('AU NIVEAU DE L\'ENFANT, quelles mesure(s) préconisez/riez-vous si l\'enfant effectue un ou des travail/aux  dangereux, ou est victime de PFTE ou si l\'un de ses droits ou besoins n\'est pas respecté, ou s\'il subit une situation qu\'il pourrait entraver sa scolarité?')</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][mesuresEnfant][]" class="form-control select2-multi-select mesures" multiple="multiple" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][mesuresEnfant][]" class="form-control select2-multi-select mesures" multiple="multiple" @if($readonly) disabled @else required @endif>
                 @foreach ($mesuresEnfant as $mesure)
                     <option value="{{ $mesure }}" @selected(in_array($mesure, $selMesuresEnfant))>{{ $mesure }}</option>
                 @endforeach
@@ -178,7 +243,7 @@
     <div class="form-group row">
         <label class="col-sm-4 control-label">@lang('AU NIVEAU DU MENAGE DE L\'ENFANT, quelles mesure(s) préconisez/riez-vous si l\'enfant effectue un ou des travail/aux  dangereux, ou est victime de PFTE ou si l\'un de ses droits ou ')</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][mesuresMenage][]" class="form-control select2-multi-select mesures" multiple="multiple" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][mesuresMenage][]" class="form-control select2-multi-select mesures" multiple="multiple" @if($readonly) disabled @else required @endif>
                 @foreach ($mesuresMenage as $mesure)
                     <option value="{{ $mesure }}" @selected(in_array($mesure, $selMesuresMenage))>{{ $mesure }}</option>
                 @endforeach
@@ -188,7 +253,7 @@
     <div class="form-group row">
         <label class="col-sm-4 control-label">@lang('AU NIVEAU DE LA COMMUNAUTE Où vit l\'enfant, quelles mesure(s) préconisez/riez-vous si l\'enfant effectue un ou des travail/aux  dangereux, ou est victime de PFTE ou si l\'un de ses droits ou ')</label>
         <div class="col-xs-12 col-sm-8">
-            <select name="enfants[{{ $index }}][mesuresCommunaute][]" class="form-control select2-multi-select mesures" multiple="multiple" @if($readonly) disabled @endif>
+            <select name="enfants[{{ $index }}][mesuresCommunaute][]" class="form-control select2-multi-select mesures" multiple="multiple" @if($readonly) disabled @else required @endif>
                 @foreach ($mesuresCommunaute as $mesure)
                     <option value="{{ $mesure }}" @selected(in_array($mesure, $selMesuresCommunaute))>{{ $mesure }}</option>
                 @endforeach

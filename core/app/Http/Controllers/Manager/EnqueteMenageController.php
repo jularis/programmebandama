@@ -20,9 +20,11 @@ use App\Models\EnqueteMenageEnfantSituationPfte;
 use App\Models\EnqueteMenageEnfantRaisonPasExtrait;
 use App\Models\EnqueteMenageEnfantRaisonTravailAbus;
 use App\Models\EnqueteMenageEnfantRaisonNonScolarisation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Exports\ExportEnqueteMenages;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 
 class EnqueteMenageController extends Controller
@@ -200,19 +202,131 @@ class EnqueteMenageController extends Controller
             'producteur' => 'required|exists:producteurs,id',
             'dateEnquete' => 'required|date',
             'nomEnqueteur' => 'required|max:150',
+            'nombreEnfantsEnquetes' => 'required|integer|min:0',
+            'latitude' => 'required|string|max:50',
+            'longitude' => 'required|string|max:50',
+            'altitude' => 'nullable|string|max:50',
+            'precisionGps' => 'nullable|string|max:50',
             'estProducteurRepondant' => 'required|in:Oui,Non',
             'nomRepondant' => 'required_if:estProducteurRepondant,Non|nullable|max:150',
             'titreRepondant' => 'required_if:estProducteurRepondant,Non|nullable|max:100',
             'producteurDisponible' => 'required|in:Oui,Non',
             'raisonIndisponibilite' => 'required_if:producteurDisponible,Non|nullable|max:150',
-            'consentement' => 'nullable|in:Oui,Non',
+            'datePlanification' => 'required_if:raisonIndisponibilite,Temporairement absent|nullable|date',
+            'raisonRefus' => 'required_if:raisonIndisponibilite,Refus|array',
+            'raisonRefus.*' => 'required_with:raisonRefus|string|max:150',
+            'autreRaisonRefus' => 'nullable|max:150',
+            'consentement' => 'required_if:producteurDisponible,Oui|in:Oui,Non',
+            'situationMatrimoniale' => 'required_if:producteurDisponible,Oui|string|max:100',
+            'nombreAdultes' => 'required|integer|min:0',
+            'nombreEnfants0a4' => 'required|integer|min:0',
+            'nombreEnfants5a17' => 'required|integer|min:0',
+            'aEnfantACharge' => 'required|in:Oui,Non',
+            'nombreEnfantsACharge' => 'required_if:aEnfantACharge,Oui|nullable|integer|min:0',
             'enfants' => 'nullable|array',
-            'enfants.*.nom' => 'required|max:150',
-            'enfants.*.dateNaissance' => 'required|date',
-            'enfants.*.sexe' => 'required|in:M,F',
+            'enfants.*.nom' => 'required_with:enfants|string|max:150',
+            'enfants.*.dateNaissance' => 'required_with:enfants|date',
+            'enfants.*.sexe' => 'required_with:enfants|in:M,F',
+            'enfants.*.lienParente' => 'required_with:enfants|string|max:150',
+            'enfants.*.autreLienParente' => 'nullable|string|max:150',
+            'enfants.*.raisonNeVitPasParents' => 'required_with:enfants|string|max:150',
+            'enfants.*.autreRaisonNeVitPasParents' => 'nullable|string|max:150',
+            'enfants.*.situationScolaire' => 'required_with:enfants|in:Scolarisé,Déscolarisé,Jamais scolarisé',
+            'enfants.*.niveauScolaire' => 'nullable|string|max:150',
+            'enfants.*.raisonNonScolarisation' => 'nullable|array',
+            'enfants.*.raisonNonScolarisation.*' => 'nullable|string|max:150',
+            'enfants.*.autreRaisonNonScolarisation' => 'nullable|string|max:150',
+            'enfants.*.extraitNaissance' => 'required_with:enfants|in:Oui,Non',
+            'enfants.*.raisonPasExtrait' => 'nullable|array',
+            'enfants.*.raisonPasExtrait.*' => 'nullable|string|max:150',
+            'enfants.*.situationsPfte' => 'nullable|array',
+            'enfants.*.situationsPfte.*' => 'nullable|string|max:150',
+            'enfants.*.raisonTravailAbus' => 'nullable|array',
+            'enfants.*.raisonTravailAbus.*' => 'nullable|string|max:150',
+            'enfants.*.mesuresEnfant' => 'nullable|array',
+            'enfants.*.mesuresEnfant.*' => 'nullable|string|max:150',
+            'enfants.*.mesuresMenage' => 'nullable|array',
+            'enfants.*.mesuresMenage.*' => 'nullable|string|max:150',
+            'enfants.*.mesuresCommunaute' => 'nullable|array',
+            'enfants.*.mesuresCommunaute.*' => 'nullable|string|max:150',
+            'enfants.*.autreMesure' => 'nullable|string|max:150',
+            'themesSensibilisation' => 'required_if:aEnfantACharge,Oui|array',
+            'themesSensibilisation.*' => 'required_with:themesSensibilisation|string|max:150',
+            'autreThemeSensibilisation' => 'nullable|string|max:150',
+            'outilsSensibilisation' => 'required_if:aEnfantACharge,Oui|array',
+            'outilsSensibilisation.*' => 'required_with:outilsSensibilisation|string|max:150',
+            'nombreHommesSensibilises' => 'required_if:aEnfantACharge,Oui|integer|min:0',
+            'nombreFemmesSensibilisees' => 'required_if:aEnfantACharge,Oui|integer|min:0',
+            'nombreGarconsSensibilises' => 'required_if:aEnfantACharge,Oui|integer|min:0',
+            'nombreFillesSensibilisees' => 'required_if:aEnfantACharge,Oui|integer|min:0',
+            'telephoneProducteurSensibilisation' => 'required_if:aEnfantACharge,Oui|string|max:30',
+            'photoSensibilisation' => 'required_if:aEnfantACharge,Oui|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ];
 
-        $request->validate($rules);
+        $validator = Validator::make($request->all(), $rules);
+        $validator->after(function ($validator) use ($request) {
+            if ($request->producteurDisponible === 'Non' && is_array($request->raisonRefus) && in_array('Autre raison', $request->raisonRefus) && empty(trim($request->autreRaisonRefus ?? ''))) {
+                $validator->errors()->add('autreRaisonRefus', 'Veuillez préciser l\'autre raison de refus.');
+            }
+
+            $enfants = $request->input('enfants', []);
+            if ($request->aEnfantACharge === 'Oui' && empty($enfants)) {
+                $validator->errors()->add('enfants', 'Le champ enfants est requis lorsque a enfant a charge est Oui.');
+            }
+
+            foreach ($enfants as $index => $enfant) {
+                if (isset($enfant['lienParente']) && $enfant['lienParente'] === 'Autre' && empty(trim($enfant['autreLienParente'] ?? ''))) {
+                    $validator->errors()->add("enfants.$index.autreLienParente", 'Veuillez préciser l\'autre lien de parenté.');
+                }
+
+                if (isset($enfant['raisonNeVitPasParents']) && $enfant['raisonNeVitPasParents'] === 'Autres' && empty(trim($enfant['autreRaisonNeVitPasParents'] ?? ''))) {
+                    $validator->errors()->add("enfants.$index.autreRaisonNeVitPasParents", 'Veuillez préciser l\'autre raison pour laquelle l\'enfant ne vit pas avec ses parents.');
+                }
+
+                if (in_array($enfant['situationScolaire'] ?? '', ['Scolarisé', 'Déscolarisé']) && empty(trim($enfant['niveauScolaire'] ?? ''))) {
+                    $validator->errors()->add("enfants.$index.niveauScolaire", 'Le niveau scolaire est requis pour cet enfant.');
+                }
+
+                if (in_array($enfant['situationScolaire'] ?? '', ['Déscolarisé', 'Jamais scolarisé'])) {
+                    if (empty($enfant['raisonNonScolarisation']) || !is_array($enfant['raisonNonScolarisation']) || count(array_filter($enfant['raisonNonScolarisation'])) === 0) {
+                        $validator->errors()->add("enfants.$index.raisonNonScolarisation", 'Veuillez préciser pourquoi l\'enfant n\'est pas scolarisé ou est déscolarisé.');
+                    }
+                    if (is_array($enfant['raisonNonScolarisation']) && in_array('Autre', $enfant['raisonNonScolarisation']) && empty(trim($enfant['autreRaisonNonScolarisation'] ?? ''))) {
+                        $validator->errors()->add("enfants.$index.autreRaisonNonScolarisation", 'Veuillez préciser l\'autre raison de non-scolarisation.');
+                    }
+                }
+
+                if (($enfant['extraitNaissance'] ?? '') === 'Non' && (empty($enfant['raisonPasExtrait']) || !is_array($enfant['raisonPasExtrait']) || count(array_filter($enfant['raisonPasExtrait'])) === 0)) {
+                    $validator->errors()->add("enfants.$index.raisonPasExtrait", 'Veuillez indiquer la ou les raisons pour lesquelles l\'enfant n\'a pas d\'extrait de naissance.');
+                }
+
+                if (empty($enfant['situationsPfte']) || !is_array($enfant['situationsPfte']) || count(array_filter($enfant['situationsPfte'])) === 0) {
+                    $validator->errors()->add("enfants.$index.situationsPfte", 'Veuillez sélectionner au moins une situation PFTE pour cet enfant.');
+                }
+
+                if (empty($enfant['raisonTravailAbus']) || !is_array($enfant['raisonTravailAbus']) || count(array_filter($enfant['raisonTravailAbus'])) === 0) {
+                    $validator->errors()->add("enfants.$index.raisonTravailAbus", 'Veuillez sélectionner au moins une raison de travail abusif pour cet enfant.');
+                }
+
+                if (empty($enfant['mesuresEnfant']) || !is_array($enfant['mesuresEnfant']) || count(array_filter($enfant['mesuresEnfant'])) === 0) {
+                    $validator->errors()->add("enfants.$index.mesuresEnfant", 'Veuillez sélectionner au moins une mesure au niveau de l\'enfant.');
+                }
+
+                if (empty($enfant['mesuresMenage']) || !is_array($enfant['mesuresMenage']) || count(array_filter($enfant['mesuresMenage'])) === 0) {
+                    $validator->errors()->add("enfants.$index.mesuresMenage", 'Veuillez sélectionner au moins une mesure au niveau du ménage.');
+                }
+
+                if (empty($enfant['mesuresCommunaute']) || !is_array($enfant['mesuresCommunaute']) || count(array_filter($enfant['mesuresCommunaute'])) === 0) {
+                    $validator->errors()->add("enfants.$index.mesuresCommunaute", 'Veuillez sélectionner au moins une mesure au niveau de la communauté.');
+                }
+            }
+
+            if (is_array($request->themesSensibilisation) && in_array('Autres thèmes', $request->themesSensibilisation) && empty(trim($request->autreThemeSensibilisation ?? ''))) {
+                $validator->errors()->add('autreThemeSensibilisation', 'Veuillez préciser l\'autre thème de sensibilisation.');
+            }
+        });
+
+        $validator->validate();
 
         $isUpdate = (bool) $request->id;
         $enqueteMenage = $isUpdate ? EnqueteMenage::findOrFail($request->id) : new EnqueteMenage();
@@ -227,7 +341,7 @@ class EnqueteMenageController extends Controller
         $enqueteMenage->sexeProducteur = $producteur->sexe;
         $enqueteMenage->codeProducteur = $producteur->codeProdapp;
 
-        $enqueteMenage->dateEnquete = $request->dateEnquete;
+        $enqueteMenage->dateEnquete = $isUpdate ? $enqueteMenage->dateEnquete : Carbon::now()->toDateString();
         $enqueteMenage->nomEnqueteur = $request->nomEnqueteur;
         $enqueteMenage->nombreEnfantsEnquetes = $request->nombreEnfantsEnquetes;
 
@@ -241,7 +355,7 @@ class EnqueteMenageController extends Controller
         $enqueteMenage->titreRepondant = $request->titreRepondant;
 
         $enqueteMenage->producteurDisponible = $request->producteurDisponible;
-        $enqueteMenage->raisonIndisponibilite = $request->raisonIndisponibilite;
+        $enqueteMenage->raisonIndisponibilite = $request->producteurDisponible == 'Oui' ? 'N/A' : $request->raisonIndisponibilite;
         $enqueteMenage->datePlanification = $request->datePlanification;
         $enqueteMenage->autreRaisonRefus = $request->autreRaisonRefus;
         $enqueteMenage->consentement = $request->consentement;

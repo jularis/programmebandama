@@ -15,6 +15,7 @@
                         'class' => 'form-horizontal',
                         'id' => 'formEnqueteMenage',
                         'enctype' => 'multipart/form-data',
+                        'novalidate' => true,
                     ]) !!}
 
                     <input type="hidden" name="etatSoumission" id="etatSoumission" value="Soumis">
@@ -88,7 +89,8 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Date de réalisation de l'enquête")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::date('dateEnquete', null, ['class' => 'form-control', 'required']) !!}
+                            {!! Form::date('dateEnquete', date('Y-m-d'), ['class' => 'form-control', 'readonly']) !!}
+                            <small class="form-text text-muted">La date est affectée automatiquement par le serveur.</small>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -97,23 +99,18 @@
                             {!! Form::text('nomEnqueteur', null, ['class' => 'form-control', 'required']) !!}
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label class="col-sm-4 control-label">@lang("Combien d'enfants (âgés de 5 à 17 ans) enquêtés-vous aujourd'hui dans ce menage")</label>
-                        <div class="col-xs-12 col-sm-8">
-                            {!! Form::number('nombreEnfantsEnquetes', 0, ['class' => 'form-control', 'id' => 'nombreEnfantsEnquetes']) !!}
-                        </div>
-                    </div>
+                    {!! Form::hidden('nombreEnfantsEnquetes', 0, ['id' => 'nombreEnfantsEnquetes']) !!}
 
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Latitude')</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('latitude', null, ['class' => 'form-control']) !!}
+                            {!! Form::text('latitude', null, ['class' => 'form-control', 'required']) !!}
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Longitude')</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('longitude', null, ['class' => 'form-control']) !!}
+                            {!! Form::text('longitude', null, ['class' => 'form-control', 'required']) !!}
                         </div>
                     </div>
                     <div class="form-group row">
@@ -139,13 +136,13 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Quel est le nom et prénoms du répondant?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::text('nomRepondant', null, ['class' => 'form-control']) !!}
+                                {!! Form::text('nomRepondant', null, ['class' => 'form-control', 'id' => 'nomRepondant']) !!}
                             </div>
                         </div>
-                        <div class="form-group row">
+                        <div class="form-group row" id="titreRepondantGroup">
                             <label class="col-sm-4 control-label">@lang('Quelle est le titre du répondant?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('titreRepondant', array_combine($titresRepondant, $titresRepondant), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control']) !!}
+                                {!! Form::select('titreRepondant', array_combine($titresRepondant, $titresRepondant), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control', 'id' => 'titreRepondant']) !!}
                             </div>
                         </div>
                     </div>
@@ -161,20 +158,20 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Si non, pour quelle raison?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('raisonIndisponibilite', array_combine($raisonsIndisponibilite, $raisonsIndisponibilite), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control', 'id' => 'raisonIndisponibilite']) !!}
+                                {!! Form::select('raisonIndisponibilite', array_combine($raisonsIndisponibilite, $raisonsIndisponibilite), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control', 'id' => 'raisonIndisponibilite', 'required']) !!}
                             </div>
                         </div>
                         <div id="blocReplanification" class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Merci de re-planifier la visite chez ce producteur')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::date('datePlanification', null, ['class' => 'form-control']) !!}
+                                {!! Form::date('datePlanification', null, ['class' => 'form-control', 'required']) !!}
                             </div>
                         </div>
                         <div id="blocRefus">
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Pourquoi refusez-vous l'entretien?")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    <select class="form-control select2-multi-select" name="raisonRefus[]" id="raisonRefus" multiple="multiple">
+                                    <select class="form-control select2-multi-select" name="raisonRefus[]" id="raisonRefus" multiple="multiple" required>
                                         @foreach ($raisonsRefus as $raison)
                                             <option value="{{ $raison }}">{{ $raison }}</option>
                                         @endforeach
@@ -184,7 +181,7 @@
                             <div class="form-group row" id="blocAutreRaisonRefus">
                                 <label class="col-sm-4 control-label">@lang("Veuillez préciser l'autre raison")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::text('autreRaisonRefus', null, ['class' => 'form-control']) !!}
+                                    {!! Form::text('autreRaisonRefus', null, ['class' => 'form-control', 'required']) !!}
                                 </div>
                             </div>
                         </div>
@@ -193,7 +190,7 @@
                     <div id="blocConsentement" class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Le/la producteur/rice consent-il / t-elle à faire l'entretien?")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::select('consentement', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['class' => 'form-control', 'id' => 'consentement']) !!}
+                            {!! Form::select('consentement', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['class' => 'form-control', 'id' => 'consentement', 'required']) !!}
                         </div>
                     </div>
 
@@ -208,25 +205,25 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Situation matrimoniale du/de la producteur/rice')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('situationMatrimoniale', array_combine($situationsMatrimoniales, $situationsMatrimoniales), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control']) !!}
+                                {!! Form::select('situationMatrimoniale', array_combine($situationsMatrimoniales, $situationsMatrimoniales), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'adulte(s) dans le ménage (y compris le/la producteur/rice) [18 ans et plus]")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreAdultes', 0, ['class' => 'form-control effectifMenage']) !!}
+                                {!! Form::number('nombreAdultes', 0, ['class' => 'form-control effectifMenage', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) de 0 à 4 ans dans le ménage/la plantation")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreEnfants0a4', 0, ['class' => 'form-control effectifMenage']) !!}
+                                {!! Form::number('nombreEnfants0a4', 0, ['class' => 'form-control effectifMenage', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) 5 à 17 ans dans le ménage/la plantation")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreEnfants5a17', 0, ['class' => 'form-control effectifMenage']) !!}
+                                {!! Form::number('nombreEnfants5a17', 0, ['class' => 'form-control effectifMenage', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
@@ -242,7 +239,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Le producteur a-t-il des enfants à charge ?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('aEnfantACharge', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['class' => 'form-control', 'id' => 'aEnfantACharge']) !!}
+                                {!! Form::select('aEnfantACharge', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['class' => 'form-control', 'id' => 'aEnfantACharge', 'required']) !!}
                             </div>
                         </div>
 
@@ -250,7 +247,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Combien d'enfants âgés de 5 à 17 ans a-t-il à sa charge?")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::number('nombreEnfantsACharge', null, ['class' => 'form-control']) !!}
+                                    {!! Form::number('nombreEnfantsACharge', null, ['class' => 'form-control', 'required']) !!}
                                 </div>
                             </div>
 
@@ -272,7 +269,7 @@
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang('Quel(s) Thème(s) a/ont été abordé(s)?')</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    <select class="form-control select2-multi-select" name="themesSensibilisation[]" id="themesSensibilisation" multiple="multiple">
+                                    <select class="form-control select2-multi-select" name="themesSensibilisation[]" id="themesSensibilisation" multiple="multiple" required>
                                         @foreach ($sensibilisationThemes as $theme)
                                             <option value="{{ $theme }}">{{ $theme }}</option>
                                         @endforeach
@@ -282,13 +279,13 @@
                             <div class="form-group row" id="blocAutreThemeSensibilisation">
                                 <label class="col-sm-4 control-label">@lang('Préciser cet/ces autre(s) thèmes abordés au cours de la sensibilisation')</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::text('autreThemeSensibilisation', null, ['class' => 'form-control']) !!}
+                                    {!! Form::text('autreThemeSensibilisation', null, ['class' => 'form-control', 'required']) !!}
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang('Outils utilisés pour faire la sensibilisation')</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    <select class="form-control select2-multi-select" name="outilsSensibilisation[]" multiple="multiple">
+                                    <select class="form-control select2-multi-select" name="outilsSensibilisation[]" multiple="multiple" required>
                                         @foreach ($sensibilisationOutils as $outil)
                                             <option value="{{ $outil }}">{{ $outil }}</option>
                                         @endforeach
@@ -298,25 +295,25 @@
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Nombre d'adulte(s) hommes sensibilisé(s)")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::number('nombreHommesSensibilises', 0, ['class' => 'form-control effectifSensibilisation']) !!}
+                                    {!! Form::number('nombreHommesSensibilises', 0, ['class' => 'form-control effectifSensibilisation', 'required']) !!}
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Nombre d'adulte(s) femmes sensibilisée(s)")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::number('nombreFemmesSensibilisees', 0, ['class' => 'form-control effectifSensibilisation']) !!}
+                                    {!! Form::number('nombreFemmesSensibilisees', 0, ['class' => 'form-control effectifSensibilisation', 'required']) !!}
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) garçons sensibilisé(s)")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::number('nombreGarconsSensibilises', 0, ['class' => 'form-control effectifSensibilisation']) !!}
+                                    {!! Form::number('nombreGarconsSensibilises', 0, ['class' => 'form-control effectifSensibilisation', 'required']) !!}
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) filles sensibilisée(s)")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::number('nombreFillesSensibilisees', 0, ['class' => 'form-control effectifSensibilisation']) !!}
+                                    {!! Form::number('nombreFillesSensibilisees', 0, ['class' => 'form-control effectifSensibilisation', 'required']) !!}
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -328,13 +325,13 @@
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Numéro de téléphone du/de la producteur/rice ou d'un proche")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::text('telephoneProducteurSensibilisation', null, ['class' => 'form-control']) !!}
+                                    {!! Form::text('telephoneProducteurSensibilisation', null, ['class' => 'form-control', 'required']) !!}
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang('Veuillez prendre/télécharger photo de sensibilisation')</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    <input type="file" name="photoSensibilisation" accept="image/*" class="form-control dropify-fr">
+                                    <input type="file" name="photoSensibilisation" accept="image/*" class="form-control dropify-fr" required>
                                 </div>
                             </div>
                         </div>
@@ -395,7 +392,14 @@
             }
 
             function toggle($el, show) {
-                if (show) { $el.show('slow'); } else { $el.hide(); $el.find('input, select, textarea').val(''); }
+                if (show) {
+                    $el.show('slow');
+                    $el.find('input, select, textarea').prop('disabled', false);
+                } else {
+                    $el.hide();
+                    $el.find('input, select, textarea').prop('disabled', true).val('');
+                    $el.find('select').trigger('change');
+                }
             }
 
             function recalculerTotalMenage() {
@@ -414,6 +418,24 @@
                 return $select.find(':selected').map(function() { return $(this).text().trim(); }).get();
             }
 
+            function getProducteurNom() {
+                return $('#producteur option:selected').text().trim();
+            }
+
+            function majRepondant() {
+                var est = $('#estProducteurRepondant').val();
+                var nomProducteur = getProducteurNom();
+                if (est === 'Oui') {
+                    $('#nomRepondant').val(nomProducteur).prop('readonly', true).removeAttr('required');
+                    $('#titreRepondantGroup').hide();
+                    $('#titreRepondant').prop('disabled', true).val('').removeAttr('required');
+                } else {
+                    $('#nomRepondant').prop('readonly', false).attr('required', 'required');
+                    $('#titreRepondantGroup').show();
+                    $('#titreRepondant').prop('disabled', false).attr('required', 'required');
+                }
+            }
+
             function initSelect2($scope) {
                 if ($.fn.select2) {
                     $scope.find('.select2-multi-select').select2({ width: '100%' });
@@ -424,7 +446,19 @@
                 $('#enfants-container .enfant-block').each(function(i) {
                     $(this).find('.enfant-numero').first().text(i + 1);
                 });
-                $('#nombreEnfantsEnquetes').val($('#enfants-container .enfant-block').length);
+                updateEnfantControls();
+            }
+
+            function updateEnfantControls() {
+                var max = parseInt($('#nombreEnfantsEnquetes').val()) || 0;
+                var current = $('#enfants-container .enfant-block').length;
+                var disabled = max <= 0 || current >= max;
+                $('#btnAjouterEnfant').prop('disabled', disabled).toggle(!disabled);
+                if (disabled) {
+                    $('#btnAjouterEnfant').attr('title', 'Nombre maximal d\'enfants atteint ou nombre invalide');
+                } else {
+                    $('#btnAjouterEnfant').removeAttr('title');
+                }
             }
 
             function ajouterEnfant() {
@@ -437,6 +471,16 @@
                 renumeroterEnfants();
             }
 
+            function ensureSubmissionButtonsEnabled() {
+                $('#btnBrouillon, #btnSoumettre').prop('disabled', false).removeAttr('disabled');
+            }
+
+            function submitFormWithState(state) {
+                $('#etatSoumission').val(state);
+                ensureSubmissionButtonsEnabled();
+                document.getElementById('formEnqueteMenage').submit();
+            }
+
             $('#btnAjouterEnfant').on('click', function(e) {
                 e.preventDefault();
                 ajouterEnfant();
@@ -447,18 +491,25 @@
                 renumeroterEnfants();
             });
 
+            $('#nombreEnfantsEnquetes').on('input change', updateEnfantControls);
+            $('#nombreEnfants5a17').on('input change', function() {
+                $('#nombreEnfantsEnquetes').val($(this).val() || 0).trigger('change');
+                majBlocEnfants();
+            }).trigger('change');
+
             // Identification producteur -> affichage sexe/code
             $('#producteur').on('change', function() {
                 var opt = $(this).find(':selected');
                 $('#sexeProducteurDisplay').val(opt.data('sexe') || '');
                 $('#codeProducteurDisplay').val(opt.data('code') || '');
+                if ($('#estProducteurRepondant').val() === 'Oui') {
+                    majRepondant();
+                }
             });
 
             // Répondant
-            toggle($('#blocRepondant'), false);
-            $('#estProducteurRepondant').on('change', function() {
-                toggle($('#blocRepondant'), $(this).val() == 'Non');
-            });
+            $('#estProducteurRepondant').on('change', majRepondant);
+            majRepondant();
 
             // Disponibilité / consentement / fin d'enquête
             function majSuiteFormulaire() {
@@ -474,10 +525,15 @@
             }
 
             $('#producteurDisponible').on('change', function() {
-                if ($(this).val() != 'Non') { $('#raisonIndisponibilite').val('').trigger('change'); }
+                if ($(this).val() != 'Non') {
+                    $('#raisonIndisponibilite').val('').trigger('change').prop('disabled', true).removeAttr('required');
+                } else {
+                    $('#raisonIndisponibilite').prop('disabled', false).attr('required', 'required');
+                }
                 majSuiteFormulaire();
             });
             $('#consentement').on('change', majSuiteFormulaire);
+            $('#producteurDisponible').trigger('change');
             majSuiteFormulaire();
 
             $('#raisonIndisponibilite').on('change', function() {
@@ -495,9 +551,22 @@
 
             // Enfant(s) à charge
             function majBlocEnfants() {
-                var aCharge = $('#aEnfantACharge').val() == 'Oui';
+                var count517 = parseInt($('#nombreEnfants5a17').val()) || 0;
+                if (count517 === 0) {
+                    $('#aEnfantACharge').val('Non');
+                    $('#nombreEnfantsACharge').val(0);
+                    $('#enfants-container').empty();
+                }
+
+                var aCharge = $('#aEnfantACharge').val() === 'Oui' && count517 > 0;
+                if (!aCharge) {
+                    $('#enfants-container').empty();
+                    $('#nombreEnfantsACharge').val(0);
+                }
+
                 toggle($('#blocEnfants'), aCharge);
                 $('#blocSensibilisation').toggle(aCharge);
+                updateEnfantControls();
             }
             $('#aEnfantACharge').on('change', majBlocEnfants);
             majBlocEnfants();
@@ -524,6 +593,11 @@
             $('#enfants-container').on('change', '.extraitNaissance', function() {
                 toggle($(this).closest('.enfant-block').find('.raisonPasExtraitWrap'), $(this).val() == 'Non');
             });
+            $('#enfants-container').on('change', '.presentDisponible', function() {
+                var $block = $(this).closest('.enfant-block');
+                toggle($block.find('.raisonAbsentWrap'), $(this).val() !== '1');
+            });
+            $('#enfants-container .presentDisponible').trigger('change');
             $('#enfants-container').on('change', '.situationsPfte', function() {
                 var textes = selectedTextes($(this));
                 var actif = textes.length > 0 && !(textes.length == 1 && textes[0] == 'Aucune');
@@ -553,8 +627,15 @@
             toggle($('#blocRefus'), false);
 
             // Soumission : brouillon vs soumis
-            $('#btnBrouillon').on('click', function() { $('#etatSoumission').val('Brouillon'); });
-            $('#btnSoumettre').on('click', function() { $('#etatSoumission').val('Soumis'); });
+            ensureSubmissionButtonsEnabled();
+            $('#btnBrouillon').on('click', function(e) {
+                e.preventDefault();
+                submitFormWithState('Brouillon');
+            });
+            $('#btnSoumettre').on('click', function(e) {
+                e.preventDefault();
+                submitFormWithState('Soumis');
+            });
         });
 
         $('#localite').chained('#section');

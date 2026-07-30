@@ -62,7 +62,7 @@ use App\Http\Controllers\Manager\AgroapprovisionnementController;
 
 Route::namespace('Manager\Auth')->group(function () {
 
-   
+
     //Manager Login
     Route::controller('LoginController')->group(function () {
         Route::get('/login', 'showLoginForm')->name('login');
@@ -104,7 +104,7 @@ Route::controller('SiteController')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::middleware('manager')->group(function () {
 
-    
+
         //Home Controller
         Route::name('')->group(function () {
             Route::get('dashboard', [ManagerController::class, 'dashboard'])->name('dashboard');
@@ -145,7 +145,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // employee routes
- 
+
 
         // Holidays
         Route::get('holidays/mark-holiday', [HolidayController::class, 'markHoliday'])->name('holidays.mark_holiday');
@@ -174,11 +174,11 @@ Route::middleware('auth')->group(function () {
         Route::post('formation-staff/status/{id}', [FormationStaffController::class, 'status'])->name('formation-staff.status');
         Route::post('formation-staff/exportFormationsExcel', [FormationStaffController::class, 'exportExcel'])->name('formation-staff.exportExcel.formationAll');
         Route::resource('formation-staff', FormationStaffController::class);
- 
+
 
         Route::name('settings.')->prefix('settings')->group(function () {
-            Route::resource('attendance-settings', AttendanceSettingController::class); 
-            Route::resource('leaves-settings', LeaveSettingController::class); 
+            Route::resource('attendance-settings', AttendanceSettingController::class);
+            Route::resource('leaves-settings', LeaveSettingController::class);
             Route::resource('cooperative-settings', CooperativeSettingController::class);
             Route::resource('durabilite-settings', ProgrammeSettingController::class);
             Route::post('/uploadcontent/section', [SectionSettingController::class,'uploadContent'])->name('section-settings.uploadcontent');
@@ -267,7 +267,7 @@ Route::middleware('auth')->group(function () {
             Route::post('transporteur/store', [SettingController::class, 'transporteurStore'])->name('transporteur.store');
             Route::post('transporteur/modal/store', [SettingController::class, 'transporteurModalStore'])->name('transporteurModal.store');
             Route::post('transporteur/status/{id}', [SettingController::class, 'transporteurStatus'])->name('transporteur.status');
-            
+
             Route::get('entreprise/modal', [SettingController::class, 'entrepriseModalIndex'])->name('entrepriseModal.index');
             Route::get('entreprises/',[SettingController::class, 'entrepriseIndex'])->name('entreprise.index');
             Route::post('entreprise/store', [SettingController::class, 'entrepriseStore'])->name('entreprise.store');
@@ -414,6 +414,7 @@ Route::middleware('auth')->group(function () {
             Route::get('list', [EnqueteMenageController::class,'index'])->name('index');
             Route::get('create', [EnqueteMenageController::class,'create'])->name('create');
             Route::post('store', [EnqueteMenageController::class,'store'])->name('store');
+            Route::post('update/{id}', [EnqueteMenageController::class,'store'])->name('update');
             Route::get('edit/{id}', [EnqueteMenageController::class,'edit'])->name('edit');
             Route::get('show/{id}', [EnqueteMenageController::class,'show'])->name('show');
             Route::post('status/{id}', [EnqueteMenageController::class,'status'])->name('status');
@@ -607,7 +608,7 @@ Route::middleware('auth')->group(function () {
         //Manage Agrodeforestations
         Route::name('agro.deforestation.')->prefix('agro/deforestation')->group(function () {
             Route::get('polygones', [AgrodeforestationController::class,'index'])->name('index');
-            Route::get('waypoints', [AgrodeforestationController::class,'waypoints'])->name('waypoints');  
+            Route::get('waypoints', [AgrodeforestationController::class,'waypoints'])->name('waypoints');
         });
 
         //Manage Livraison
@@ -628,7 +629,7 @@ Route::middleware('auth')->group(function () {
             Route::get('magcentral/usine/suivi/{id}', [LivraisonCentraleController::class,'suiviLivraison'])->name('usine.suivi');
             Route::post('magcentral/suivi/store', [LivraisonCentraleController::class,'suiviStore'])->name('magcentral.suivi.store');
             Route::get('/export/stock/magasin/central', [LivraisonCentraleController::class,'exportExcel'])->name('exportExcel.magcentralAll');
-            Route::resource('magcentral', LivraisonCentraleController::class); 
+            Route::resource('magcentral', LivraisonCentraleController::class);
             Route::get('send', [LivraisonController::class,'create'])->name('create');
             Route::post('store', [LivraisonController::class,'store'])->name('store');
             Route::post('update/{id}', [LivraisonController::class,'update'])->name('update');
@@ -650,9 +651,9 @@ Route::middleware('auth')->group(function () {
             Route::get('invoice/{id}', [LivraisonController::class,'invoice'])->name('invoice');
             Route::get('sent', [LivraisonController::class,'sentLivraison'])->name('sent');
             Route::get('/export/stock/magasin/section', [LivraisonController::class,'exportExcel'])->name('exportExcel.livraisonAll');
-            
+
         });
- 
+
 
         Route::name('ticket.')->prefix('ticket')->group(function () {
             Route::get('/', [ManagerTicketController::class,'supportTicket'])->name('index');

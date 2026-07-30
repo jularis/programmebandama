@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(node \"C:\\\\Users\\\\USER\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--laragon-www-programmebandama\\\\e056a3ed-6bf1-4e53-933f-b4095c833e41\\\\scratchpad\\\\find_idx.js\")",
+      "Bash(grep -n \"form\\\\|input\\\\|username\\\\|email\\\\|type=\\\\\"text\\\\\"\" /tmp/loginpage.html | grep -iv \"css\\\\|js\\\\|link\" | head -40)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
