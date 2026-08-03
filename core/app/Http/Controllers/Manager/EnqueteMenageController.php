@@ -83,6 +83,13 @@ class EnqueteMenageController extends Controller
         "N/A",
     ];
 
+    private function nomEnqueteurConnecte($user)
+    {
+        $nomComplet = trim(($user->lastname ?? '') . ' ' . ($user->firstname ?? ''));
+
+        return $nomComplet ?: ($user->fullname ?? $user->username);
+    }
+
     private function optionsCommunes($manager)
     {
         $cooperative = Cooperative::with('sections.localites', 'sections.localites.section')->find($manager->cooperative_id);
@@ -142,8 +149,9 @@ class EnqueteMenageController extends Controller
         $pageTitle = "Ajouter une enquête ménage";
         $manager = auth()->user();
         $options = $this->optionsCommunes($manager);
+        $nomEnqueteurConnecte = $this->nomEnqueteurConnecte($manager);
 
-        return view('manager.enquetemenage.create', array_merge(compact('pageTitle'), $options));
+        return view('manager.enquetemenage.create', array_merge(compact('pageTitle', 'nomEnqueteurConnecte'), $options));
     }
 
     public function edit($id)
@@ -151,6 +159,7 @@ class EnqueteMenageController extends Controller
         $pageTitle = "Mise à jour de l'enquête ménage";
         $manager = auth()->user();
         $options = $this->optionsCommunes($manager);
+        $nomEnqueteurConnecte = $this->nomEnqueteurConnecte($manager);
         $enqueteMenage = EnqueteMenage::with([
             'enfants.raisonsNonScolarisation',
             'enfants.raisonsPasExtrait',
@@ -164,7 +173,7 @@ class EnqueteMenageController extends Controller
             'outils',
         ])->findOrFail($id);
 
-        return view('manager.enquetemenage.edit', array_merge(compact('pageTitle', 'enqueteMenage'), $options));
+        return view('manager.enquetemenage.edit', array_merge(compact('pageTitle', 'enqueteMenage', 'nomEnqueteurConnecte'), $options));
     }
 
     public function show($id)
@@ -201,7 +210,6 @@ class EnqueteMenageController extends Controller
             'localite' => 'required|exists:localites,id',
             'producteur' => 'required|exists:producteurs,id',
             'dateEnquete' => 'required|date',
-            'nomEnqueteur' => 'required|max:150',
             'nombreEnfantsEnquetes' => 'required|integer|min:0',
             'latitude' => 'required|string|max:50',
             'longitude' => 'required|string|max:50',
@@ -342,7 +350,7 @@ class EnqueteMenageController extends Controller
         $enqueteMenage->codeProducteur = $producteur->codeProdapp;
 
         $enqueteMenage->dateEnquete = $isUpdate ? $enqueteMenage->dateEnquete : Carbon::now()->toDateString();
-        $enqueteMenage->nomEnqueteur = $request->nomEnqueteur;
+        $enqueteMenage->nomEnqueteur = $this->nomEnqueteurConnecte(auth()->user());
         $enqueteMenage->nombreEnfantsEnquetes = $request->nombreEnfantsEnquetes;
 
         $enqueteMenage->latitude = $request->latitude;

@@ -97,7 +97,7 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Nom et Prénom(s) de l'enquêteur/trice")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('nomEnqueteur', $enqueteMenage->nomEnqueteur, ['class' => 'form-control', 'required']) !!}
+                            {!! Form::text('nomEnqueteur', $nomEnqueteurConnecte, ['class' => 'form-control', 'readonly']) !!}
                         </div>
                     </div>
                     {!! Form::hidden('nombreEnfantsEnquetes', $enqueteMenage->nombreEnfants5a17 ?? 0, ['id' => 'nombreEnfantsEnquetes']) !!}
