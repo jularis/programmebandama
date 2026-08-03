@@ -21,6 +21,8 @@ use App\Models\VisitePlantationEnfantRaisonNonScolarisation;
 use Illuminate\Http\Request;
 use App\Exports\ExportVisitePlantations;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 
 class VisitePlantationController extends Controller
@@ -178,25 +180,130 @@ class VisitePlantationController extends Controller
             return back()->withNotify($notify)->withInput();
         }
 
+        $entretienPoursuivi = $request->producteurDisponible == 'Oui' && $request->consentement == 'Oui';
+        $raisonRefus = (array) $request->input('raisonRefus', []);
+
         $rules = [
             'section' => 'required|exists:sections,id',
             'localite' => 'required|exists:localites,id',
             'producteur' => 'required|exists:producteurs,id',
             'dateEnquete' => 'required|date',
             'nomEnqueteur' => 'required|max:150',
+            'latitude' => 'required|max:50',
+            'longitude' => 'required|max:50',
             'estProducteurRepondant' => 'required|in:Oui,Non',
             'nomRepondant' => 'required_if:estProducteurRepondant,Non|nullable|max:150',
             'titreRepondant' => 'required_if:estProducteurRepondant,Non|nullable|max:100',
             'producteurDisponible' => 'required|in:Oui,Non',
             'raisonIndisponibilite' => 'required_if:producteurDisponible,Non|nullable|max:150',
-            'consentement' => 'nullable|in:Oui,Non',
+            'datePlanification' => [
+                Rule::requiredIf($request->producteurDisponible == 'Non' && $request->raisonIndisponibilite == 'Temporairement absent'),
+                'nullable',
+                'date',
+            ],
+            'raisonRefus' => [
+                Rule::requiredIf($request->producteurDisponible == 'Non' && $request->raisonIndisponibilite == 'Refus'),
+                'nullable',
+                'array',
+                'min:1',
+            ],
+            'raisonRefus.*' => 'required|max:150',
+            'autreRaisonRefus' => [
+                Rule::requiredIf(in_array('Autre raison', $raisonRefus)),
+                'nullable',
+                'max:150',
+            ],
+            'consentement' => 'required_if:producteurDisponible,Oui|nullable|in:Oui,Non',
+            'superficiePlantation' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'numeric'],
+            'nombreManoeuvresPermanents' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
+            'manoeuvresPermanentsMoins18' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:Oui,Non'],
+            'nombreManoeuvresJournaliers' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
+            'manoeuvresJournaliersMoins18' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:Oui,Non'],
+            'nombreEnfants0a4' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
+            'nombreEnfants5a17' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
+            'nombrePersonnesTrouvees' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
             'enfants' => 'nullable|array',
-            'enfants.*.nom' => 'required|max:150',
-            'enfants.*.dateNaissance' => 'required|date',
-            'enfants.*.sexe' => 'required|in:M,F',
+            'enfants.*.nom' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
+            'enfants.*.dateNaissance' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'date'],
+            'enfants.*.sexe' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:M,F'],
+            'enfants.*.lienParente' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
+            'enfants.*.raisonNeVitPasParents' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
+            'enfants.*.situationScolaire' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
+            'enfants.*.extraitNaissance' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:Oui,Non'],
+            'enfants.*.situationsPfte' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
+            'enfants.*.situationsPfte.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
+            'enfants.*.mesuresEnfant' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
+            'enfants.*.mesuresEnfant.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
+            'enfants.*.mesuresMenage' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
+            'enfants.*.mesuresMenage.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
+            'enfants.*.mesuresCommunaute' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
+            'enfants.*.mesuresCommunaute.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
         ];
 
-        $request->validate($rules);
+        $validator = Validator::make($request->all(), $rules);
+
+        $validator->after(function ($validator) use ($request, $entretienPoursuivi) {
+            if (!$entretienPoursuivi) {
+                return;
+            }
+
+            foreach ((array) $request->input('enfants', []) as $index => $enfant) {
+                if (($enfant['lienParente'] ?? null) == 'Autre' && blank($enfant['autreLienParente'] ?? null)) {
+                    $validator->errors()->add("enfants.$index.autreLienParente", 'Le champ autre lien de parenté est obligatoire.');
+                }
+
+                if (($enfant['raisonNeVitPasParents'] ?? null) == 'Autres' && blank($enfant['autreRaisonNeVitPasParents'] ?? null)) {
+                    $validator->errors()->add("enfants.$index.autreRaisonNeVitPasParents", "Le champ autre raison est obligatoire.");
+                }
+
+                $situationScolaire = $enfant['situationScolaire'] ?? '';
+                $contientScol = str_contains($situationScolaire, 'scol') || str_contains($situationScolaire, 'Scol');
+                $estJamaisScolarise = str_contains($situationScolaire, 'Jamais');
+                $estScolarise = str_starts_with($situationScolaire, 'Scol');
+                $estDescolarise = $contientScol && !$estScolarise && !$estJamaisScolarise;
+
+                if (($estScolarise || $estDescolarise) && blank($enfant['niveauScolaire'] ?? null)) {
+                    $validator->errors()->add("enfants.$index.niveauScolaire", 'Le champ niveau scolaire est obligatoire.');
+                }
+
+                if (($estDescolarise || $estJamaisScolarise) && empty($enfant['raisonNonScolarisation'])) {
+                    $validator->errors()->add("enfants.$index.raisonNonScolarisation", 'Le champ raison de non scolarisation est obligatoire.');
+                }
+
+                if (!empty($enfant['raisonNonScolarisation']) && in_array('Autre', (array) $enfant['raisonNonScolarisation']) && blank($enfant['autreRaisonNonScolarisation'] ?? null)) {
+                    $validator->errors()->add("enfants.$index.autreRaisonNonScolarisation", 'Le champ autre raison de non scolarisation est obligatoire.');
+                }
+
+                if (($enfant['extraitNaissance'] ?? null) == 'Non' && empty($enfant['raisonPasExtrait'])) {
+                    $validator->errors()->add("enfants.$index.raisonPasExtrait", "Le champ raison d'absence d'extrait est obligatoire.");
+                }
+
+                $situationsPfte = (array) ($enfant['situationsPfte'] ?? []);
+                $besoinRaisonTravailAbus = count($situationsPfte) > 0 && !(count($situationsPfte) == 1 && $situationsPfte[0] == 'Aucune');
+                if ($besoinRaisonTravailAbus && empty($enfant['raisonTravailAbus'])) {
+                    $validator->errors()->add("enfants.$index.raisonTravailAbus", 'Le champ raison du travail dangereux ou abus est obligatoire.');
+                }
+
+                if (!empty($enfant['raisonTravailAbus']) && in_array('Autre', (array) $enfant['raisonTravailAbus']) && blank($enfant['autreRaisonTravailAbus'] ?? null)) {
+                    $validator->errors()->add("enfants.$index.autreRaisonTravailAbus", 'Le champ autre raison du travail dangereux ou abus est obligatoire.');
+                }
+
+                $mesures = array_merge(
+                    (array) ($enfant['mesuresEnfant'] ?? []),
+                    (array) ($enfant['mesuresMenage'] ?? []),
+                    (array) ($enfant['mesuresCommunaute'] ?? [])
+                );
+                $besoinAutreMesure = collect($mesures)->contains(function ($mesure) {
+                    return str_contains($mesure, 'Autre') || str_contains($mesure, 'prÃ©ciser');
+                });
+
+                if ($besoinAutreMesure && blank($enfant['autreMesure'] ?? null)) {
+                    $validator->errors()->add("enfants.$index.autreMesure", 'Le champ autre mesure est obligatoire.');
+                }
+            }
+        });
+
+        $validator->validate();
 
         $isUpdate = (bool) $request->id;
         $visitePlantation = $isUpdate ? VisitePlantation::findOrFail($request->id) : new VisitePlantation();

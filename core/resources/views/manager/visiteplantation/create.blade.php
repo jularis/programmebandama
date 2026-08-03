@@ -101,13 +101,13 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Localisation GPS de la plantation')</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('latitude', null, ['class' => 'form-control', 'placeholder' => 'Latitude']) !!}
+                            {!! Form::text('latitude', null, ['class' => 'form-control', 'placeholder' => 'Latitude', 'required']) !!}
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 control-label"></label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('longitude', null, ['class' => 'form-control', 'placeholder' => 'Longitude']) !!}
+                            {!! Form::text('longitude', null, ['class' => 'form-control', 'placeholder' => 'Longitude', 'required']) !!}
                         </div>
                     </div>
                     <div class="form-group row">
@@ -133,13 +133,13 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Quel est le nom et prénoms du répondant?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::text('nomRepondant', null, ['class' => 'form-control']) !!}
+                                {!! Form::text('nomRepondant', null, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Quelle est le titre du répondant?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('titreRepondant', array_combine($titresRepondant, $titresRepondant), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control']) !!}
+                                {!! Form::select('titreRepondant', array_combine($titresRepondant, $titresRepondant), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                     </div>
@@ -155,20 +155,20 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Si non, pour quelle raison?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('raisonIndisponibilite', array_combine($raisonsIndisponibilite, $raisonsIndisponibilite), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control', 'id' => 'raisonIndisponibilite']) !!}
+                                {!! Form::select('raisonIndisponibilite', array_combine($raisonsIndisponibilite, $raisonsIndisponibilite), null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible', 'id' => 'raisonIndisponibilite']) !!}
                             </div>
                         </div>
                         <div id="blocReplanification" class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Merci de re-planifier la visite chez ce producteur')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::date('datePlanification', null, ['class' => 'form-control']) !!}
+                                {!! Form::date('datePlanification', null, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div id="blocRefus">
                             <div class="form-group row">
                                 <label class="col-sm-4 control-label">@lang("Pourquoi refusez-vous l'entretien?")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    <select class="form-control select2-multi-select" name="raisonRefus[]" id="raisonRefus" multiple="multiple">
+                                    <select class="form-control select2-multi-select js-required-visible" name="raisonRefus[]" id="raisonRefus" multiple="multiple">
                                         @foreach ($raisonsRefus as $raison)
                                             <option value="{{ $raison }}">{{ $raison }}</option>
                                         @endforeach
@@ -178,7 +178,7 @@
                             <div class="form-group row" id="blocAutreRaisonRefus">
                                 <label class="col-sm-4 control-label">@lang("Veuillez préciser l'autre raison")</label>
                                 <div class="col-xs-12 col-sm-8">
-                                    {!! Form::text('autreRaisonRefus', null, ['class' => 'form-control']) !!}
+                                    {!! Form::text('autreRaisonRefus', null, ['class' => 'form-control js-required-visible']) !!}
                                 </div>
                             </div>
                         </div>
@@ -187,7 +187,7 @@
                     <div id="blocConsentement" class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Le/la producteur/rice consent-il / t-elle à faire l'entretien?")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::select('consentement', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['class' => 'form-control', 'id' => 'consentement']) !!}
+                            {!! Form::select('consentement', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['class' => 'form-control js-required-visible', 'id' => 'consentement']) !!}
                         </div>
                     </div>
 
@@ -202,49 +202,49 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Quelle est la superficie de la plantation?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('superficiePlantation', null, ['class' => 'form-control', 'step' => '0.01']) !!}
+                                {!! Form::number('superficiePlantation', null, ['class' => 'form-control js-required-visible', 'step' => '0.01']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Combien de manœuvres permanents travaillent habituellement dans la plantation')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreManoeuvresPermanents', 0, ['class' => 'form-control']) !!}
+                                {!! Form::number('nombreManoeuvresPermanents', 0, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Parmi ces manœuvres permanents, y a-t-il des personnes de moins de 18 ans?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('manoeuvresPermanentsMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control']) !!}
+                                {!! Form::select('manoeuvresPermanentsMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Combien de manœuvres journaliers travaillent souvent dans la plantation?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreManoeuvresJournaliers', 0, ['class' => 'form-control']) !!}
+                                {!! Form::number('nombreManoeuvresJournaliers', 0, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Parmi ces manœuvres journaliers, y a-t-il souvent des personnes de moins de 18 ans?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('manoeuvresJournaliersMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control']) !!}
+                                {!! Form::select('manoeuvresJournaliersMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], null, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) de 0 à 4 ans dans le ménage/la plantation")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreEnfants0a4', 0, ['class' => 'form-control']) !!}
+                                {!! Form::number('nombreEnfants0a4', 0, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) 5 à 17 ans dans le ménage/la plantation")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreEnfants5a17', 0, ['class' => 'form-control']) !!}
+                                {!! Form::number('nombreEnfants5a17', 0, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Nombre de personnes trouvées dans la plantation lors de la visite (manœuvres, le/la producteur/rice y compris membre du ménage du planteur qu\'il soit adulte ou enfant)')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombrePersonnesTrouvees', 0, ['class' => 'form-control']) !!}
+                                {!! Form::number('nombrePersonnesTrouvees', 0, ['class' => 'form-control js-required-visible']) !!}
                             </div>
                         </div>
 
@@ -316,8 +316,27 @@
                 });
             }
 
+            function refreshRequired() {
+                $('.js-required-visible').each(function() {
+                    var $field = $(this);
+                    if ($field.hasClass('select2-multi-select')) {
+                        $field.prop('required', false);
+                        return;
+                    }
+                    var $group = $field.closest('.form-group');
+                    var visible = $group.length ? $group.is(':visible') : $field.is(':visible');
+                    $field.prop('required', visible && !$field.prop('disabled'));
+                });
+            }
+
             function toggle($el, show) {
-                if (show) { $el.show('slow'); } else { $el.hide(); $el.find('input, select, textarea').val(''); }
+                if (show) {
+                    $el.show('slow', refreshRequired);
+                } else {
+                    $el.hide();
+                    $el.find('input, select, textarea').val('').trigger('change');
+                    refreshRequired();
+                }
             }
 
             function selectedTextes($select) {
@@ -342,6 +361,7 @@
                 var $block = $(html);
                 $('#enfants-container').append($block);
                 initSelect2($block);
+                refreshRequired();
                 enfantIndex++;
                 renumeroterEnfants();
             }
@@ -380,6 +400,7 @@
                 var poursuivre = (disponible == 'Oui' && consentement == 'Oui');
                 $('#suiteFormulaire').toggle(poursuivre);
                 $('#alertFinEnquete').toggle(disponible == 'Non' || (disponible == 'Oui' && consentement == 'Non'));
+                refreshRequired();
             }
 
             $('#producteurDisponible').on('change', function() {
@@ -439,6 +460,7 @@
             // Masquer initialement les blocs conditionnels (au cas où le navigateur pré-remplit)
             toggle($('#blocReplanification'), false);
             toggle($('#blocRefus'), false);
+            refreshRequired();
 
             // Soumission : brouillon vs soumis
             $('#btnBrouillon').on('click', function() { $('#etatSoumission').val('Brouillon'); });
