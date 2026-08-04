@@ -20,6 +20,7 @@ use App\Models\SuiviEnfantTravailleurActionRemediation;
 use Illuminate\Http\Request;
 use App\Exports\ExportSuiviEnfantsTravailleurs;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 
 class SuiviEnfantTravailleurController extends Controller
@@ -148,6 +149,8 @@ class SuiviEnfantTravailleurController extends Controller
 
     public function store(Request $request)
     {
+        $isUpdate = (bool) $request->id;
+
         $rules = [
             'enfant' => 'required|exists:enquete_menage_enfants,id',
             'dateEnquete' => 'required|date',
@@ -155,17 +158,95 @@ class SuiviEnfantTravailleurController extends Controller
             'nom' => 'required|max:150',
             'dateNaissance' => 'required|date',
             'sexe' => 'required|in:M,F',
+            'lienParente' => 'required',
+            'autreLienParente' => 'required_if:lienParente,Autre|max:255',
+            'raisonNeVitPasParents' => 'required|max:255',
+            'autreRaisonNeVitPasParents' => 'required_if:raisonNeVitPasParents,Autres|max:255',
+            'situationScolaire' => 'required|in:Scolarisé,Déscolarisé,Jamais scolarisé',
+            'niveauScolaire' => 'required_if:situationScolaire,Scolarisé,Déscolarisé|max:255',
+            'raisonNonScolarisation' => 'required_if:situationScolaire,Déscolarisé,Jamais scolarisé|array|min:1',
+            'raisonNonScolarisation.*' => 'string|max:255',
+            'autreRaisonNonScolarisation' => 'required_if:raisonNonScolarisation,Autre|max:255',
+            'extraitNaissance' => 'required|in:Oui,Non',
+            'raisonPasExtrait' => 'required_if:extraitNaissance,Non|array|min:1',
+            'raisonPasExtrait.*' => 'string|max:255',
+            'presentDisponible' => 'required|in:0,1',
+            'raisonAbsent' => 'required_if:presentDisponible,0|max:150',
+            'heuresTravailSemaine' => 'required|integer|min:0|max:168',
+            'joursTravail' => 'required|in:0,1,2,3,4,5,6,7',
+            'heuresTravailJournee' => 'required|integer|min:0|max:24',
+            'situationsPfte' => 'required|array|min:1',
+            'situationsPfte.*' => 'string|max:255',
+            'raisonTravailAbus' => 'nullable|array|min:1',
+            'raisonTravailAbus.*' => 'string|max:255',
+            'mesuresEnfant' => 'required|array|min:1',
+            'mesuresEnfant.*' => 'string|max:255',
+            'mesuresMenage' => 'required|array|min:1',
+            'mesuresMenage.*' => 'string|max:255',
+            'mesuresCommunaute' => 'required|array|min:1',
+            'mesuresCommunaute.*' => 'string|max:255',
+            'autreMesure' => 'required|max:255',
+            'themesSensibilisation' => 'required|array|min:1',
+            'themesSensibilisation.*' => 'string|max:255',
+            'autreThemeSensibilisation' => 'required_if:themesSensibilisation,Autres thèmes|max:255',
+            'outilsSensibilisation' => 'required|array|min:1',
+            'outilsSensibilisation.*' => 'string|max:255',
+            'nombreHommesSensibilises' => 'required|integer|min:0',
+            'nombreFemmesSensibilisees' => 'required|integer|min:0',
+            'nombreGarconsSensibilises' => 'required|integer|min:0',
+            'nombreFillesSensibilisees' => 'required|integer|min:0',
+            'telephoneProducteurSensibilisation' => 'required|max:50',
+            'photoSensibilisation' => $isUpdate ? 'nullable|image' : 'required|image',
         ];
 
-        $request->validate($rules);
+        $validator = Validator::make($request->all(), $rules);
 
-        $isUpdate = (bool) $request->id;
+        $validator->after(function ($validator) use ($request) {
+            $situations = $request->input('situationsPfte', []);
+            if (is_array($situations) && ! (count($situations) === 1 && $situations[0] === 'Aucune')) {
+                if (empty($request->input('raisonTravailAbus'))) {
+                    $validator->errors()->add('raisonTravailAbus', 'Le champ raisonTravailAbus est obligatoire.');
+                }
+            }
+
+            if (is_array($request->input('raisonNonScolarisation', [])) && in_array('Autre', $request->input('raisonNonScolarisation', [])) && ! $request->filled('autreRaisonNonScolarisation')) {
+                $validator->errors()->add('autreRaisonNonScolarisation', 'Le champ autreRaisonNonScolarisation est obligatoire.');
+            }
+
+            if (is_array($request->input('raisonTravailAbus', [])) && in_array('Autre', $request->input('raisonTravailAbus', [])) && ! $request->filled('autreRaisonTravailAbus')) {
+                $validator->errors()->add('autreRaisonTravailAbus', 'Le champ autreRaisonTravailAbus est obligatoire.');
+            }
+
+            $mesures = array_merge(
+                $request->input('mesuresEnfant', []),
+                $request->input('mesuresMenage', []),
+                $request->input('mesuresCommunaute', [])
+            );
+            if (collect($mesures)->contains(function ($val) {
+                return str_contains($val, 'Autre') || str_contains($val, 'préciser');
+            }) && ! $request->filled('autreMesure')) {
+                $validator->errors()->add('autreMesure', 'Le champ autreMesure est obligatoire.');
+            }
+
+            if (collect($request->input('themesSensibilisation', []))->contains('Autres thèmes') && ! $request->filled('autreThemeSensibilisation')) {
+                $validator->errors()->add('autreThemeSensibilisation', 'Le champ autreThemeSensibilisation est obligatoire.');
+            }
+        });
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
         $suivi = $isUpdate ? SuiviEnfantTravailleur::findOrFail($request->id) : new SuiviEnfantTravailleur();
 
         $suivi->enfant_id = $request->enfant;
         $suivi->raisonInterview = 'Visite de suivi';
-        $suivi->dateEnquete = $request->dateEnquete;
-        $suivi->nomEnqueteur = $request->nomEnqueteur;
+        if ($isUpdate) {
+            $suivi->dateEnquete = $suivi->dateEnquete;
+        } else {
+            $suivi->dateEnquete = now()->format('Y-m-d');
+        }
+        $suivi->nomEnqueteur = trim((auth()->user()->lastname ?? '') . ' ' . (auth()->user()->firstname ?? '')) ?: auth()->user()->username;
 
         $suivi->nom = $request->nom;
         $suivi->dateNaissance = $request->dateNaissance;
@@ -178,6 +259,11 @@ class SuiviEnfantTravailleurController extends Controller
         $suivi->niveauScolaire = $request->niveauScolaire;
         $suivi->autreRaisonNonScolarisation = $request->autreRaisonNonScolarisation;
         $suivi->extraitNaissance = $request->extraitNaissance;
+        $suivi->presentDisponible = $request->presentDisponible;
+        $suivi->raisonAbsent = $request->presentDisponible === '0' ? $request->raisonAbsent : null;
+        $suivi->heuresTravailSemaine = $request->heuresTravailSemaine;
+        $suivi->joursTravail = $request->joursTravail;
+        $suivi->heuresTravailJournee = $request->heuresTravailJournee;
         $suivi->autreRaisonTravailAbus = $request->autreRaisonTravailAbus;
         $suivi->autreMesure = $request->autreMesure;
 

@@ -33,7 +33,12 @@
                         <tr><th>Niveau scolaire</th><td>{{ $suivi->niveauScolaire }}</td></tr>
                         <tr><th>Raison(s) de non-scolarisation</th><td>{{ $suivi->raisonsNonScolarisation->pluck('valeur')->implode(', ') }} {{ $suivi->autreRaisonNonScolarisation }}</td></tr>
                         <tr><th>Extrait de naissance ?</th><td>{{ $suivi->extraitNaissance }}</td></tr>
+                        <tr><th>L'enfant est-il présent et disponible lors de cette visite ?</th><td>{{ $suivi->presentDisponible === '1' ? 'Oui' : ($suivi->presentDisponible === '0' ? 'Non' : '') }}</td></tr>
+                        <tr><th>Si non, pourquoi l'enfant est-il/elle absent(e) ?</th><td>{{ $suivi->raisonAbsent }}</td></tr>
                         <tr><th>Raison(s) si pas d'extrait</th><td>{{ $suivi->raisonsPasExtrait->pluck('valeur')->implode(', ') }}</td></tr>
+                        <tr><th>Heures de travail la semaine écoulée</th><td>{{ $suivi->heuresTravailSemaine !== null ? $suivi->heuresTravailSemaine . 'h' : '' }}</td></tr>
+                        <tr><th>Jours de travail la semaine écoulée</th><td>{{ $suivi->joursTravail === '0' ? "L'enfant n'a fait aucune tâche" : ($suivi->joursTravail ? 'Sur ' . $suivi->joursTravail . ' jours' : '') }}</td></tr>
+                        <tr><th>Heures maximales travaillées sur une journée</th><td>{{ $suivi->heuresTravailJournee !== null ? ($suivi->heuresTravailJournee == 0 ? "L'enfant n'a fait aucune tâche" : $suivi->heuresTravailJournee . 'h') : '' }}</td></tr>
                         <tr><th>Situation(s) nécessitant un soutien</th><td>{{ $suivi->situationsPfte->pluck('valeur')->implode(', ') }}</td></tr>
                         <tr><th>Raison(s) du travail/abus</th><td>{{ $suivi->raisonsTravailAbus->pluck('valeur')->implode(', ') }} {{ $suivi->autreRaisonTravailAbus }}</td></tr>
                         <tr><th>Mesures - enfant</th><td>{{ $suivi->mesuresEnfant->pluck('valeur')->implode(', ') }}</td></tr>
