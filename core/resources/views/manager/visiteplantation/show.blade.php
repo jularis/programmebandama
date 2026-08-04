@@ -12,6 +12,7 @@
                         <tr><th>Localité</th><td>{{ @$visitePlantation->localite->nom }}</td></tr>
                         <tr><th>Date de l'enquête</th><td>{{ showDateTime($visitePlantation->dateEnquete) }}</td></tr>
                         <tr><th>Enquêteur/trice</th><td>{{ $visitePlantation->nomEnqueteur }}</td></tr>
+                        <tr><th>Jour de cette visite plantation</th><td>{{ $visitePlantation->jourVisite ?? 'Non renseigné' }}</td></tr>
                         <tr><th>Localisation GPS</th><td>{{ $visitePlantation->latitude }}, {{ $visitePlantation->longitude }}</td></tr>
                         <tr><th>Statut fin</th><td>{{ $visitePlantation->statutFin }}</td></tr>
                         <tr><th>État</th><td>{{ $visitePlantation->etatSoumission }}</td></tr>

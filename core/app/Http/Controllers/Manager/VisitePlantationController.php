@@ -51,6 +51,13 @@ class VisitePlantationController extends Controller
         "Autre raison",
     ];
 
+    private function nomEnqueteurConnecte($user)
+    {
+        $nomComplet = trim(($user->lastname ?? '') . ' ' . ($user->firstname ?? ''));
+
+        return $nomComplet ?: ($user->fullname ?? $user->username);
+    }
+
     private $lienParenteEnfant = [
         "Fils/Fille du producteur/rice",
         "Nièce/Neveu du producteur/rice",
@@ -130,8 +137,9 @@ class VisitePlantationController extends Controller
         $pageTitle = "Ajouter une visite de plantation";
         $manager = auth()->user();
         $options = $this->optionsCommunes($manager);
+        $nomEnqueteurConnecte = $this->nomEnqueteurConnecte($manager);
 
-        return view('manager.visiteplantation.create', array_merge(compact('pageTitle'), $options));
+        return view('manager.visiteplantation.create', array_merge(compact('pageTitle', 'nomEnqueteurConnecte'), $options));
     }
 
     public function edit($id)
@@ -150,7 +158,7 @@ class VisitePlantationController extends Controller
             'raisonsRefus',
         ])->findOrFail($id);
 
-        return view('manager.visiteplantation.edit', array_merge(compact('pageTitle', 'visitePlantation'), $options));
+        return view('manager.visiteplantation.edit', array_merge(compact('pageTitle', 'visitePlantation', 'nomEnqueteurConnecte'), $options));
     }
 
     public function show($id)
@@ -188,6 +196,7 @@ class VisitePlantationController extends Controller
             'localite' => 'required|exists:localites,id',
             'producteur' => 'required|exists:producteurs,id',
             'dateEnquete' => 'required|date',
+            'jourVisite' => 'required|in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche',
             'nomEnqueteur' => 'required|max:150',
             'latitude' => 'required|max:50',
             'longitude' => 'required|max:50',
@@ -197,54 +206,63 @@ class VisitePlantationController extends Controller
             'producteurDisponible' => 'required|in:Oui,Non',
             'raisonIndisponibilite' => 'required_if:producteurDisponible,Non|nullable|max:150',
             'datePlanification' => [
-                Rule::requiredIf($request->producteurDisponible == 'Non' && $request->raisonIndisponibilite == 'Temporairement absent'),
+                'required_if:producteurDisponible,Non,raisonIndisponibilite,Temporairement absent',
                 'nullable',
                 'date',
             ],
             'raisonRefus' => [
-                Rule::requiredIf($request->producteurDisponible == 'Non' && $request->raisonIndisponibilite == 'Refus'),
+                'required_if:producteurDisponible,Non,raisonIndisponibilite,Refus',
                 'nullable',
                 'array',
                 'min:1',
             ],
             'raisonRefus.*' => 'required|max:150',
             'autreRaisonRefus' => [
-                Rule::requiredIf(in_array('Autre raison', $raisonRefus)),
+                'required_if:raisonRefus,*.Autre raison',
                 'nullable',
                 'max:150',
             ],
             'consentement' => 'required_if:producteurDisponible,Oui|nullable|in:Oui,Non',
-            'superficiePlantation' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'numeric'],
-            'nombreManoeuvresPermanents' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
-            'manoeuvresPermanentsMoins18' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:Oui,Non'],
-            'nombreManoeuvresJournaliers' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
-            'manoeuvresJournaliersMoins18' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:Oui,Non'],
-            'nombreEnfants0a4' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
-            'nombreEnfants5a17' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
-            'nombrePersonnesTrouvees' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'integer', 'min:0'],
+            'superficiePlantation' => 'required|nullable|numeric',
+            'nombreManoeuvresPermanents' => 'required|nullable|integer|min:0',
+            'manoeuvresPermanentsMoins18' => 'required|nullable|in:Oui,Non',
+            'nombreManoeuvresJournaliers' => 'required|nullable|integer|min:0',
+            'manoeuvresJournaliersMoins18' => 'required|nullable|in:Oui,Non',
+            'nombreEnfants0a4' => 'required|nullable|integer|min:0',
+            'nombreEnfants5a17' => 'required|nullable|integer|min:0',
+            'nombrePersonnesTrouvees' => 'required|nullable|integer|min:0',
             'enfants' => 'nullable|array',
-            'enfants.*.nom' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
-            'enfants.*.dateNaissance' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'date'],
-            'enfants.*.sexe' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:M,F'],
-            'enfants.*.lienParente' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
-            'enfants.*.raisonNeVitPasParents' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
-            'enfants.*.situationScolaire' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:150'],
-            'enfants.*.extraitNaissance' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'in:Oui,Non'],
-            'enfants.*.situationsPfte' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
-            'enfants.*.situationsPfte.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
-            'enfants.*.mesuresEnfant' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
-            'enfants.*.mesuresEnfant.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
-            'enfants.*.mesuresMenage' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
-            'enfants.*.mesuresMenage.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
-            'enfants.*.mesuresCommunaute' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'array', 'min:1'],
-            'enfants.*.mesuresCommunaute.*' => [Rule::requiredIf($entretienPoursuivi), 'nullable', 'max:255'],
+            'enfants.*.nom' => 'required|nullable|max:150',
+            'enfants.*.dateNaissance' => 'required|nullable|date',
+            'enfants.*.sexe' => 'required|nullable|in:M,F',
+            'enfants.*.lienParente' => 'required|nullable|max:150',
+            'enfants.*.raisonNeVitPasParents' => 'required|nullable|max:150',
+            'enfants.*.situationScolaire' => 'required|nullable|max:150',
+            'enfants.*.extraitNaissance' => 'required|nullable|in:Oui,Non',
+            'enfants.*.heuresTravailSemaine' => 'required|nullable|integer|min:0|max:168',
+            'enfants.*.joursTravail' => 'required|nullable|in:0,1,2,3,4,5,6,7',
+            'enfants.*.heuresTravailJournee' => 'required|nullable|integer|min:0|max:24',
+            'enfants.*.situationsPfte' => 'required|nullable|array|min:1',
+            'enfants.*.situationsPfte.*' => 'required|nullable|max:255',
+            'enfants.*.mesuresEnfant' => 'required|nullable|array|min:1',
+            'enfants.*.mesuresEnfant.*' => 'required|nullable|max:255',
+            'enfants.*.mesuresMenage' => 'required|nullable|array|min:1',
+            'enfants.*.mesuresMenage.*' => 'required|nullable|max:255',
+            'enfants.*.mesuresCommunaute' => 'required|nullable|array|min:1',
+            'enfants.*.mesuresCommunaute.*' => 'required|nullable|max:255',
         ];
 
+        $nombreEnfants5a17 = max(0, (int) $request->input('nombreEnfants5a17', 0));
         $validator = Validator::make($request->all(), $rules);
 
-        $validator->after(function ($validator) use ($request, $entretienPoursuivi) {
+        $validator->after(function ($validator) use ($request, $entretienPoursuivi, $nombreEnfants5a17) {
             if (!$entretienPoursuivi) {
                 return;
+            }
+
+            $enfants = (array) $request->input('enfants', []);
+            if ($nombreEnfants5a17 > 0 && count($enfants) < $nombreEnfants5a17) {
+                $validator->errors()->add('enfants', 'Le nombre d\'enfants renseignés est insuffisant.');
             }
 
             foreach ((array) $request->input('enfants', []) as $index => $enfant) {
@@ -317,20 +335,25 @@ class VisitePlantationController extends Controller
 
         $visitePlantation->raisonInterview = 'Enquête initiale';
         $visitePlantation->typeEnquete = 'visite plantation';
-        $visitePlantation->dateEnquete = $request->dateEnquete;
-        $visitePlantation->nomEnqueteur = $request->nomEnqueteur;
+        $visitePlantation->dateEnquete = $isUpdate ? $visitePlantation->dateEnquete : now()->toDateString();
+        $visitePlantation->jourVisite = $request->jourVisite;
+        $visitePlantation->nomEnqueteur = $this->nomEnqueteurConnecte(auth()->user());
 
         $visitePlantation->latitude = $request->latitude;
         $visitePlantation->longitude = $request->longitude;
         $visitePlantation->altitude = $request->altitude;
         $visitePlantation->precisionGps = $request->precisionGps;
 
+        $nomRepondant = $request->estProducteurRepondant === 'Oui'
+            ? trim(($producteur->nom ?? '') . ' ' . ($producteur->prenoms ?? ''))
+            : $request->nomRepondant;
+
         $visitePlantation->estProducteurRepondant = $request->estProducteurRepondant;
-        $visitePlantation->nomRepondant = $request->nomRepondant;
+        $visitePlantation->nomRepondant = $nomRepondant;
         $visitePlantation->titreRepondant = $request->titreRepondant;
 
         $visitePlantation->producteurDisponible = $request->producteurDisponible;
-        $visitePlantation->raisonIndisponibilite = $request->raisonIndisponibilite;
+        $visitePlantation->raisonIndisponibilite = $request->producteurDisponible === 'Oui' ? 'N/A' : $request->raisonIndisponibilite;
         $visitePlantation->datePlanification = $request->datePlanification;
         $visitePlantation->autreRaisonRefus = $request->autreRaisonRefus;
         $visitePlantation->consentement = $request->consentement;
@@ -379,6 +402,9 @@ class VisitePlantationController extends Controller
                 $enfant->niveauScolaire = @$data['niveauScolaire'];
                 $enfant->autreRaisonNonScolarisation = @$data['autreRaisonNonScolarisation'];
                 $enfant->extraitNaissance = @$data['extraitNaissance'];
+                $enfant->heuresTravailSemaine = @$data['heuresTravailSemaine'];
+                $enfant->joursTravail = @$data['joursTravail'];
+                $enfant->heuresTravailJournee = @$data['heuresTravailJournee'];
                 $enfant->autreRaisonTravailAbus = @$data['autreRaisonTravailAbus'];
                 $enfant->autreMesure = @$data['autreMesure'];
                 $enfant->save();

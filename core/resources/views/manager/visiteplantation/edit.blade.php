@@ -87,13 +87,19 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Date de réalisation de l'enquête")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::date('dateEnquete', $visitePlantation->dateEnquete, ['class' => 'form-control', 'required']) !!}
+                            {!! Form::date('dateEnquete', $visitePlantation->dateEnquete, ['class' => 'form-control', 'readonly']) !!}
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-4 control-label">@lang('Jour de cette visite plantation')</label>
+                        <div class="col-xs-12 col-sm-8">
+                            {!! Form::select('jourVisite', ['Lundi' => 'Lundi', 'Mardi' => 'Mardi', 'Mercredi' => 'Mercredi', 'Jeudi' => 'Jeudi', 'Vendredi' => 'Vendredi', 'Samedi' => 'Samedi', 'Dimanche' => 'Dimanche'], $visitePlantation->jourVisite, ['class' => 'form-control', 'placeholder' => 'Selectionner une option', 'required']) !!}
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Nom et Prénom(s) de l'enquêteur/trice")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('nomEnqueteur', $visitePlantation->nomEnqueteur, ['class' => 'form-control', 'required']) !!}
+                            {!! Form::text('nomEnqueteur', $nomEnqueteurConnecte ?? $visitePlantation->nomEnqueteur, ['class' => 'form-control', 'readonly']) !!}
                         </div>
                     </div>
 
@@ -132,7 +138,7 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Quel est le nom et prénoms du répondant?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::text('nomRepondant', $visitePlantation->nomRepondant, ['class' => 'form-control js-required-visible']) !!}
+                                {!! Form::text('nomRepondant', $visitePlantation->nomRepondant, ['class' => 'form-control js-required-visible', 'id' => 'nomRepondant']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
@@ -201,49 +207,49 @@
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Quelle est la superficie de la plantation?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('superficiePlantation', $visitePlantation->superficiePlantation, ['class' => 'form-control js-required-visible', 'step' => '0.01']) !!}
+                                {!! Form::number('superficiePlantation', $visitePlantation->superficiePlantation, ['class' => 'form-control js-required-visible', 'step' => '0.01', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Combien de manœuvres permanents travaillent habituellement dans la plantation')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreManoeuvresPermanents', $visitePlantation->nombreManoeuvresPermanents, ['class' => 'form-control js-required-visible']) !!}
+                                {!! Form::number('nombreManoeuvresPermanents', $visitePlantation->nombreManoeuvresPermanents, ['class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Parmi ces manœuvres permanents, y a-t-il des personnes de moins de 18 ans?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('manoeuvresPermanentsMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], $visitePlantation->manoeuvresPermanentsMoins18, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible']) !!}
+                                {!! Form::select('manoeuvresPermanentsMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], $visitePlantation->manoeuvresPermanentsMoins18, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Combien de manœuvres journaliers travaillent souvent dans la plantation?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreManoeuvresJournaliers', $visitePlantation->nombreManoeuvresJournaliers, ['class' => 'form-control js-required-visible']) !!}
+                                {!! Form::number('nombreManoeuvresJournaliers', $visitePlantation->nombreManoeuvresJournaliers, ['class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Parmi ces manœuvres journaliers, y a-t-il souvent des personnes de moins de 18 ans?')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::select('manoeuvresJournaliersMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], $visitePlantation->manoeuvresJournaliersMoins18, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible']) !!}
+                                {!! Form::select('manoeuvresJournaliersMoins18', ['Oui' => 'Oui', 'Non' => 'Non'], $visitePlantation->manoeuvresJournaliersMoins18, ['placeholder' => 'Selectionner une option', 'class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) de 0 à 4 ans dans le ménage/la plantation")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreEnfants0a4', $visitePlantation->nombreEnfants0a4, ['class' => 'form-control js-required-visible']) !!}
+                                {!! Form::number('nombreEnfants0a4', $visitePlantation->nombreEnfants0a4, ['class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang("Nombre d'enfant(s) 5 à 17 ans dans le ménage/la plantation")</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombreEnfants5a17', $visitePlantation->nombreEnfants5a17, ['class' => 'form-control js-required-visible']) !!}
+                                {!! Form::number('nombreEnfants5a17', $visitePlantation->nombreEnfants5a17, ['class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Nombre de personnes trouvées dans la plantation lors de la visite (manœuvres, le/la producteur/rice y compris membre du ménage du planteur qu\'il soit adulte ou enfant)')</label>
                             <div class="col-xs-12 col-sm-8">
-                                {!! Form::number('nombrePersonnesTrouvees', $visitePlantation->nombrePersonnesTrouvees, ['class' => 'form-control js-required-visible']) !!}
+                                {!! Form::number('nombrePersonnesTrouvees', $visitePlantation->nombrePersonnesTrouvees, ['class' => 'form-control js-required-visible', 'required']) !!}
                             </div>
                         </div>
 
@@ -256,7 +262,7 @@
                             @endforeach
                         </div>
 
-                        <div class="form-group row">
+                        <div class="form-group row" id="blocAjouterEnfant" style="display:none;">
                             <div class="col-xs-12 col-sm-8 offset-sm-4">
                                 <button type="button" id="btnAjouterEnfant" class="btn btn-outline--primary">
                                     <i class="las la-plus"></i> @lang('Ajouter un enfant')
@@ -364,6 +370,29 @@
                 renumeroterEnfants();
             }
 
+            function synchroniserEnfantsDepuisNombre() {
+                var cible = Math.max(0, parseInt($('#nombreEnfants5a17').val()) || 0);
+                var actuel = $('#enfants-container .enfant-block').length;
+
+                if (cible > actuel) {
+                    while ($('#enfants-container .enfant-block').length < cible) {
+                        ajouterEnfant();
+                    }
+                } else if (cible < actuel) {
+                    while ($('#enfants-container .enfant-block').length > cible) {
+                        $('#enfants-container .enfant-block').last().remove();
+                    }
+                }
+
+                var aDesEnfants = cible > 0;
+                $('#enfants-container .enfant-block').find('input, select, textarea').each(function() {
+                    $(this).prop('required', aDesEnfants);
+                });
+
+                renumeroterEnfants();
+                refreshRequired();
+            }
+
             $('#btnAjouterEnfant').on('click', function(e) {
                 e.preventDefault();
                 ajouterEnfant();
@@ -380,10 +409,24 @@
                 $('#codeProducteurDisplay').val(opt.data('code') || '');
             });
 
-            $('#estProducteurRepondant').on('change', function() {
-                toggle($('#blocRepondant'), $(this).val() == 'Non');
-            });
-            toggle($('#blocRepondant'), $('#estProducteurRepondant').val() == 'Non');
+            $('#nombreEnfants5a17').on('input change', synchroniserEnfantsDepuisNombre);
+            synchroniserEnfantsDepuisNombre();
+
+            function majNomRepondant() {
+                var estProducteur = $('#estProducteurRepondant').val() == 'Oui';
+                var nomProducteur = $('#producteur').find(':selected').text().trim();
+
+                $('#nomRepondant').prop('readonly', estProducteur);
+                toggle($('#blocRepondant'), !estProducteur);
+
+                if (estProducteur) {
+                    $('#nomRepondant').val(nomProducteur);
+                }
+            }
+
+            $('#estProducteurRepondant').on('change', majNomRepondant);
+            $('#producteur').on('change', majNomRepondant);
+            majNomRepondant();
 
             function majSuiteFormulaire() {
                 var disponible = $('#producteurDisponible').val();
@@ -392,16 +435,19 @@
                 toggle($('#blocIndisponible'), disponible == 'Non');
                 $('#blocConsentement').toggle(disponible == 'Oui');
 
+                if (disponible == 'Oui') {
+                    $('#raisonIndisponibilite').val('N/A').trigger('change');
+                } else if (disponible == 'Non') {
+                    $('#raisonIndisponibilite').val('').trigger('change');
+                }
+
                 var poursuivre = (disponible == 'Oui' && consentement == 'Oui');
                 $('#suiteFormulaire').toggle(poursuivre);
                 $('#alertFinEnquete').toggle(disponible == 'Non' || (disponible == 'Oui' && consentement == 'Non'));
                 refreshRequired();
             }
 
-            $('#producteurDisponible').on('change', function() {
-                if ($(this).val() != 'Non') { $('#raisonIndisponibilite').val(''); }
-                majSuiteFormulaire();
-            });
+            $('#producteurDisponible').on('change', majSuiteFormulaire);
             $('#consentement').on('change', majSuiteFormulaire);
             majSuiteFormulaire();
 
