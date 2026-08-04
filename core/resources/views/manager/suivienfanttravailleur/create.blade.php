@@ -353,9 +353,22 @@
                         <label class="col-sm-4 control-label">@lang('Quel(s) Thème(s) a/ont été abordé(s)?')</label>
                         <div class="col-xs-12 col-sm-8">
                             <select class="form-control select2-multi-select" name="themesSensibilisation[]" id="themesSensibilisation" multiple="multiple" required>
-                                @foreach ($sensibilisationThemes as $theme)
-                                    <option value="{{ $theme }}">{{ $theme }}</option>
-                                @endforeach
+                                <option value="Port de charges lourdes" @selected(old('themesSensibilisation') && in_array('Port de charges lourdes', old('themesSensibilisation'))) >Port de charges lourdes</option>
+                                <option value="Défrichage" @selected(old('themesSensibilisation') && in_array('Défrichage', old('themesSensibilisation'))) >Défrichage</option>
+                                <option value="Taille, Récolte ou Cabossage avec objet tranchant" @selected(old('themesSensibilisation') && in_array('Taille, Récolte ou Cabossage avec objet tranchant', old('themesSensibilisation'))) >Taille, Récolte ou Cabossage avec objet tranchant</option>
+                                <option value="Dessouchage" @selected(old('themesSensibilisation') && in_array('Dessouchage', old('themesSensibilisation'))) >Dessouchage</option>
+                                <option value="Abattage des arbres" @selected(old('themesSensibilisation') && in_array('Abattage des arbres', old('themesSensibilisation'))) >Abattage des arbres</option>
+                                <option value="Brulages des parcelles" @selected(old('themesSensibilisation') && in_array('Brulages des parcelles', old('themesSensibilisation'))) >Brulages des parcelles</option>
+                                <option value="Production de bois de chauffe" @selected(old('themesSensibilisation') && in_array('Production de bois de chauffe', old('themesSensibilisation'))) >Production de bois de chauffe</option>
+                                <option value="Chasse de gibier avec une arme" @selected(old('themesSensibilisation') && in_array('Chasse de gibier avec une arme', old('themesSensibilisation'))) >Chasse de gibier avec une arme</option>
+                                <option value="Manipulation de produits agro-chimiques" @selected(old('themesSensibilisation') && in_array('Manipulation de produits agro-chimiques', old('themesSensibilisation'))) >Manipulation de produits agro-chimiques</option>
+                                <option value="Trouaison" @selected(old('themesSensibilisation') && in_array('Trouaison', old('themesSensibilisation'))) >Trouaison</option>
+                                <option value="Conduite d'engins motorisés" @selected(old('themesSensibilisation') && in_array('Conduite d'engins motorisés', old('themesSensibilisation'))) >Conduite d'engins motorisés</option>
+                                <option value="Droits des enfants" @selected(old('themesSensibilisation') && in_array('Droits des enfants', old('themesSensibilisation'))) >Droits des enfants</option>
+                                <option value="Longues heures sur les tâches non-dangereuses" @selected(old('themesSensibilisation') && in_array('Longues heures sur les tâches non-dangereuses', old('themesSensibilisation'))) >Longues heures sur les tâches non-dangereuses</option>
+                                <option value="Travail de nuit" @selected(old('themesSensibilisation') && in_array('Travail de nuit', old('themesSensibilisation'))) >Travail de nuit</option>
+                                <option value="Maltraitance physique ou morale" @selected(old('themesSensibilisation') && in_array('Maltraitance physique ou morale', old('themesSensibilisation'))) >Maltraitance physique ou morale</option>
+                                <option value="Autres thèmes" @selected(old('themesSensibilisation') && in_array('Autres thèmes', old('themesSensibilisation'))) >Autres thèmes</option>
                             </select>
                         </div>
                     </div>
@@ -368,10 +381,11 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Outils utilisés pour faire la sensibilisation')</label>
                         <div class="col-xs-12 col-sm-8">
+                            @php $outils = isset($sensibilisationOutils) ? $sensibilisationOutils : []; @endphp
                             <select class="form-control select2-multi-select" name="outilsSensibilisation[]" multiple="multiple" required>
-                                @foreach ($sensibilisationOutils as $outil)
-                                    <option value="{{ $outil }}">{{ $outil }}</option>
-                                @endforeach
+                                <?php foreach ($outils as $outil): ?>
+                                    <option value="<?php echo e($outil); ?>"><?php echo e($outil); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>

@@ -362,9 +362,22 @@
                         <label class="col-sm-4 control-label">@lang('Quel(s) Thème(s) a/ont été abordé(s)?')</label>
                         <div class="col-xs-12 col-sm-8">
                             <select class="form-control select2-multi-select" name="themesSensibilisation[]" id="themesSensibilisation" multiple="multiple" required>
-                                @foreach ($sensibilisationThemes as $theme)
-                                    <option value="{{ $theme }}" @selected(in_array($theme, $selThemes))>{{ $theme }}</option>
-                                @endforeach
+                                <option value="Port de charges lourdes" @selected(in_array('Port de charges lourdes', $selThemes))>Port de charges lourdes</option>
+                                <option value="Défrichage" @selected(in_array('Défrichage', $selThemes))>Défrichage</option>
+                                <option value="Taille, Récolte ou Cabossage avec objet tranchant" @selected(in_array('Taille, Récolte ou Cabossage avec objet tranchant', $selThemes))>Taille, Récolte ou Cabossage avec objet tranchant</option>
+                                <option value="Dessouchage" @selected(in_array('Dessouchage', $selThemes))>Dessouchage</option>
+                                <option value="Abattage des arbres" @selected(in_array('Abattage des arbres', $selThemes))>Abattage des arbres</option>
+                                <option value="Brulages des parcelles" @selected(in_array('Brulages des parcelles', $selThemes))>Brulages des parcelles</option>
+                                <option value="Production de bois de chauffe" @selected(in_array('Production de bois de chauffe', $selThemes))>Production de bois de chauffe</option>
+                                <option value="Chasse de gibier avec une arme" @selected(in_array('Chasse de gibier avec une arme', $selThemes))>Chasse de gibier avec une arme</option>
+                                <option value="Manipulation de produits agro-chimiques" @selected(in_array('Manipulation de produits agro-chimiques', $selThemes))>Manipulation de produits agro-chimiques</option>
+                                <option value="Trouaison" @selected(in_array('Trouaison', $selThemes))>Trouaison</option>
+                                <option value="Conduite d'engins motorisés" @selected(in_array('Conduite d'engins motorisés', $selThemes))>Conduite d'engins motorisés</option>
+                                <option value="Droits des enfants" @selected(in_array('Droits des enfants', $selThemes))>Droits des enfants</option>
+                                <option value="Longues heures sur les tâches non-dangereuses" @selected(in_array('Longues heures sur les tâches non-dangereuses', $selThemes))>Longues heures sur les tâches non-dangereuses</option>
+                                <option value="Travail de nuit" @selected(in_array('Travail de nuit', $selThemes))>Travail de nuit</option>
+                                <option value="Maltraitance physique ou morale" @selected(in_array('Maltraitance physique ou morale', $selThemes))>Maltraitance physique ou morale</option>
+                                <option value="Autres thèmes" @selected(in_array('Autres thèmes', $selThemes))>Autres thèmes</option>
                             </select>
                         </div>
                     </div>
@@ -377,10 +390,11 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Outils utilisés pour faire la sensibilisation')</label>
                         <div class="col-xs-12 col-sm-8">
+                            @php $outils = isset($sensibilisationOutils) ? $sensibilisationOutils : []; $existingOutils = $selOutils ?? []; @endphp
                             <select class="form-control select2-multi-select" name="outilsSensibilisation[]" multiple="multiple" required>
-                                @foreach ($sensibilisationOutils as $outil)
-                                    <option value="{{ $outil }}" @selected(in_array($outil, $selOutils))>{{ $outil }}</option>
-                                @endforeach
+                                <?php foreach ($outils as $outil): ?>
+                                    <option value="<?php echo e($outil); ?>" <?php echo in_array($outil, $existingOutils) ? 'selected' : ''; ?>><?php echo e($outil); ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
