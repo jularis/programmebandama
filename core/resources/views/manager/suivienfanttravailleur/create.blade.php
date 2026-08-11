@@ -422,7 +422,7 @@
                     <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang("Numéro de téléphone du/de la producteur/rice ou d'un proche")</label>
                         <div class="col-xs-12 col-sm-8">
-                            {!! Form::text('telephoneProducteurSensibilisation', null, ['class' => 'form-control', 'required']) !!}
+                            {!! Form::text('telephoneProducteurSensibilisation', null, ['class' => 'form-control', 'required', 'inputmode' => 'numeric', 'pattern' => '[0-9]*']) !!}
                         </div>
                     </div>
                     <div class="form-group row">
@@ -464,6 +464,10 @@
 @push('script')
     <script type="text/javascript">
         $(document).ready(function() {
+            $('input[name="telephoneProducteurSensibilisation"]').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
             if ($.fn.select2) {
                 $('.select2-multi-select, .select2-single-select').each(function() {
                     if (!$(this).hasClass('select2-hidden-accessible')) {
