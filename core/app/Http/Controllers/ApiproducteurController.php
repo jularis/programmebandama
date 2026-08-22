@@ -160,9 +160,18 @@ class ApiproducteurController extends Controller
           $producteur->codeProdapp = null;
         }
       }
-      $data = $request->all();
-      unset($data['certificats']);
-      $producteur->update($data);
+      // Correctif 22/08/2026 - erreur 500 a la mise a jour depuis le mobile.
+      //
+      // update($request->all()) reinjectait TOUTES les cles recues, y compris celles
+      // qui n'existent pas dans la table producteurs : uid et sync_update (identifiant
+      // local et drapeau de synchronisation propres a l'application mobile), section et
+      // photo. Avec $guarded = [], Eloquent les passait telles quelles dans la requete
+      // SQL, provoquant une erreur "Unknown column" et une 500 a corps vide.
+      //
+      // Cet appel etait de surcroit redondant : tous les champs reellement persistables
+      // sont deja affectes un a un ci-dessus. Un simple save() suffit, comme dans la
+      // branche de creation.
+      $producteur->save();
       if ($producteur != null) {
         $id = $producteur->id;
         $datas  = $data2 = [];
