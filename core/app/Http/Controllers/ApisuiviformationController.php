@@ -63,9 +63,15 @@ class ApisuiviformationController extends Controller
         }
 
         $localite = Localite::with('section')->find($request->localite);
+        $campagneInput = $request->campagne_id ?: $request->campagne;
         $campagne = Campagne::active()
             ->when($localite && $localite->section, function ($query) use ($localite) {
                 $query->where('cooperative_id', $localite->section->cooperative_id);
+            })
+            ->when($campagneInput, function ($query) use ($campagneInput) {
+                $query->where(function ($q) use ($campagneInput) {
+                    $q->where('id', $campagneInput)->orWhere('nom', $campagneInput);
+                });
             })
             ->first();
 

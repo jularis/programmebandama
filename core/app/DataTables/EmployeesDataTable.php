@@ -126,7 +126,7 @@ class EmployeesDataTable extends BaseDataTable
             return $action;
         });
         $datatables->addColumn('employee_name', function ($row) {
-            return $row->name;
+            return trim($row->lastname . ' ' . $row->firstname);
         });
 
         $datatables->editColumn(

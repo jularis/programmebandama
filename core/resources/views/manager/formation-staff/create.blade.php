@@ -110,10 +110,19 @@
 
                     <hr class="panel-wide">
                     <div class="form-group row">
-                        <?php echo Form::label(__('Date de Début & Fin de la formation'), null, ['class' => 'col-sm-4 control-label required']); ?>
+                        <?php echo Form::label(__('Date de debut de la formation'), null, ['class' => 'col-sm-4 control-label required']); ?>
                         <div class="col-xs-12 col-sm-8">
 
-                            <?php echo Form::text('multi_date', now('Africa/Abidjan')->translatedFormat('Y-m-d'), ['class' => 'form-control', 'id' => 'multi_date', 'required' => 'required']); ?>
+                            <?php echo Form::date('date_debut_formation', old('date_debut_formation', now('Africa/Abidjan')->format('Y-m-d')), ['class' => 'form-control formation-start-date', 'id' => 'date_debut_formation', 'required' => 'required']); ?>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <?php echo Form::label(__('Date de fin de la formation'), null, ['class' => 'col-sm-4 control-label required']); ?>
+                        <div class="col-xs-12 col-sm-8">
+                            <?php echo Form::date('date_fin_formation', old('date_fin_formation', now('Africa/Abidjan')->format('Y-m-d')), ['class' => 'form-control formation-end-date', 'id' => 'date_fin_formation', 'required' => 'required']); ?>
+                            <small class="text-danger d-none formation-date-error">
+                                La date de debut doit etre inferieure a la date de fin de la formation.
+                            </small>
                         </div>
                     </div>
                     <div class="form-group row">
@@ -145,8 +154,6 @@
                         </div>
                     </div>
                     <hr class="panel-wide">
-                    <input type="hidden" name="multiStartDate" id="multiStartDate">
-                    <input type="hidden" name="multiEndDate" id="multiEndDate">
                     <div class="form-group row">
                         <button type="submit" class="btn btn--primary w-100 h-45"> @lang('Envoyer')</button>
                     </div>
@@ -181,6 +188,24 @@
             $('#duree_formation').timepicker({
                 showMeridian: (false)
             });
+            function validateFormationDates() {
+                var startDate = $('.formation-start-date').val();
+                var endDate = $('.formation-end-date').val();
+                var isInvalid = startDate && endDate && startDate >= endDate;
+
+                $('.formation-date-error').toggleClass('d-none', !isInvalid);
+                $('.formation-end-date')[0].setCustomValidity(isInvalid ? 'La date de debut doit etre inferieure a la date de fin de la formation.' : '');
+                $('#flocal button[type="submit"]').prop('disabled', isInvalid);
+
+                if (isInvalid) {
+                    $('.formation-start-date, .formation-end-date').val('');
+                    $('.formation-end-date')[0].setCustomValidity('');
+                    $('#flocal button[type="submit"]').prop('disabled', false);
+                }
+            }
+
+            $('.formation-start-date, .formation-end-date').on('change', validateFormationDates);
+            validateFormationDates();
             $('#multi_date').daterangepicker({
                 linkedCalendars: false,
                 multidate: true,

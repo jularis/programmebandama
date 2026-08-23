@@ -40,13 +40,32 @@ class FormationController extends Controller
         $manager   = auth()->user();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->get();
         $modules = TypeFormation::active()->get();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom');
+        $campagneIds = [];
+
+        if (request()->campagne != null) {
+            $selectedCampagne = $campagnes->firstWhere('id', (int) request()->campagne);
+
+            if ($selectedCampagne) {
+                $campagneIds = Campagne::where('cooperative_id', $manager->cooperative_id)
+                    ->where('nom', $selectedCampagne->nom)
+                    ->pluck('id')
+                    ->toArray();
+            }
+        }
+
         $formations = SuiviFormation::with('typeFormationTheme.typeFormation')
             ->dateFilter()
             ->searchable(['lieu_formation'])
             ->latest('id')
             ->joinRelationship('localite.section')
             ->where('sections.cooperative_id', $manager->cooperative_id)
-            ->where(function ($q) {
+            ->where(function ($q) use ($campagneIds) {
                 if (request()->localite != null) {
                     $q->where('localite_id', request()->localite);
                 }
@@ -55,10 +74,13 @@ class FormationController extends Controller
                         $q->where('id', request()->module);
                     });
                 }
+                if (!empty($campagneIds)) {
+                    $q->whereIn('suivi_formations.campagne_id', $campagneIds);
+                }
             })
             ->with('localite', 'campagne', 'user','entreprises','formateurs')
             ->paginate(getPaginate());
-        return view('manager.formation.index', compact('pageTitle', 'formations', 'localites', 'modules'));
+        return view('manager.formation.index', compact('pageTitle', 'formations', 'localites', 'modules', 'campagnes'));
     }
 
     public function create()
@@ -72,6 +94,13 @@ class FormationController extends Controller
         $sousThemes  = SousThemeFormation::with('themeFormation')->get();
         $entreprises = Entreprise::all();
         $formateurs = FormateurStaff::with('entreprise')->get();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
 
         $staffs = User::whereHas('roles', function ($q) {
             $q->whereIn('name', ['Inspecteur', 'ADG']);
@@ -80,7 +109,7 @@ class FormationController extends Controller
             ->select('users.*')
             ->get();
 
-        return view('manager.formation.create', compact('pageTitle', 'producteurs', 'localites', 'typeformations', 'themes', 'staffs', 'sousThemes', 'entreprises', 'formateurs'));
+        return view('manager.formation.create', compact('pageTitle', 'producteurs', 'localites', 'typeformations', 'themes', 'staffs', 'sousThemes', 'entreprises', 'formateurs', 'campagnes'));
     }
 
     public function store(Request $request)
@@ -88,6 +117,7 @@ class FormationController extends Controller
 
 
         $validationRule = [
+            'campagne_id' => 'required|exists:campagnes,id',
             'localite'    => 'required|exists:localites,id',
             'producteur' => 'required|max:255',
             'lieu_formation'  => 'required|max:255',
@@ -102,8 +132,19 @@ class FormationController extends Controller
         });
 
         if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
         }
 
+        $manager = auth()->user();
+        $campagne = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->where('id', $request->campagne_id)
+            ->first();
+
+        if (!$campagne) {
+            $notify[] = ['error', 'La campagne selectionnee n’est pas liee a votre cooperative.'];
+            return back()->withNotify($notify)->withInput();
+        }
 
         $localite = Localite::where('id', $request->localite)->first();
 
@@ -119,7 +160,7 @@ class FormationController extends Controller
             $formation = new SuiviFormation();
             $isUpdate = false;
         }
-        $campagne = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->first();
+        // La campagne a deja ete validee avec la cooperative connectee.
         if (!$campagne) {
             $notify[] = ['error', 'Aucune campagne active trouvée pour votre coopérative.'];
             return back()->withNotify($notify)->withInput();
@@ -250,6 +291,13 @@ class FormationController extends Controller
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->get();
         $formation   = SuiviFormation::findOrFail($id);
         $typeformations  = TypeFormation::all();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
 
         $modules = array();
         $themesSelected = array();
@@ -285,7 +333,7 @@ class FormationController extends Controller
             $entreprisess[] = $item->entreprise_id;
             $formateurSelected[] = $item->formateur_staff_id;
         }
-        return view('manager.formation.edit', compact('pageTitle', 'localites', 'formation', 'producteurs', 'typeformations', 'themes', 'staffs', 'dataTheme', 'modules', 'themesSelected', 'sousthemes', 'sousThemesSelected', 'producteursSelected', 'entreprisess', 'formateurSelected', 'entreprises', 'formateurs'));
+        return view('manager.formation.edit', compact('pageTitle', 'localites', 'formation', 'producteurs', 'typeformations', 'themes', 'staffs', 'dataTheme', 'modules', 'themesSelected', 'sousthemes', 'sousThemesSelected', 'producteursSelected', 'entreprisess', 'formateurSelected', 'entreprises', 'formateurs', 'campagnes'));
     }
     public function show($id)
     {

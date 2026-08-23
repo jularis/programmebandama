@@ -7,6 +7,11 @@
                 <div class="col-sm-12 pt-2">
                     <div class="alert alert-warning" role="alert">
                         @lang('app.importExcelInfo')
+                        <br>
+                        @lang("Fichier d'exemple à utiliser") :
+                        <a href="{{ asset('assets/employee-import-exemple.xlsx') }}" target="_blank">
+                            employee-import-exemple.xlsx
+                        </a>
                     </div>
                 </div>
                 <div class="row py-20">
@@ -25,7 +30,7 @@
                     <x-forms.button-primary id="import-employee-form" class="mr-3"
                                             icon="arrow-right">@lang('app.uploadNext')
                     </x-forms.button-primary>
-                    <x-forms.button-cancel :link="route('manager.hr.employees.index')" class="border-0">@lang('app.back')
+                    <x-forms.button-cancel :link="route('manager.employees.index')" class="border-0">@lang('app.back')
                     </x-forms.button-cancel>
 
                 </x-form-actions>

@@ -22,6 +22,7 @@ use App\Models\LivraisonScelle;
 use App\Models\LivraisonPayment;
 use App\Models\LivraisonProduct;
 use App\Models\AdminNotification;
+use App\Models\Estimation;
 use Illuminate\Support\Facades\DB;
 use App\Models\StockMagasinCentral;
 use App\Models\StockMagasinSection;
@@ -76,10 +77,22 @@ class ApilivraisonController extends Controller
             'estimate_date'      => 'required|date|date_format:Y-m-d',
         ]);
 
-        $campagne = Campagne::active()->first();
-        $periode = CampagnePeriode::where([['campagne_id', $campagne->id], ['periode_debut', '<=', gmdate('Y-m-d')], ['periode_fin', '>=', gmdate('Y-m-d')]])->latest()->first();
-
         $sender                      = User::where('id', $request->userid)->first();
+        $campagne = Campagne::active()->where('cooperative_id', $sender->cooperative_id)->first();
+        if (!$campagne) {
+            return response()->json(['message' => 'Aucune campagne active pour cette cooperative.'], 422);
+        }
+
+        $periode = CampagnePeriode::where([['campagne_id', $campagne->id], ['periode_debut', '<=', gmdate('Y-m-d')], ['periode_fin', '>=', gmdate('Y-m-d')]])->latest()->first();
+        if (!$periode) {
+            return response()->json(['message' => 'Aucune periode active pour cette campagne.'], 422);
+        }
+
+        $volumeLimitError = $this->validateEstimatedVolumeLimit($request->items, $campagne->id);
+        if ($volumeLimitError) {
+            return response()->json(['message' => $volumeLimitError], 422);
+        }
+
         $livraison                     = new LivraisonInfo();
         $livraison->invoice_id         = getTrx();
         $livraison->code               = getTrx();
@@ -143,6 +156,15 @@ class ApilivraisonController extends Controller
                 'type_price'      => $periode->prix_champ,
                 'created_at'      => now(),
             ];
+
+            $estimation = Estimation::where([['campagne_id', $campagne->id], ['parcelle_id', $item['parcelle']]])->first();
+            if ($estimation != null) {
+                $estimation->productionAnnuelle = (float) $estimation->productionAnnuelle + (float) $item['quantity'];
+                if ((float) $estimation->productionAnnuelle >= (float) $estimation->EsP) {
+                    $estimation->etat = 'Atteint';
+                }
+                $estimation->save();
+            }
 
             $product = Producteur::where('id', $item['producteur'])->first();
             if ($product != null) {
@@ -343,6 +365,48 @@ class ApilivraisonController extends Controller
         $staff = User::where('id', $request->userid)->first();
         $magasins = MagasinSection::joinRelationship('section.cooperative')->where([['cooperative_id', $staff->cooperative_id]])->get();
         return response()->json($magasins, 201);
+    }
+
+    private function validateEstimatedVolumeLimit(array $items, int $campagneId): ?string
+    {
+        $quantitiesByParcelle = [];
+
+        foreach ($items as $item) {
+            $parcelleId = (int) ($item['parcelle'] ?? 0);
+            $quantity = (float) ($item['quantity'] ?? 0);
+
+            if ($parcelleId <= 0 || $quantity <= 0) {
+                continue;
+            }
+
+            $quantitiesByParcelle[$parcelleId] = ($quantitiesByParcelle[$parcelleId] ?? 0) + $quantity;
+        }
+
+        foreach ($quantitiesByParcelle as $parcelleId => $quantity) {
+            $estimation = Estimation::where([
+                ['campagne_id', $campagneId],
+                ['parcelle_id', $parcelleId],
+            ])->first();
+
+            if (!$estimation) {
+                return "Aucune estimation trouvee pour la parcelle {$parcelleId} sur cette campagne.";
+            }
+
+            $estimatedVolume = (float) $estimation->EsP;
+            if ($estimatedVolume <= 0) {
+                return "Le volume estime de la parcelle {$parcelleId} est vide ou nul pour cette campagne.";
+            }
+
+            $alreadyDelivered = (float) $estimation->productionAnnuelle;
+            $maximumAllowed = $estimatedVolume * 1.10;
+            $newTotal = $alreadyDelivered + $quantity;
+
+            if ($newTotal > $maximumAllowed) {
+                return "Volume depasse pour la parcelle {$parcelleId}: cumul livre {$newTotal} kg, maximum autorise {$maximumAllowed} kg (volume estime {$estimatedVolume} kg + 10%).";
+            }
+        }
+
+        return null;
     }
     public function livraisonbroussebymagasinsection(){
 

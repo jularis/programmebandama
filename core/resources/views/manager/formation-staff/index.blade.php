@@ -43,7 +43,8 @@
                                     <th>@lang('Entreprises')</th>
                                     <th>@lang('Formateurs')</th>
                                     <th>@lang('Lieu')</th>
-                                    <th>@lang('Date formation')</th>
+                                    <th>@lang('Date de debut')</th>
+                                    <th>@lang('Date de fin')</th>
                                     <th>@lang('Ajoutée le')</th>
                                     <th>@lang('Status')</th>
                                     <th>@lang('Action')</th>
@@ -85,8 +86,10 @@
                                             <span>{{ $formation->lieu_formation }}</span>
                                         </td>
                                         <td>
-                                            <span class="d-block">{{ showDateTime($formation->date_formation) }}</span>
-                                            <span>{{ diffForHumans($formation->date_formation) }}</span>
+                                            <span class="d-block">{{ $formation->date_debut_formation ? showDateTime($formation->date_debut_formation) : '-' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="d-block">{{ $formation->date_fin_formation ? showDateTime($formation->date_fin_formation) : '-' }}</span>
                                         </td>
                                         <td>
                                             <span class="d-block">{{ showDateTime($formation->created_at) }}</span>

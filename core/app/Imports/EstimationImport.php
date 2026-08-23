@@ -2,105 +2,129 @@
 
 namespace App\Imports;
 
-use App\Models\Parcelle;
-use App\Models\Producteur;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\WithValidation;
 
 class EstimationImport implements ToCollection, WithHeadingRow, WithValidation
 {
-    /**
-    * @param Collection $collection
-    */
     public function rules(): array
     {
-        return[
-            'estimproduction' => 'required', 
+        return [
+            'campagne' => 'required',
+            'estimproduction' => 'required',
             'codeproducteur' => 'required',
             'superficie' => 'required',
         ];
     }
+
     public function collection(Collection $collection)
     {
-        $cooperatives_id = request()->coop_id;
-        $j=0;
-        $k='';
-        if(count($collection)){
- 
-        foreach($collection as $row)
-         {
-  $superficie = $row['superficie'];
-  $codeProd = $row['codeproducteur']; 
-  //Get the user emails
-  $superficie=is_numeric(trim($superficie)) ? round(trim($superficie),2) : trim($superficie);
-  $verification = DB::table('parcelles as pa')->join('producteurs as p','pa.producteur_id','=','p.id')->orWhere('p.codeProd',$codeProd)->orWhere('p.codeProdapp',$codeProd)->where('pa.superficie',$superficie)->select('pa.*','p.codeProdapp','p.codeProd')->first();
+        $manager = auth()->user();
+        $cooperativeId = $manager->cooperative_id;
+        $imported = 0;
+        $missingParcelles = '';
+        $invalidCampagnes = '';
 
-if($verification !=null)
-{
-    $codeProdapp = $verification->codeProdapp; 
-    $codeProd = $verification->codeProd;
-    $estimproduction = $row['estimproduction'];
-    $estimproduction = Str::before($estimproduction,' ');
-    if(Str::contains($estimproduction,","))
+        if (!count($collection)) {
+            $notify[] = ['error', "Il n'y a aucune donnees dans le fichier."];
+            return back()->withNotify($notify);
+        }
+
+        foreach ($collection as $row) {
+            $campagneValue = trim((string) $row['campagne']);
+            $codeProd = trim((string) $row['codeproducteur']);
+            $superficie = $this->normalizeNumber($row['superficie']);
+            $superficie = is_numeric($superficie) ? round($superficie, 2) : $superficie;
+
+            $campagne = $this->findCampagne($campagneValue, $cooperativeId);
+            if ($campagne == null) {
+                $invalidCampagnes .= $campagneValue . ' , ';
+                continue;
+            }
+
+            $parcelle = DB::table('parcelles as pa')
+                ->join('producteurs as p', 'pa.producteur_id', '=', 'p.id')
+                ->join('localites as l', 'p.localite_id', '=', 'l.id')
+                ->join('sections as s', 'l.section_id', '=', 's.id')
+                ->where('s.cooperative_id', $cooperativeId)
+                ->where(function ($query) use ($codeProd) {
+                    $query->where('p.codeProd', $codeProd)
+                        ->orWhere('p.codeProdapp', $codeProd);
+                })
+                ->where('pa.superficie', $superficie)
+                ->select('pa.*', 'p.codeProdapp', 'p.codeProd')
+                ->first();
+
+            if ($parcelle == null) {
+                $missingParcelles .= $codeProd . ' , ';
+                continue;
+            }
+
+            DB::table('estimations')->insert([
+                'parcelle_id' => $parcelle->id,
+                'campagne_id' => $campagne->id,
+                'EsP' => $this->normalizeNumber($row['estimproduction']),
+                'date_estimation' => now(),
+                'userid' => $manager->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            $imported++;
+        }
+
+        if ($imported > 0) {
+            if ($invalidCampagnes != '') {
+                $notify[] = ['warning', "Les campagnes suivantes ne sont pas liees a votre cooperative ou sont inactives : $invalidCampagnes"];
+            }
+
+            if ($missingParcelles != '') {
+                $notify[] = ['warning', "Les Producteurs dont les codes suivent : $missingParcelles n'ont pas de parcelles dans la base."];
+            }
+
+            $notify[] = ['success', "$imported Estimations ont ete creees avec succes."];
+            return back()->withNotify($notify);
+        }
+
+        if ($invalidCampagnes != '') {
+            $notify[] = ['error', "Les campagnes suivantes ne sont pas liees a votre cooperative ou sont inactives : $invalidCampagnes"];
+            return back()->withNotify($notify);
+        }
+
+        if ($missingParcelles != '') {
+            $notify[] = ['error', "Les Producteurs dont les codes suivent : $missingParcelles n'ont pas de parcelles dans la base."];
+            return back()->withNotify($notify);
+        }
+    }
+
+    private function findCampagne($value, $cooperativeId)
     {
-    $estimproduction = Str::replaceFirst( ',','.',$estimproduction);
-    if(Str::contains($estimproduction,","))
-        {
-        $estimproduction = Str::replaceFirst( 'm²','',$estimproduction);
-        } 
+        return DB::table('campagnes')
+            ->where('status', 1)
+            ->where('cooperative_id', $cooperativeId)
+            ->where(function ($query) use ($value) {
+                if (is_numeric($value)) {
+                    $query->where('id', $value);
+                }
+
+                $query->orWhere('nom', $value);
+            })
+            ->select('id')
+            ->first();
     }
 
-    $campagne = DB::table('campagnes')->where('status',1)->orderby('id','DESC')->select('id')->first();
-
-      $insert_data = array(  
-  'parcelle_id' => $verification->id,
-  'campagne_id' => $campagne->id,  
-  'EsP' => $estimproduction, 
-  'date_estimation' => NOW(),
-  'userid' => auth()->user()->id,
-  'created_at' => NOW(),
-  'updated_at' => NOW() 
-      );
-      DB::table('estimations')->insert($insert_data); 
-      $j++;
-     }else{
-         $k .=$codeProd.' , ';   
-         $notify[] = ['error',"Les Producteurs dont les codes suivent : $k n'ont pas de parcelles dans la base."];
-      return back()->withNotify($notify);
-    }
-
-    }
-
-    if(!empty($j))
+    private function normalizeNumber($value)
     {
-     $notify[] = ['success',"$j Estimations ont été crée avec succès."];
-      return back()->withNotify($notify);
-     if($k !=''){ 
-        $notify[] = ['error',"Les Producteurs dont les codes suivent : $k n'ont pas de parcelles dans la base."];
-      return back()->withNotify($notify);
-     }
-     
-    }else{
-        if($k !=''){ 
-            $notify[] = ['error',"Les Producteurs dont les codes suivent : $k n'ont pas de parcelles dans la base."];
-      return back()->withNotify($notify);
-         } 
-   } 
-}else{ 
-    $notify[] = ['error',"Il n'y a aucune données dans le fichier."];
-      return back()->withNotify($notify);
-}
+        $value = Str::before((string) $value, ' ');
+        $value = Str::replaceFirst(',', '.', $value);
+        $value = Str::replaceFirst('m2', '', $value);
+        $value = Str::replaceFirst('m²', '', $value);
+        $value = Str::replaceFirst('mÂ²', '', $value);
 
+        return trim($value);
     }
-
-
-     
-    
 }

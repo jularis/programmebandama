@@ -179,8 +179,30 @@ class LivraisonController extends Controller
         $manager = auth()->user();
         // $campagne = Campagne::active()->first();
         // $periode = CampagnePeriode::where([['campagne_id', $campagne->id], ['periode_debut', '<=', gmdate('Y-m-d')], ['periode_fin', '>=', gmdate('Y-m-d')]])->latest()->first();
-$campagne = Campagne::where('id', $request->campagne)->first();
-        $periode = CampagnePeriode::where('id', $request->periode)->latest()->first();
+        $campagne = Campagne::where('id', $request->campagne)
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->first();
+
+        if (!$campagne) {
+            $notify[] = ['error', 'Campagne invalide pour cette cooperative.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        $periode = CampagnePeriode::where('id', $request->periode)
+            ->where('campagne_id', $campagne->id)
+            ->latest()
+            ->first();
+
+        if (!$periode) {
+            $notify[] = ['error', 'Periode invalide pour la campagne selectionnee.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        $volumeLimitError = $this->validateEstimatedVolumeLimit($request->items, $campagne->id);
+        if ($volumeLimitError) {
+            $notify[] = ['error', $volumeLimitError];
+            return back()->withNotify($notify)->withInput();
+        }
 
         $sender                      = auth()->user();
         $livraison                     = new LivraisonInfo();
@@ -438,6 +460,51 @@ $campagne = Campagne::where('id', $request->campagne)->first();
 
         $notify[] = ['success', 'Le connaissement vers le magasin central a été ajouté avec succès'];
         return to_route('manager.livraison.magcentral.stock')->withNotify($notify);
+    }
+
+    private function validateEstimatedVolumeLimit(array $items, int $campagneId): ?string
+    {
+        $quantitiesByParcelle = [];
+
+        foreach ($items as $item) {
+            $parcelleId = (int) ($item['parcelle'] ?? 0);
+            $quantity = (float) ($item['quantity'] ?? 0);
+
+            if ($parcelleId <= 0 || $quantity <= 0) {
+                continue;
+            }
+
+            $quantitiesByParcelle[$parcelleId] = ($quantitiesByParcelle[$parcelleId] ?? 0) + $quantity;
+        }
+
+        foreach ($quantitiesByParcelle as $parcelleId => $quantity) {
+            $estimation = Estimation::where([
+                ['campagne_id', $campagneId],
+                ['parcelle_id', $parcelleId],
+            ])->first();
+
+            $parcelle = Parcelle::find($parcelleId);
+            $codeParcelle = $parcelle?->codeParc ?: $parcelleId;
+
+            if (!$estimation) {
+                return "Aucune estimation trouvee pour la parcelle {$codeParcelle} sur cette campagne.";
+            }
+
+            $estimatedVolume = (float) $estimation->EsP;
+            if ($estimatedVolume <= 0) {
+                return "Le volume estime de la parcelle {$codeParcelle} est vide ou nul pour cette campagne.";
+            }
+
+            $alreadyDelivered = (float) $estimation->productionAnnuelle;
+            $maximumAllowed = $estimatedVolume * 1.10;
+            $newTotal = $alreadyDelivered + $quantity;
+
+            if ($newTotal > $maximumAllowed) {
+                return "Volume depasse pour la parcelle {$codeParcelle}: cumul livre {$newTotal} kg, maximum autorise {$maximumAllowed} kg (volume estime {$estimatedVolume} kg + 10%).";
+            }
+        }
+
+        return null;
     }
 
 

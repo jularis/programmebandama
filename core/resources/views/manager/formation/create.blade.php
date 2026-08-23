@@ -13,6 +13,13 @@
                     ]) !!}
 
                     <div class="form-group row">
+                        <?php echo Form::label(__('Campagne'), null, ['class' => 'col-sm-4 control-label required']); ?>
+                        <div class="col-xs-12 col-sm-8">
+                            <?php echo Form::select('campagne_id', $campagnes, old('campagne_id', $campagnes->keys()->first()), ['class' => 'form-control campagnes', 'id' => 'campagnes', 'required' => 'required']); ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Selectionner une localite')</label>
                         <div class="col-xs-12 col-sm-8">
                             <select class="form-control" name="localite" id="localite" required>

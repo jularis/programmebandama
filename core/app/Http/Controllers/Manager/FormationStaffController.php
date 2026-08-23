@@ -63,6 +63,8 @@ class FormationStaffController extends Controller
             'lieu_formation'  => 'required|max:255',
             'module_formation'  => 'required|max:255',
             'theme'  => 'required',
+            'date_debut_formation' => 'required|date',
+            'date_fin_formation' => 'required|date|after:date_debut_formation',
         ];
 
         $manager   = auth()->user();
@@ -84,8 +86,8 @@ class FormationStaffController extends Controller
         $formation->duree_formation     = $request->duree_formation;
         $formation->userid = auth()->user()->id;
 
-        $formation->date_debut_formation = $request->multiStartDate;
-        $formation->date_fin_formation = $request->multiEndDate;
+        $formation->date_debut_formation = $request->date_debut_formation;
+        $formation->date_fin_formation = $request->date_fin_formation;
 
         if ($request->hasFile('photo_formation')) {
             try {

@@ -4,7 +4,7 @@
     use Illuminate\Support\Arr;
     use App\Models\Certification;
     use App\Models\Programme;
-    
+
     ?>
     <div class="row mb-none-30">
         <div class="card b-radius--10 mb-3">
@@ -47,7 +47,7 @@
                 $programmes = Programme::get();
                 $producteurs = getproducteur($date);
                 $sexe = array_count_values(Arr::pluck($producteurs, 'sexe'));
-                
+
                 ?>
                 <table class="table table-striped table-bordered">
 
@@ -60,11 +60,11 @@
                     <tbody>
                         <tr>
                             <td>@lang('Hommes')</td>
-                            <td class="text-center">{{ $sexe['Homme'] }}</td>
+                            <td class="text-center">{{ $sexe['Homme'] ?? 0 }}</td>
                         </tr>
                         <tr>
                             <td>@lang('Femmes')</td>
-                            <td class="text-center">{{ $sexe['Femme'] }}</td>
+                            <td class="text-center">{{ $sexe['Femme'] ?? 0 }}</td>
                         </tr>
                         <tr>
                             <td>@lang('Total')</td>
@@ -121,7 +121,7 @@
                                         <td> </td>
                                     </tr>
                                     <tr>
-                                        <td>@ang('Hommes')</td>
+                                        <td>@lang('Hommes')</td>
                                         <td class="text-center"> {{ @$sexe['Homme'] ? @$sexe['Homme'] : 0 }} </td>
                                     </tr>
                                     <tr>

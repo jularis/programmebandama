@@ -61,8 +61,17 @@ class ApplicationController extends Controller
             });
         });
 
-        $campagnes = Campagne::active()->pluck('nom', 'id');
-        $parcelles = Parcelle::with('producteur')->get();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
+        $parcelles = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->with('producteur')
+            ->get();
 
         $staffs = User::whereHas('roles', function ($q) {
             $q->whereIn('name', ['Applicateur']);
@@ -77,6 +86,8 @@ class ApplicationController extends Controller
     public function store(Request $request)
     {
         $validationRule = [
+            'campagne_id' => 'required|exists:campagnes,id',
+            'parcelle_id' => 'required|exists:parcelles,id',
             'pesticides.*.nom' => 'required|string',
             'pesticides.*.nomCommercial' => 'required|string',
             'pesticides.*.toxicicologie' => 'required|string',
@@ -91,6 +102,27 @@ class ApplicationController extends Controller
         $request->validate($validationRule);
         //dd(response()->json($request));
 
+        $manager = auth()->user();
+        $campagne = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->where('id', $request->campagne_id)
+            ->first();
+
+        if (!$campagne) {
+            $notify[] = ['error', 'La campagne sélectionnée n’est pas liée à votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        $parcelle = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->where('parcelles.id', $request->parcelle_id)
+            ->first();
+
+        if (!$parcelle) {
+            $notify[] = ['error', 'La parcelle sélectionnée n’est pas liée à votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
         $localite = Localite::where('id', $request->localite)->first();
 
         if ($localite->status == Status::NO) {
@@ -104,10 +136,9 @@ class ApplicationController extends Controller
         } else {
             $application = new Application();
         }
-        $campagne = Campagne::active()->first();
         $application->campagne_id  = $campagne->id;
         $application->applicateur_id  = $request->applicateur;
-        $application->parcelle_id  = $request->parcelle_id;
+        $application->parcelle_id  = $parcelle->id;
         $application->suiviFormation = $request->suiviFormation;
         $application->attestion = $request->attestion;
         $application->bilanSante = $request->bilanSante;
@@ -187,11 +218,20 @@ class ApplicationController extends Controller
         $manager   = auth()->user();
         $producteurs  = Producteur::joinRelationship('localite.section')
             ->where([['cooperative_id', $manager->cooperative_id], ['producteurs.status', 1]])->with('localite')->get();
-        $parcelles = Parcelle::with('producteur')->get();
+        $parcelles = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->with('producteur')
+            ->get();
         $staffs = User::whereHas('roles', function ($q) {
             $q->whereIn('name', ['Applicateur']);
         });
-        $campagnes = Campagne::active()->pluck('nom', 'id');
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
         $cooperative = Cooperative::with('sections.localites', 'sections.localites.section')->find($manager->cooperative_id);
         $sections = $cooperative->sections;
         $localites = $cooperative->sections->flatMap->localites->filter(function ($localite) {
@@ -216,11 +256,20 @@ class ApplicationController extends Controller
         $manager   = auth()->user();
         $producteurs  = Producteur::joinRelationship('localite.section')
             ->where([['cooperative_id', $manager->cooperative_id], ['producteurs.status', 1]])->with('localite')->get();
-        $parcelles = Parcelle::with('producteur')->get();
+        $parcelles = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->with('producteur')
+            ->get();
         $staffs = User::whereHas('roles', function ($q) {
             $q->whereIn('name', ['Applicateur']);
         });
-        $campagnes = Campagne::active()->pluck('nom', 'id');
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
         $cooperative = Cooperative::with('sections.localites', 'sections.localites.section')->find($manager->cooperative_id);
         $sections = $cooperative->sections;
         $localites = $cooperative->sections->flatMap->localites->filter(function ($localite) {

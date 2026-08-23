@@ -6,7 +6,7 @@
                 <div class="card-body">
                     <form action="">
                         <div class="d-flex flex-wrap gap-4">
-                            <input type="hidden" name="table" value="suivi_formaions" />
+                            <input type="hidden" name="table" value="suivi_formations" />
                             <div class="flex-grow-1">
                                 <label>@lang('Recherche par Mot(s) cle(s)')</label>
                                 <input type="text" name="search" value="{{ request()->search }}" class="form-control">
@@ -16,7 +16,7 @@
                                 <select name="localite" class="form-control">
                                     <option value="">@lang('Toutes')</option>
                                     @foreach ($localites as $local)
-                                        <option value="{{ $local->id }}">{{ $local->nom }}</option>
+                                        <option value="{{ $local->id }}" @selected(request()->localite == $local->id)>{{ $local->nom }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -26,7 +26,16 @@
                                 <select name="module" class="form-control">
                                     <option value="">@lang('Tous')</option>
                                     @foreach ($modules as $module)
-                                        <option value="{{ $module->id }}">{{ $module->nom }}</option>
+                                        <option value="{{ $module->id }}" @selected(request()->module == $module->id)>{{ $module->nom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex-grow-1">
+                                <label>@lang('Campagne')</label>
+                                <select name="campagne" class="form-control">
+                                    <option value="">@lang('Toutes')</option>
+                                    @foreach ($campagnes as $campagne)
+                                        <option value="{{ $campagne->id }}" @selected(request()->campagne == $campagne->id)>{{ $campagne->nom }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -50,6 +59,7 @@
                             <thead>
                                 <tr>
                                     <th>@lang('Localite')</th>
+                                    <th>@lang('Campagne')</th>
                                     <th>@lang('Formateur Interne')</th>
                                     <th>@lang('Entreprise')</th>
                                     <th>@lang('Formateur Externe')</th>
@@ -66,6 +76,9 @@
                                     <tr>
                                         <td>
                                             <span class="fw-bold">{{ $formation->localite->nom }}</span>
+                                        </td>
+                                        <td>
+                                            <span>{{ $formation->campagne->nom ?? '-' }}</span>
                                         </td>
                                         @if($formation->user != null)
                                             <td>

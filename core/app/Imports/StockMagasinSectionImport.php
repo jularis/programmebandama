@@ -94,6 +94,8 @@ class StockMagasinSectionImport implements ToCollection, WithHeadingRow
         $rows = $group['rows'];
         $totalQuantity = array_sum(array_column($rows, 'quantity'));
 
+        $this->validateEstimatedVolumeLimit($rows, $campagne->id);
+
         $livraison = new LivraisonInfo();
         $livraison->invoice_id = getTrx();
         $livraison->code = getTrx();
@@ -189,15 +191,52 @@ class StockMagasinSectionImport implements ToCollection, WithHeadingRow
     private function updateEstimation(int $campagneId, int $parcelleId, float $quantity): void
     {
         $estimation = Estimation::where([['campagne_id', $campagneId], ['parcelle_id', $parcelleId]])->first();
-        if (!$estimation) {
-            return;
-        }
 
         $estimation->productionAnnuelle = (float) $estimation->productionAnnuelle + $quantity;
         if ($estimation->productionAnnuelle >= (float) $estimation->EsP) {
             $estimation->etat = 'Atteint';
         }
         $estimation->save();
+    }
+
+    private function validateEstimatedVolumeLimit(array $rows, int $campagneId): void
+    {
+        $quantitiesByParcelle = [];
+        $linesByParcelle = [];
+
+        foreach ($rows as $row) {
+            $parcelleId = (int) $row['parcelle']->id;
+            $quantitiesByParcelle[$parcelleId] = ($quantitiesByParcelle[$parcelleId] ?? 0) + (float) $row['quantity'];
+            $linesByParcelle[$parcelleId][] = $row['line'];
+        }
+
+        foreach ($quantitiesByParcelle as $parcelleId => $quantity) {
+            $estimation = Estimation::where([
+                ['campagne_id', $campagneId],
+                ['parcelle_id', $parcelleId],
+            ])->first();
+
+            $parcelle = Parcelle::find($parcelleId);
+            $codeParcelle = $parcelle?->codeParc ?: $parcelleId;
+            $lines = implode(', ', $linesByParcelle[$parcelleId] ?? []);
+
+            if (!$estimation) {
+                throw new \Exception("Ligne {$lines}: aucune estimation trouvee pour la parcelle {$codeParcelle} sur cette campagne.");
+            }
+
+            $estimatedVolume = (float) $estimation->EsP;
+            if ($estimatedVolume <= 0) {
+                throw new \Exception("Ligne {$lines}: le volume estime de la parcelle {$codeParcelle} est vide ou nul pour cette campagne.");
+            }
+
+            $alreadyDelivered = (float) $estimation->productionAnnuelle;
+            $maximumAllowed = $estimatedVolume * 1.10;
+            $newTotal = $alreadyDelivered + $quantity;
+
+            if ($newTotal > $maximumAllowed) {
+                throw new \Exception("Ligne {$lines}: volume depasse pour la parcelle {$codeParcelle}. Cumul livre {$newTotal} kg, maximum autorise {$maximumAllowed} kg (volume estime {$estimatedVolume} kg + 10%).");
+            }
+        }
     }
 
     private function primeRow(int $livraisonId, int $campagneId, int $periodeId, int $parcelleId, Producteur $producteur, float $quantity): ?array
