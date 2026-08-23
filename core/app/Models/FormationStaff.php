@@ -35,6 +35,16 @@ class FormationStaff extends Model
         return $this->hasMany(FormationStaffModuleTheme::class, 'formation_staff_id', 'id');
     }
 
+    public function staffListes()
+    {
+        return $this->hasMany(FormationStaffListe::class, 'formation_staff_id', 'id');
+    }
+
+    public function visiteurs()
+    {
+        return $this->hasMany(FormationStaffVisiteur::class, 'formation_staff_id', 'id');
+    }
+
     public function formateurs()
     {
         return $this->belongsToMany(FormateurStaff::class, 'formation_staff_formateurs', 'formation_staff_id', 'formateur_staff_id');

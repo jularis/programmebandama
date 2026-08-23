@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Pourquoi cet interview</td>
         <td>Type d'enquete</td>
         <td>Section</td>
@@ -82,6 +83,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->raisonInterview; ?></td>
             <td><?php echo $c->typeEnquete; ?></td>
             <td><?php echo @$c->section->libelle; ?></td>

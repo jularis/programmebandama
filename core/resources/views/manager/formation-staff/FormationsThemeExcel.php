@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Module</td> 
         <td>Theme</td> 
     </tr>
@@ -38,7 +39,8 @@
     ?>
         <tbody>
         <tr>
-            <td><?php echo $c->suivi_formation_id; ?></td> 
+            <td><?php echo $c->suivi_formation_id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td> 
             <td><?php echo $c->suiviFormation->typeFormation->nom; ?></td> 
             <td><?php echo $c->theme->nom; ?></td>   
         </tr>

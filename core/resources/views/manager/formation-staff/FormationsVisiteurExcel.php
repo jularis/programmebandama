@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Nom</td> 
     </tr>
     </thead> 
@@ -37,7 +38,8 @@
     ?>
         <tbody>
         <tr>
-            <td><?php echo $c->suivi_formation_id; ?></td> 
+            <td><?php echo $c->suivi_formation_id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td> 
             <td><?php echo $c->visiteur; ?></td>  
         </tr>
         </tbody>

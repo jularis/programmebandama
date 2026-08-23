@@ -1043,4 +1043,19 @@ class SettingController extends Controller
     {
         return FormateurStaff::changeStatus($id);
     }
+
+    public function formateurStaffDelete($id)
+    {
+        $formateur = FormateurStaff::withCount(['formations', 'suivi_formations'])->findOrFail($id);
+
+        if ($formateur->formations_count > 0 || $formateur->suivi_formations_count > 0) {
+            $notify[] = ['error', 'Ce formateur est deja lie a une formation et ne peut pas etre supprime.'];
+            return back()->withNotify($notify);
+        }
+
+        $formateur->delete();
+
+        $notify[] = ['success', 'Formateur supprime avec succes.'];
+        return back()->withNotify($notify);
+    }
 }

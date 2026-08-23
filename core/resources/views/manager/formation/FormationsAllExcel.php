@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Localite</td>
         <td>Campagne</td>
         <td>Type formation</td>
@@ -43,6 +44,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->localite->nom; ?></td>
             <td><?php echo $c->campagne->nom; ?></td>
             <td><?php echo $c->formation_type; ?></td>

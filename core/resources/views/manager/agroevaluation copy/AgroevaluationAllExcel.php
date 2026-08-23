@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Localite</td> 
         <td>Parcelle</td>
         <td>Nom</td>
@@ -43,6 +44,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->parcelle->producteur->localite->nom; ?></td> 
             <td><?php echo $c->parcelle->codeParc; ?></td>
             <td><?php echo $c->parcelle->producteur->nom; ?></td>

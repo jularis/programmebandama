@@ -32,6 +32,7 @@
     <thead>
         <tr>
             <td>ID</td>
+            <td>Agent collecteur</td>
             <td>COOPERATIVE</td>
             <td>CODE ACTION SOCIALE</td>
             <td>PARTENAIRE</td>
@@ -42,6 +43,7 @@
         foreach ($partenaires as $c) { ?>
             <tr>
                 <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
                 <td><?php echo $c->actionSociale->cooperative->name; ?></td>
                 <td><?php echo $c->actionSociale->code; ?></td>
                 <td><?php echo $c->partenaire; ?></td>

@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Campagne</td>
         <td>Cooperative</td>
         <td>Espèce d'arbre</td>
@@ -41,6 +42,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->agroapprovisionnement->campagne->nom; ?></td>
             <td><?php echo $c->agroapprovisionnement->cooperative->name; ?></td>
             <td><?php echo $c->agroespecesarbre->nom; ?></td>

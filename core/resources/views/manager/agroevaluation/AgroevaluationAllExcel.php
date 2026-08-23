@@ -26,6 +26,8 @@
 <table id="categories" width="100%">
     <thead>
     <tr>
+        <td>ID</td>
+        <td>Agent collecteur</td>
         <td>Localite</td> 
         <td>Code producteur</td>
         <td>Nom</td>
@@ -40,6 +42,8 @@
     ?>
         <tbody>
         <tr>
+            <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->producteur->localite->nom; ?></td>
             <td><?php echo $c->producteur->codeProd; ?></td>
             <td><?php echo stripslashes($c->producteur->nom); ?></td>

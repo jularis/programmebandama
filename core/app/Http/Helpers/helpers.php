@@ -728,6 +728,58 @@ function getventeProgramme($date)
 
     return $quantite;
 }
+
+if (!function_exists('export_collecting_agent')) {
+    function export_collecting_agent($model)
+    {
+        if (!$model) {
+            return '';
+        }
+
+        if (!empty($model->nomEnqueteur)) {
+            return $model->nomEnqueteur;
+        }
+
+        if (!empty($model->userid)) {
+            $user = \App\Models\User::find($model->userid);
+
+            if ($user) {
+                $name = trim(($user->lastname ?? '') . ' ' . ($user->firstname ?? ''));
+
+                return $name !== '' ? $name : ($user->name ?? '');
+            }
+        }
+
+        foreach ([
+            'suiviFormation',
+            'suiviParcelle',
+            'agroevaluation',
+            'application',
+            'inspection',
+            'formationStaff',
+            'ssrteclmrs',
+            'enqueteMenage',
+            'visitePlantation',
+            'menage',
+            'producteur',
+        ] as $relation) {
+            if (method_exists($model, $relation)) {
+                try {
+                    $parent = $model->{$relation};
+                    $agent = export_collecting_agent($parent);
+
+                    if ($agent !== '') {
+                        return $agent;
+                    }
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
+        }
+
+        return '';
+    }
+}
 function gs()
 {
     $general = Cache::get('GeneralSetting');

@@ -172,7 +172,7 @@ Route::middleware('auth')->group(function () {
         Route::get('cropper/{element}', [ImageController::class, 'cropper'])->name('cropper');
 
         Route::post('formation-staff/status/{id}', [FormationStaffController::class, 'status'])->name('formation-staff.status');
-        Route::post('formation-staff/exportFormationsExcel', [FormationStaffController::class, 'exportExcel'])->name('formation-staff.exportExcel.formationAll');
+        Route::get('formation-staff/exportFormationsExcel', [FormationStaffController::class, 'exportExcel'])->name('formation-staff.exportExcel.formationAll');
         Route::resource('formation-staff', FormationStaffController::class);
 
 
@@ -252,6 +252,7 @@ Route::middleware('auth')->group(function () {
             Route::get('formateur-staff-list/', [SettingController::class, 'formateurList'])->name('formateurStaff.list');
             Route::post('formateur-staff/status/{id}', [SettingController::class, 'formateurStaffStatus'])->name('formateurStaff.status');
             Route::post('formateur-staff/store', [SettingController::class, 'formateurStaffStore'])->name('formateurStaff.store');
+            Route::post('formateur-staff/delete/{id}', [SettingController::class, 'formateurStaffDelete'])->name('formateurStaff.delete');
             Route::get('vehicule/', [SettingController::class, 'vehiculeIndex'])->name('vehicule.index');
             Route::post('vehicule/store', [SettingController::class, 'vehiculeStore'])->name('vehicule.store');
             Route::post('vehicule/status/{id}', [SettingController::class, 'vehiculeStatus'])->name('vehicule.status');

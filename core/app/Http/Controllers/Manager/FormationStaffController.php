@@ -13,7 +13,7 @@ use App\Models\Producteur;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\FormationStaff;
-use App\Exports\ExportFormations;
+use App\Exports\FormationStaffsExport;
 use Illuminate\Support\Facades\DB;
 use App\Models\FormationStaffListe;
 use App\Models\FormationStaffTheme;
@@ -239,7 +239,7 @@ class FormationStaffController extends Controller
     public function exportExcel()
     {
         $filename = 'formations-' . gmdate('dmYhms') . '.xlsx';
-        return Excel::download(new ExportFormations, $filename);
+        return Excel::download(new FormationStaffsExport, $filename);
     }
 
     public function delete($id)

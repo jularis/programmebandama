@@ -26,7 +26,8 @@
 <table id="categories" width="100%">
     <thead>
     <tr>
-        <td>ID</td>  
+        <td>ID</td>
+            <td>Agent collecteur</td>  
         <td>Categorie</td>
         <td>Question</td>
         <td>Notation</td>
@@ -44,6 +45,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->inspection_id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->questionnaire->categorieQuestion->titre; ?></td>
             <td><?php echo $c->questionnaire->nom; ?></td>
             <td><?php echo $c->notation; ?></td>

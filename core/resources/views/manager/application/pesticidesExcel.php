@@ -26,7 +26,8 @@
 <table id="categories" width="100%">
     <thead>
     <tr>
-        <td>ID</td> 
+        <td>ID</td>
+            <td>Agent collecteur</td> 
         <td>Campagne</td>
         <td>Cooperative</td>
         <td>Section</td>
@@ -52,6 +53,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->application->campagne->nom; ?></td>
             <td><?php echo $c->application->parcelle->producteur->localite->section->cooperative->name; ?></td>
             <td><?php echo $c->application->parcelle->producteur->localite->section->libelle; ?></td>

@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Cooperative</td>
         <td>Campagne</td>
         <td>Periode</td>
@@ -54,6 +55,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->livraisonInfo->senderCooperative->name; ?></td>
             <td><?php echo $c->campagne->nom; ?></td>
             <td><?php echo $c->campagnePeriode->nom; ?></td>

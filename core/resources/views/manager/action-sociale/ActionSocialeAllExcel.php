@@ -32,6 +32,7 @@
     <thead>
         <tr>
             <td>ID</td>
+            <td>Agent collecteur</td>
             <td>COOPERATIVE</td>
             <td>CODE</td>
             <td>TYPE DE PROJET</td>
@@ -48,6 +49,7 @@
         ?>
             <tr>
                 <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
                 <td><?php echo $c->cooperative->name; ?></td>
                 <td><?php echo $c->code; ?></td>
                 <td><?php echo $c->type_projet; ?></td>

@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Pourquoi cet interview</td>
         <td>Code Enfant</td>
         <td>Producteur</td>
@@ -76,6 +77,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->raisonInterview; ?></td>
             <td><?php echo @$c->enfant->codeEnfant; ?></td>
             <td><?php echo stripslashes(@$c->enfant->menage->producteur->nom . ' ' . @$c->enfant->menage->producteur->prenoms); ?></td>

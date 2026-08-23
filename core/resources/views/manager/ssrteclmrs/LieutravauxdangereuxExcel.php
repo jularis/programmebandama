@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Nom membre</td>
         <td>Prenoms membre</td>
         <td>Code Membre</td> 
@@ -40,6 +41,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->ssrteclmrs->nomMembre; ?></td>
             <td><?php echo $c->ssrteclmrs->prenomMembre; ?></td>
             <td><?php echo $c->ssrteclmrs->codeMembre; ?></td> 

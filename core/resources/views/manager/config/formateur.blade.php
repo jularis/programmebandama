@@ -69,18 +69,24 @@
                                             @if ($formateur->status == Status::DISABLE)
                                                 <button type="button"
                                                     class="btn btn-sm btn-outline--success confirmationBtn"
-                                                    data-action="{{ route('settings.formateurStaff.status', $formateur->id) }}"
+                                                    data-action="{{ route('manager.settings.formateurStaff.status', $formateur->id) }}"
                                                     data-question="@lang('Etes-vous sûr de vouloir activer ce formateur?')">
                                                     <i class="la la-eye"></i> @lang('Activé')
                                                 </button>
                                             @else
                                                 <button type="button"
                                                     class="btn btn-sm btn-outline--danger confirmationBtn"
-                                                    data-action="{{ route('settings.formateurStaff.status', $formateur->id) }}"
+                                                    data-action="{{ route('manager.settings.formateurStaff.status', $formateur->id) }}"
                                                     data-question="@lang('Etes-vous sûr de vouloir désactiver ce formateur?')">
                                                     <i class="la la-eye-slash"></i>@lang('Désactive')
                                                 </button>
                                             @endif
+                                            <button type="button"
+                                                class="btn btn-sm btn-outline--danger confirmationBtn"
+                                                data-action="{{ route('manager.settings.formateurStaff.delete', $formateur->id) }}"
+                                                data-question="@lang('Etes-vous sûr de vouloir supprimer ce formateur ?')">
+                                                <i class="la la-trash"></i>@lang('Supprimer')
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -176,11 +182,16 @@
         (function($) {
             "use strict";
             $('.addType').on('click', function() {
-                $('#typeModel').modal('show');
+                var modal = $('#typeModel');
+                modal.find('.modal-title').text("@lang('Ajouter un formateur')");
+                modal.find('form')[0].reset();
+                modal.find('input[name=id]').val('');
+                modal.modal('show');
             });
 
             $('.updateType').on('click', function() {
                 var modal = $('#typeModel');
+                modal.find('.modal-title').text("@lang('Editer un formateur')");
                 modal.find('input[name=id]').val($(this).data('id'));
                 modal.find('input[name=nom_formateur]').val($(this).data('nom'));
                 modal.find('input[name=prenom_formateur]').val($(this).data('prenom'));

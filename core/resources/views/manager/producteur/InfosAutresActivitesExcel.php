@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Cooperative</td>
         <td>Section</td>
         <td>Localite</td>
@@ -45,6 +46,7 @@
 
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->producteurInfo->localite->section->cooperative->name  ?? ""; ?></td>
             <td><?php echo $c->producteurInfo->localite->section->libelle  ?? ""; ?></td>
             <td><?php echo $c->producteurInfo->localite->nom  ?? ""; ?></td>

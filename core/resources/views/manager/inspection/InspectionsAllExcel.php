@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Type inspection</td>
         <td>Localite</td>
         <td>Campagne</td>
@@ -48,6 +49,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo implode(',',json_decode($c->certificat)); ?></td>
             <td><?php echo $c->producteur->localite->nom; ?></td>
             <td><?php echo $c->campagne->nom; ?></td>

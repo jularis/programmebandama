@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Cooperative</td>
         <td>Parcelle</td>
         <td>Nom</td>
@@ -42,7 +43,8 @@
     ?>
         <tbody>
         <tr>
-            <td><?php echo $c->id; ?></td> 
+            <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td> 
             <td><?php echo $c->agrodistribution->cooperative->name; ?></td>
             <td><?php echo $c->agrodistribution->producteur->parcelles->first()->codeParc ?? 'N/A'  ?></td>
             <td><?php echo $c->agrodistribution->producteur->nom; ?></td>

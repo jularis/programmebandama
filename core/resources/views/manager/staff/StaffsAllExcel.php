@@ -27,6 +27,7 @@
     <thead>
     <tr>
         <td>ID</td>
+            <td>Agent collecteur</td>
         <td>Cooperative</td>
         <td>Role</td>
         <td>Type de compte</td>
@@ -46,6 +47,7 @@
         <tbody>
         <tr>
             <td><?php echo $c->id; ?></td>
+            <td><?php echo export_collecting_agent($c); ?></td>
             <td><?php echo $c->cooperative->name; ?></td>
             <td><?php 
             if(!empty($c->getRoleNames()))
