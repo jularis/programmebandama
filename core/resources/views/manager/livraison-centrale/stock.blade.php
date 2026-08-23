@@ -11,7 +11,7 @@
                                 <input type="text" name="search"  value="{{ request()->search }}" class="form-control">
                             </div>
                             <div class="flex-grow-1">
-                                <label>@lang('Magasin de Section')</label>
+                                <label>@lang('Magasin Central')</label>
                                 <select name="magasin" class="form-control">
                                     <option value="">@lang('Tous')</option>
                                     @foreach ($magasins as $local)
@@ -200,7 +200,7 @@
 <a href="{{ route('manager.livraison.magcentral.create') }}" class="btn  btn-outline--primary h-45 addNewCooperative">
         <i class="las la-plus"></i>@lang("Enregistrer un Connaissement vers Usine")
     </a>
-<a href="{{ route('manager.livraison.exportExcel.magcentralAll', request()->only(['date', 'magasin'])) }}" class="btn  btn-outline--warning h-45"><i class="las la-cloud-download-alt"></i> @lang('Exporter en Excel')</a>
+<a href="{{ route('manager.livraison.exportExcel.magcentralAll', request()->only(['date', 'magasin', 'search'])) }}" class="btn  btn-outline--warning h-45"><i class="las la-cloud-download-alt"></i> @lang('Exporter en Excel')</a>
 @endpush
 
 @push('style-lib')

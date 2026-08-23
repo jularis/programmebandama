@@ -14,6 +14,13 @@
                     <input type="hidden" name="id" value="{{ $parcelle->id }}">
 
                     <div class="form-group row">
+                        <label class="col-sm-4 control-label">@lang('Code parcelle')</label>
+                        <div class="col-xs-12 col-sm-8">
+                            {{ Form::text('codeParc', null, ['class' => 'form-control', 'readonly' => true]) }}
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Selectionner une section')</label>
                         <div class="col-xs-12 col-sm-8">
                             <select class="form-control" name="section" id="section" required>

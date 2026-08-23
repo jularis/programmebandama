@@ -21,6 +21,11 @@ class Agropostplanting extends Model
     {
         return $this->belongsTo(Cooperative::class,'cooperative_id');
     }
+
+    public function campagne()
+    {
+        return $this->belongsTo(Campagne::class, 'campagne_id');
+    }
  
     public function especes()
     {

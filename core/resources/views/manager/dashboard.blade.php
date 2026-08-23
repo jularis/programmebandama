@@ -109,7 +109,6 @@
         </div>
         </div>
 @endcan
-@can('manager.suivi.formation.index')
         <div class="col-xxl-4 col-sm-4"> 
                     <div class="card box--shadow2 bg--white" id="formationmodule" style="min-height:230px;">  
                     
@@ -120,7 +119,6 @@
                     <div class="card box--shadow2 bg--white" id="producteurmodule" style="min-height:230px;"> 
                     </div>
         </div>
-        @endcan
         @can('manager.traca.parcelle.index')
         <div class="col-xxl-4 col-sm-4"> 
                     <div class="card box--shadow2 bg--white" id="parcellespargenre" style="min-height:230px;"> 
@@ -139,7 +137,6 @@
 @endcan
     </div><!-- row end-->
 
-@can('manager.suivi.formation.index')
 <?php
 $modParticipants = [];
 foreach($modules as $row) {
@@ -150,7 +147,7 @@ foreach($modules as $row) {
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title mb-0">Formations par Module</h5>
+                <h5 class="card-title mb-0">Formation par Module</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -159,7 +156,7 @@ foreach($modules as $row) {
                             <tr>
                                 <th>Module</th>
                                 <th class="text-center">Sessions</th>
-                                <th class="text-center">Participants (Staff)</th>
+                                <th class="text-center">Producteurs formés</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -170,7 +167,7 @@ foreach($modules as $row) {
                                 <td class="text-center"><strong>{{ $modParticipants[$f->nom] ?? 0 }}</strong></td>
                             </tr>
                             @empty
-                            <tr><td colspan="3" class="text-center text-muted">Aucune formation enregistrée</td></tr>
+                            <tr><td colspan="3" class="text-center text-muted">Aucun module de formation paramétré</td></tr>
                             @endforelse
                         </tbody>
                         @if($formation->count() > 0)
@@ -188,7 +185,6 @@ foreach($modules as $row) {
         </div>
     </div>
 </div>
-@endcan
 
 @endsection
 
@@ -242,7 +238,11 @@ $total = $total2 = $total3 = $total4 = $total5 = $total6 = $total7 = $total9 = a
                 $xAxisData[]       = utf8_encode(Str::remove("\r\n", utf8_decode($xLabel)));
                 $totalParticipants[] = (int) $data->nombre_producteurs;
             }
-            $donnees3[] = "{ name:'Participants', type:'bar', label:{show:true}, data:[".implode(",",$totalParticipants)."] }";
+            $donnees3[] = "{ name:'Producteurs formés', type:'bar', label:{show:true}, data:[".implode(",",$totalParticipants)."] }";
+            $labels3Json = json_encode($labels3);
+            $total3Json = json_encode($total3);
+            $xAxisDataJson = json_encode($xAxisData);
+            $totalParticipantsJson = json_encode($totalParticipants);
 
             foreach(@$parcellespargenre as $data){
               $labels[] = utf8_encode(Str::remove("\r\n",utf8_decode($data->genre)));
@@ -419,7 +419,7 @@ var myChart3 = echarts.init(document.getElementById('formationmodule'));
         var option3 = {
             title: { 
                 show: true,
-                text: 'Formations par Module',
+                text: 'Formation par Module',
                 textStyle:{
                 fontSize: 16,
                 fontWeight: 'normal',
@@ -439,10 +439,10 @@ var myChart3 = echarts.init(document.getElementById('formationmodule'));
         },
             tooltip: {}, 
             legend: {
-                data: [<?php echo "'".implode("','",$labels3)."'"; ?>]
+                data: <?php echo $labels3Json; ?>
             },
             xAxis: {
-                data: [<?php echo "'".implode("','",$labels3)."'"; ?>]
+                data: <?php echo $labels3Json; ?>
             },
             yAxis: {},
             series: [{
@@ -451,7 +451,7 @@ var myChart3 = echarts.init(document.getElementById('formationmodule'));
             show: true
             },
                 type: 'bar',
-                data: [<?php echo implode(",",$total3); ?>]
+                data: <?php echo $total3Json; ?>
             }]
         };
         myChart3.setOption(option3);
@@ -465,7 +465,7 @@ var myChart4 = echarts.init(document.getElementById('producteurmodule'));
         var option4 = {
             title: { 
                 show: true,
-                text: 'Producteurs formés par genre/Module',
+                text: 'Producteurs formés par Module',
                 textStyle:{
                 fontSize: 16,
                 fontWeight: 'normal',
@@ -489,10 +489,10 @@ var myChart4 = echarts.init(document.getElementById('producteurmodule'));
             },
             xAxis: { 
               type: 'category',
-                data: [<?php echo "'".implode("','",$xAxisData)."'"; ?>]
+                data: <?php echo $xAxisDataJson; ?>
             },
             yAxis: { },
-            series: [<?php echo implode(",",$donnees3); ?>]
+            series: [{ name:'Producteurs formés', type:'bar', label:{show:true}, data: <?php echo $totalParticipantsJson; ?> }]
         };
 
         // use configuration item and data specified to show chart

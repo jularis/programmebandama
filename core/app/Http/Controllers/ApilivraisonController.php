@@ -64,7 +64,17 @@ class ApilivraisonController extends Controller
     public function store(Request $request)
     {
 
-        
+        $request->validate([
+            'userid'             => 'required|exists:users,id',
+            'sender_staff'       => 'required|exists:users,id',
+            'magasin_section'    => 'required|exists:magasin_sections,id',
+            'items'              => 'required|array|min:1',
+            'items.*.type'       => 'required',
+            'items.*.producteur' => 'required|integer',
+            'items.*.parcelle'   => 'required|integer',
+            'items.*.quantity'   => 'required|numeric|gt:0',
+            'estimate_date'      => 'required|date|date_format:Y-m-d',
+        ]);
 
         $campagne = Campagne::active()->first();
         $periode = CampagnePeriode::where([['campagne_id', $campagne->id], ['periode_debut', '<=', gmdate('Y-m-d')], ['periode_fin', '>=', gmdate('Y-m-d')]])->latest()->first();
@@ -189,6 +199,7 @@ class ApilivraisonController extends Controller
         // dd(response()->json($request));
 
         $request->validate([
+            'userid' => 'required|exists:users,id',
             'magasin_central' => 'required',
             'sender_magasin' =>  'required',
             'sender_transporteur' =>  'required',
@@ -196,6 +207,13 @@ class ApilivraisonController extends Controller
             'producteur_id' => 'required|array',
             'type' => 'required',
             'estimate_date'    => 'required|date|date_format:Y-m-d',
+            'poidsnet'         => 'required|numeric|gt:0',
+            'nombresacs'       => 'required|integer|min:0',
+            'quantite'         => 'required|array|min:1',
+            'quantite.*'       => 'required|numeric|min:0',
+            'typeproduit'      => 'required|array',
+            'parcelle'         => 'required|array',
+            'certificat'       => 'nullable|array',
         ]);
 
         $manager = User::where('id', $request->userid)->first();
@@ -222,19 +240,56 @@ class ApilivraisonController extends Controller
         $livraison->vehicule_id = $request->sender_vehicule;
         $livraison->remorque_id = $request->sender_remorque;
         $livraison->date_livraison = $request->estimate_date;
-        $livraison->save();
 
-        $i = 0;
         $data = [];
         $quantite = $request->quantite;
         $typeproduit = $request->typeproduit;
-        $producteurs = $request->producteurs;
+        $producteurs = $request->producteurs ?? $request->producteur_id;
         $parcelle = $request->parcelle;
         $certificat = $request->certificat;
 
+        $totalQuantite = array_sum($quantite);
+        if ($totalQuantite <= 0) {
+            return response()->json([
+                'message' => 'La quantite totale doit etre superieure a 0.',
+            ], 422);
+        }
+
+        if (abs($totalQuantite - (float) $request->poidsnet) > 0.01) {
+            return response()->json([
+                'message' => 'Le poids net doit correspondre au total des quantites saisies.',
+            ], 422);
+        }
+
+        foreach ($producteurs as $i => $item) {
+            $qty = (float) ($quantite[$i] ?? 0);
+            if ($qty <= 0) {
+                continue;
+            }
+            $certValue = $certificat[$i] ?? null;
+
+            $product = LivraisonProduct::where([
+                ['campagne_id', $campagne->id],
+                ['parcelle_id', $parcelle[$i]],
+                ['certificat', $certValue],
+                ['type_produit', $typeproduit[$i]],
+            ])->first();
+
+            $disponible = $product ? max(0, (float) $product->qty) : 0;
+            if ($product === null || $qty > $disponible) {
+                return response()->json([
+                    'message' => "Stock insuffisant: la quantite demandee ({$qty} kg) depasse le stock disponible ({$disponible} kg) pour la ligne " . ($i + 1) . ".",
+                ], 422);
+            }
+        }
+
+        $livraison->save();
+
+        $i = 0;
         foreach ($producteurs as $item) {
 
             if ($quantite[$i] > 0) {
+                $certValue = $certificat[$i] ?? null;
                 $data[] = [
                     'stock_magasin_central_id' => $livraison->id,
                     'producteur_id' => $item,
@@ -243,21 +298,36 @@ class ApilivraisonController extends Controller
                     'quantite' => $quantite[$i],
                     'type_produit' => $typeproduit[$i],
                     'parcelle_id' => $parcelle[$i],
-                    'certificat' => $certificat[$i],
+                    'certificat' => $certValue,
                     'created_at'      => now(),
                 ];
-                $product = LivraisonProduct::where([['campagne_id', $campagne->id], ['parcelle_id', $parcelle[$i]], ['certificat', $certificat[$i]], ['type_produit', $typeproduit[$i]]])->first();
+                $product = LivraisonProduct::where([['campagne_id', $campagne->id], ['parcelle_id', $parcelle[$i]], ['certificat', $certValue], ['type_produit', $typeproduit[$i]]])->first();
                 if ($product != null) {
-                    $productinfo = $product->livraison_info_id;
-                    $product->qty = $product->qty - $quantite[$i];
+                    $product->qty = max(0, $product->qty - $quantite[$i]);
                     $product->qty_sortant = $product->qty_sortant + $quantite[$i];
                     $product->save();
 
-                    $prod = StockMagasinSection::where('livraison_info_id', $productinfo)->first();
-                    $prod->stocks_entrant = $prod->stocks_entrant - $quantite[$i];
-                    $prod->stocks_sortant = $prod->stocks_sortant + $quantite[$i];
+                    $remaining = $quantite[$i];
+                    $stockRecords = StockMagasinSection::where('magasin_section_id', $request->sender_magasin)
+                        ->where('campagne_id', $campagne->id)
+                        ->orderBy('id', 'asc')
+                        ->get();
 
-                    $prod->save();
+                    foreach ($stockRecords as $stockRecord) {
+                        if ($remaining <= 0) {
+                            break;
+                        }
+
+                        $available = max(0, $stockRecord->stocks_entrant - $stockRecord->stocks_sortant);
+                        if ($available <= 0) {
+                            continue;
+                        }
+
+                        $toDeduct = min($remaining, $available);
+                        $stockRecord->stocks_sortant += $toDeduct;
+                        $stockRecord->save();
+                        $remaining -= $toDeduct;
+                    }
                 }
             }
             $i++;

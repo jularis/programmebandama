@@ -119,7 +119,11 @@ class FormationController extends Controller
             $formation = new SuiviFormation();
             $isUpdate = false;
         }
-        $campagne = Campagne::active()->first();
+        $campagne = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->first();
+        if (!$campagne) {
+            $notify[] = ['error', 'Aucune campagne active trouvée pour votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
         $formation->localite_id  = $request->localite;
         $formation->campagne_id  = $campagne->id;
         $formation->user_id  = $request->staff;

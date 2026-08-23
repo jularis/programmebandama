@@ -270,15 +270,33 @@ class ParcelleController extends Controller
             $file->move(public_path('upload/kml'), $filename);
             $filePath = public_path('upload/kml/' . $filename);
             $dataPolygones = $this->getCoordinatesFromKML($filePath);
-            $coordinates = $dataPolygones[0];
+
+            if (empty($dataPolygones)) {
+                $notify[] = ['error', "Aucun polygone valide n'a ete trouve dans le fichier KML."];
+                return back()->withNotify($notify);
+            }
 
             foreach ($dataPolygones as $index => $data) {
+                $data['codeProducteur'] = $this->normalizeKmlCode($data['codeProducteur'] ?? '');
+                $data['codeParcelle']   = $this->normalizeKmlCode($data['codeParcelle'] ?? '');
 
                 $producteur = Producteur::joinRelationship('localite.section')
                     ->where([['cooperative_id', $manager->cooperative_id], ['producteurs.status', 1]])->where('codeProd', $data['codeProducteur'])->first();
-                if ($producteur == null) {
-                    $producteur = new Producteur();
+                $parcelle = $this->findParcelleForKml($manager->cooperative_id, $data['codeParcelle'], $data['codeProducteur']);
+
+                if ($parcelle == null) {
+                    $k++;
+                    $parcel .= ($data['codeParcelle'] ?: 'Code parcelle vide') . ',';
+                    continue;
                 }
+
+                if ($producteur == null) {
+                    $producteur = $parcelle->producteur;
+                }
+
+                $this->applyPolygonToParcelle($parcelle, $data, $producteur);
+                $i++;
+                continue;
 
                 $section = Section::where([['cooperative_id', $manager->cooperative_id], ['libelle', $data['section']]])->first();
                 if ($section == null) {
@@ -317,7 +335,7 @@ class ParcelleController extends Controller
                 $producteur->save();
 
                 $certification = Certification::where('fullname', $data['certification'])->first();
-                if ($certification == null) {
+                if ($data['certification'] !== '' && $certification == null) {
                     $certification = new Certification();
                     $certification->nom = $data['certification'];
                     $certification->fullname = $data['certification'];
@@ -333,12 +351,7 @@ class ParcelleController extends Controller
                 }
 
 
-                $parcelle = Parcelle::where([['producteur_id', $producteur->id], ['codeParc', $data['codeParcelle']]])->first();
                 // Fallback : chercher par codeParc seul si non trouvé avec producteur_id
-                if ($parcelle == null && !empty($data['codeParcelle'])) {
-                    $parcelle = Parcelle::where('codeParc', $data['codeParcelle'])->first();
-                }
-
                 if ($parcelle != null) {
 
                     $centroid   = $this->calculateCentroid($data['coordinates']);
@@ -353,7 +366,9 @@ class ParcelleController extends Controller
                     $parcelle->longitude       = round($centroid['lng'], 6);
                     $parcelle->waypoints       = $data['coordinates'];
                     $parcelle->save();
-                    $i++;
+                    if (!isset($polygonAlreadyApplied) || !$polygonAlreadyApplied) {
+                        $i++;
+                    }
                 } else {
                     $k++;
                     $parcel .= $data['codeParcelle'] . ',';
@@ -381,9 +396,14 @@ class ParcelleController extends Controller
         $dataArray = array();
 
         // Parcourir chaque Placemark dans le document KML
-        foreach ($kml->Document->Folder->Placemark as $placemark) {
+        foreach ($kml->xpath('//*[local-name()="Placemark"]') as $placemark) {
+            $simpleData = $this->simpleDataByName($placemark);
             // Récupérer les coordonnées de la balise <coordinates>
-            $coordinates = (string)$placemark->MultiGeometry->Polygon->outerBoundaryIs->LinearRing->coordinates;
+            $coordinatesNodes = $placemark->xpath('.//*[local-name()="Polygon"]/*[local-name()="outerBoundaryIs"]/*[local-name()="LinearRing"]/*[local-name()="coordinates"]');
+            $coordinates = isset($coordinatesNodes[0]) ? trim((string) $coordinatesNodes[0]) : '';
+            if ($coordinates === '') {
+                continue;
+            }
             // $fieldID = (string)$placemark->ExtendedData->SchemaData->SimpleData[0];
             // $farmerID = (string)$placemark->ExtendedData->SchemaData->SimpleData[1];
             // $farmerName = (string)$placemark->ExtendedData->SchemaData->SimpleData[2];
@@ -410,34 +430,26 @@ class ParcelleController extends Controller
             $fieldName = "";
             $size = "";
             $nOrdre = "";
-            //$supHa = (string)$placemark->ExtendedData->SchemaData->SimpleData[0];
-            $supHa = 0;
-            $cooperative = (string)$placemark->ExtendedData->SchemaData->SimpleData[1];
-            $codeCCC = (string)$placemark->ExtendedData->SchemaData->SimpleData[2];
+            $supHa = $this->kmlValue($simpleData, $placemark, ['Superficie', 'superficie', 'SupHa', 'supHa', 'SUP_HA', 'sup_ha', 'Area_Ha', 'area_ha'], 0);
+            $cooperative = $this->kmlValue($simpleData, $placemark, ['Cooperative', 'Coopérative', 'cooperative'], 1);
+            $codeCCC = $this->kmlValue($simpleData, $placemark, ['Code_CCC', 'codeCCC', 'Code CCC'], 2);
             // $codeProducteur = Str::before((string)$placemark->ExtendedData->SchemaData->SimpleData[3], " ");
             // $codeParcelle = Str::before((string)$placemark->ExtendedData->SchemaData->SimpleData[4], " ");
-            $codeProducteur = (string)$placemark->ExtendedData->SchemaData->SimpleData[3];
-            $codeParcelle = (string)$placemark->ExtendedData->SchemaData->SimpleData[4];
-            $section = (string)$placemark->ExtendedData->SchemaData->SimpleData[5];
-            $localite = (string)$placemark->ExtendedData->SchemaData->SimpleData[6];
-            $sousPrefecture = (string)$placemark->ExtendedData->SchemaData->SimpleData[7];
-            $departement = (string)$placemark->ExtendedData->SchemaData->SimpleData[8];
-            $region = (string)$placemark->ExtendedData->SchemaData->SimpleData[9];
-            $prenoms = (string)$placemark->ExtendedData->SchemaData->SimpleData[11];
-            $nom = (string)$placemark->ExtendedData->SchemaData->SimpleData[10];
-            $genre = (string)$placemark->ExtendedData->SchemaData->SimpleData[12];
-            $candidat = (string)$placemark->ExtendedData->SchemaData->SimpleData[14];
+            $codeProducteur = $this->kmlValue($simpleData, $placemark, ['Code_Producteur', 'CodeProducteur', 'codeProducteur', 'codeProd', 'Producteur_Code'], 3);
+            $codeParcelle = $this->kmlValue($simpleData, $placemark, ['Code_Parcelle', 'CodeParcelle', 'codeParcelle', 'codeParc', 'Parcelle'], 4);
+            $section = $this->kmlValue($simpleData, $placemark, ['Section', 'section'], 5);
+            $localite = $this->kmlValue($simpleData, $placemark, ['Localite', 'Localité', 'localite'], 6);
+            $sousPrefecture = $this->kmlValue($simpleData, $placemark, ['Sous_Prefecture', 'Sous-Prefecture', 'sousPrefecture'], 7);
+            $departement = $this->kmlValue($simpleData, $placemark, ['Departement', 'Département', 'departement'], 8);
+            $region = $this->kmlValue($simpleData, $placemark, ['Region', 'Région', 'region'], 9);
+            $prenoms = $this->kmlValue($simpleData, $placemark, ['Prenoms', 'Prénoms', 'prenoms'], 11);
+            $nom = $this->kmlValue($simpleData, $placemark, ['Nom', 'nom'], 10);
+            $genre = $this->kmlValue($simpleData, $placemark, ['Genre', 'Sexe', 'genre', 'sexe'], 12);
+            $candidat = $this->kmlValue($simpleData, $placemark, ['Candidat', 'Statut', 'candidat', 'statut'], 14);
             //$certification = "Rainforest Alliance";
             $certification = "";
             $programme = "Bandama";
 
-            $supHa = Str::before($supHa, ' ');
-            if (Str::contains($supHa, ",")) {
-                $supHa = Str::replaceFirst(',', '.', $supHa);
-                if (Str::contains($supHa, ",")) {
-                    $supHa = Str::replaceFirst('m²', '', $supHa);
-                }
-            }
             //Récupérer les coordonnées de la balise
 
             // Ajouter les données au tableau
@@ -471,6 +483,125 @@ class ParcelleController extends Controller
 
         // Retourner le tableau des coordonnées
         return $dataArray;
+    }
+
+    private function simpleDataByName($placemark)
+    {
+        $values = [];
+        foreach ($placemark->xpath('.//*[local-name()="SimpleData"]') as $node) {
+            $attributes = $node->attributes();
+            $name = isset($attributes['name']) ? trim((string) $attributes['name']) : '';
+            if ($name !== '') {
+                $values[$name] = trim((string) $node);
+            }
+        }
+
+        return $values;
+    }
+
+    private function kmlValue(array $simpleData, $placemark, array $names, $fallbackIndex = null)
+    {
+        foreach ($names as $name) {
+            if (array_key_exists($name, $simpleData) && $simpleData[$name] !== '') {
+                return $simpleData[$name];
+            }
+        }
+
+        if ($fallbackIndex !== null) {
+            $nodes = $placemark->xpath('.//*[local-name()="SimpleData"]');
+            if (isset($nodes[$fallbackIndex])) {
+                return trim((string) $nodes[$fallbackIndex]);
+            }
+        }
+
+        return '';
+    }
+
+    private function normalizeKmlCode($code)
+    {
+        $code = str_replace("\xc2\xa0", ' ', (string) $code);
+        $code = trim(preg_replace('/\s+/u', ' ', $code));
+
+        return Str::before($code, ' ');
+    }
+
+    private function findParcelleForKml($cooperativeId, $codeParcelle, $codeProducteur = null)
+    {
+        if ($codeParcelle === '') {
+            return null;
+        }
+
+        $variants = array_values(array_unique(array_filter([
+            $codeParcelle,
+            trim($codeParcelle),
+            str_replace(' ', '', $codeParcelle),
+        ])));
+
+        $query = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $cooperativeId)
+            ->whereIn('codeParc', $variants)
+            ->select('parcelles.*');
+
+        if ($codeProducteur) {
+            $producteurVariants = array_values(array_unique(array_filter([
+                $codeProducteur,
+                trim($codeProducteur),
+                str_replace(' ', '', $codeProducteur),
+            ])));
+            $preferred = (clone $query)->whereIn('producteurs.codeProd', $producteurVariants)->first();
+            if ($preferred) {
+                return $preferred;
+            }
+        }
+
+        return $query->first();
+    }
+
+    private function applyPolygonToParcelle(Parcelle $parcelle, array $data, $producteur = null)
+    {
+        $centroid   = $this->calculateCentroid($data['coordinates']);
+        $superficie = $this->importedSuperficie($data);
+        if ($superficie <= 0) {
+            $superficie = $this->calculatePolygonArea($data['coordinates']);
+        }
+
+        if ($producteur) {
+            $parcelle->producteur_id = $producteur->id;
+        }
+
+        $parcelle->codeParc        = $data['codeParcelle'] ?: $parcelle->codeParc;
+        $parcelle->typedeclaration = 'GPS';
+        $parcelle->culture         = 'CACAO';
+        $parcelle->superficie      = round($superficie, 2);
+        $parcelle->latitude        = round($centroid['lat'], 6);
+        $parcelle->longitude       = round($centroid['lng'], 6);
+        $parcelle->waypoints       = $data['coordinates'];
+        $parcelle->save();
+    }
+
+    private function importedSuperficie(array $data)
+    {
+        $value = $data['supHa'] ?? null;
+        if ($value === null || trim((string) $value) === '') {
+            return 0;
+        }
+
+        $raw = trim((string) $value);
+        $isSquareMeters = preg_match('/m\s*(2|²)/iu', $raw) === 1;
+        $normalized = str_replace(["\xc2\xa0", ' '], '', $raw);
+        $normalized = str_replace(',', '.', $normalized);
+        $normalized = preg_replace('/[^0-9.\-]/', '', $normalized);
+
+        if ($normalized === '' || !is_numeric($normalized)) {
+            return 0;
+        }
+
+        $surface = (float) $normalized;
+        if ($isSquareMeters || $surface > 1000) {
+            $surface = $surface / 10000;
+        }
+
+        return $surface;
     }
 
     private function parseCoordinates($coordinates)

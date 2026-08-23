@@ -265,8 +265,16 @@ class ApiAgroEvaluationContoller extends Controller
             $distribution = new Agropostplanting();
         }
         $manager   = User::where('id', $request->userid)->first();
-        $campagne = Campagne::active()->first();
+        $campagneInput = $request->campagne_id ?: $request->campagne;
+        $campagne = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->when($campagneInput, fn($q) => $q->where('id', $campagneInput))
+            ->first();
+        if (!$campagne) {
+            return response()->json(['message' => 'Campagne invalide pour cette cooperative.'], 422);
+        }
         $distribution->cooperative_id = $manager->cooperative_id;
+        $distribution->campagne_id = $campagne->id;
         $distribution->producteur_id = $request->producteur;
         $distribution->quantite =  $request->total;
         $distribution->quantitePlantee =  $request->qteplante;

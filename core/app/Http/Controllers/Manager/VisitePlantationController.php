@@ -312,7 +312,7 @@ class VisitePlantationController extends Controller
                     (array) ($enfant['mesuresCommunaute'] ?? [])
                 );
                 $besoinAutreMesure = collect($mesures)->contains(function ($mesure) {
-                    return str_contains($mesure, 'Autre') || str_contains($mesure, 'prÃ©ciser');
+                    return stripos($mesure, 'autre') !== false || stripos($mesure, 'préciser') !== false;
                 });
 
                 if ($besoinAutreMesure && blank($enfant['autreMesure'] ?? null)) {

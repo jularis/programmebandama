@@ -42,7 +42,9 @@ class ManagerController extends Controller
 
         // Campagnes de la coopérative + filtre sélectionné
         $campagnes   = Campagne::active()->where('cooperative_id', $coop_id)->get();
-        $campagne_id = request()->campagne ?: optional($campagnes->first())->id;
+        $campagne_id = request()->filled('campagne') ? request()->campagne : null;
+        $selectedCampagne = $campagne_id ? $campagnes->firstWhere('id', (int) $campagne_id) : null;
+        $campagne_id = $selectedCampagne ? $selectedCampagne->id : null;
 
         $nbcoop = Cooperative::count();
         $totalparcelle = Parcelle::joinRelationship('producteur.localite.section')
@@ -82,30 +84,45 @@ class ManagerController extends Controller
                                         ->get();
 
         // Formations par Modules (table réelle : formation_staffs / formation_staff_module_themes)
-        $campagneFilter = $campagne_id ? "AND fs.campagne_id = $campagne_id" : '';
+        $campagneFilter = $campagne_id ? ' AND sf.campagne_id = ?' : '';
+        $formationBindings = $campagne_id ? [$coop_id, $campagne_id] : [$coop_id];
         $formation = DB::select('SELECT
-            mfs.nom,
-            COUNT(DISTINCT fsmt.formation_staff_id) AS nombre
-        FROM formation_staff_module_themes fsmt
-        INNER JOIN module_formation_staffs mfs ON fsmt.module_formation_staff_id = mfs.id
-        INNER JOIN formation_staffs fs ON fsmt.formation_staff_id = fs.id
-        WHERE fs.cooperative_id = '.$coop_id.' '.$campagneFilter.'
-        GROUP BY fsmt.module_formation_staff_id, mfs.nom');
+            tf.nom,
+            COUNT(DISTINCT fs.id) AS nombre
+        FROM type_formations tf
+        LEFT JOIN type_formation_themes tft ON tft.type_formation_id = tf.id
+        LEFT JOIN (
+            SELECT sf.id
+            FROM suivi_formations sf
+            INNER JOIN localites l ON l.id = sf.localite_id
+            INNER JOIN sections s ON s.id = l.section_id
+            WHERE s.cooperative_id = ?'.$campagneFilter.'
+        ) fs ON fs.id = tft.suivi_formation_id
+        GROUP BY tf.id, tf.nom
+        ORDER BY tf.nom', $formationBindings);
         $formation = collect($formation);
 
         // Participants formés par Module
+        $modulesBindings = $campagne_id ? [$coop_id, $campagne_id] : [$coop_id];
         $modules = DB::select('SELECT
-            mfs.nom AS module,
-            COUNT(DISTINCT fsl.user_id) AS nombre_producteurs
-        FROM formation_staff_listes fsl
-        INNER JOIN formation_staffs fs ON fsl.formation_staff_id = fs.id
-        INNER JOIN formation_staff_module_themes fsmt ON fs.id = fsmt.formation_staff_id
-        INNER JOIN module_formation_staffs mfs ON fsmt.module_formation_staff_id = mfs.id
-        WHERE fs.cooperative_id = '.$coop_id.' '.$campagneFilter.'
-        GROUP BY fsmt.module_formation_staff_id, mfs.nom');
+            tf.nom AS module,
+            COUNT(DISTINCT sfp.producteur_id) AS nombre_producteurs
+        FROM type_formations tf
+        LEFT JOIN type_formation_themes tft ON tft.type_formation_id = tf.id
+        LEFT JOIN (
+            SELECT sf.id
+            FROM suivi_formations sf
+            INNER JOIN localites l ON l.id = sf.localite_id
+            INNER JOIN sections s ON s.id = l.section_id
+            WHERE s.cooperative_id = ?'.$campagneFilter.'
+        ) fs ON fs.id = tft.suivi_formation_id
+        LEFT JOIN suivi_formation_producteurs sfp ON sfp.suivi_formation_id = fs.id
+        GROUP BY tf.id, tf.nom
+        ORDER BY tf.nom', $modulesBindings);
         // Nombre de parcelles
         $parcellespargenre = Parcelle::joinRelationship('producteur.localite.section')
-        ->where([['cooperative_id', $coop_id],['producteurs.status', 1]])->select('producteurs.sexe as genre',DB::raw('count(parcelles.id) as nombre'))->groupBy('producteurs.sexe')->get();
+        ->where([['cooperative_id', $coop_id],['producteurs.status', 1]])
+        ->select('producteurs.sexe as genre',DB::raw('count(parcelles.id) as nombre'))->groupBy('producteurs.sexe')->get();
 
         $producteurparcertification = Producteur_certification::joinRelationship('producteur.programme')
                                 ->joinRelationship('producteur.localite.section')

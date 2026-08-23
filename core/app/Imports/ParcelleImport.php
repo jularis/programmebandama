@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Parcelle;
+use App\Models\Producteur;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -31,11 +32,15 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
         }
 
         foreach ($collection as $row) {
-            $codeProd = trim((string) $row['codeproducteur']);
+            $codeProd = trim((string) $this->value($row, ['codeproducteur', 'code_producteur']));
 
-            $verification = DB::table('producteurs')
-                ->where('codeProd', $codeProd)
-                ->orWhere('codeProdapp', $codeProd)
+            $verification = Producteur::joinRelationship('localite.section')
+                ->where('cooperative_id', auth()->user()->cooperative_id)
+                ->where(function ($query) use ($codeProd) {
+                    $query->where('producteurs.codeProd', $codeProd)
+                        ->orWhere('producteurs.codeProdapp', $codeProd);
+                })
+                ->select('producteurs.*')
                 ->first();
 
             if ($verification == null) {
@@ -44,7 +49,7 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
             }
 
             // Normalize superficie
-            $superficie = Str::before((string) $row['superficie'], ' ');
+            $superficie = Str::before((string) $this->value($row, ['superficie']), ' ');
             if (Str::contains($superficie, ',')) {
                 $superficie = Str::replaceFirst(',', '.', $superficie);
                 if (Str::contains($superficie, ',')) {
@@ -52,17 +57,21 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
                 }
             }
 
-            $latitude  = is_numeric($row['latitude'])  ? round($row['latitude'],  6) : null;
-            $longitude = is_numeric($row['longitude']) ? round($row['longitude'], 6) : null;
+            $latitudeValue  = $this->value($row, ['latitude']);
+            $longitudeValue = $this->value($row, ['longitude']);
+            $latitude  = is_numeric($latitudeValue)  ? round($latitudeValue,  6) : null;
+            $longitude = is_numeric($longitudeValue) ? round($longitudeValue, 6) : null;
 
             // Find existing parcelle and determine codeParc
             $parcelle = null;
 
-            if (!empty(trim((string) ($row['codeparcelle'] ?? '')))) {
+            if (!empty(trim((string) $this->value($row, ['codeparcelle', 'code_parcelle'])))) {
                 // Code fourni dans le fichier : recherche par producteur_id + codeParc
-                $codeParc = trim((string) $row['codeparcelle']);
-                $parcelle = Parcelle::where('producteur_id', $verification->id)
+                $codeParc = trim((string) $this->value($row, ['codeparcelle', 'code_parcelle']));
+                $parcelle = Parcelle::joinRelationship('producteur.localite.section')
+                    ->where('cooperative_id', auth()->user()->cooperative_id)
                     ->where('codeParc', $codeParc)
+                    ->select('parcelles.*')
                     ->first();
             } else {
                 // Pas de code dans le fichier : recherche par producteur_id + coordonnées GPS
@@ -87,9 +96,9 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
             $data = [
                 'producteur_id'   => $verification->id,
                 'codeParc'        => $codeParc,
-                'anneeCreation'   => $row['anneecreation'] ?? null,
-                'typedeclaration' => 'Verbale',
-                'culture'         => $row['cultureparcelle'] ?? null,
+                'anneeCreation'   => $this->value($row, ['anneecreation', 'annee_creation']),
+                'typedeclaration' => $this->value($row, ['typedeclaration', 'type_declaration']) ?: ($parcelle->typedeclaration ?? 'Verbale'),
+                'culture'         => $this->value($row, ['cultureparcelle', 'culture_parcelle', 'culture']),
                 'superficie'      => is_numeric(trim($superficie)) ? round(trim($superficie), 2) : trim($superficie),
                 'latitude'        => $latitude,
                 'longitude'       => $longitude,
@@ -98,7 +107,7 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
             ];
 
             if ($parcelle) {
-                $parcelle->update($data);
+                $parcelle->update(array_filter($data, fn($value) => $value !== null));
                 $this->updated++;
             } else {
                 $data['created_at'] = now();
@@ -142,5 +151,16 @@ class ParcelleImport implements ToCollection, WithHeadingRow, WithValidation
         } while ($action !== 'non');
 
         return $codeParc;
+    }
+
+    private function value($row, array $keys)
+    {
+        foreach ($keys as $key) {
+            if (isset($row[$key]) && trim((string) $row[$key]) !== '') {
+                return is_string($row[$key]) ? trim($row[$key]) : $row[$key];
+            }
+        }
+
+        return null;
     }
 }

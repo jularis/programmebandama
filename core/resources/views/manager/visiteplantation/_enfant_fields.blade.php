@@ -229,10 +229,10 @@
             </select>
         </div>
     </div>
-    <div class="form-group row autreMesureWrap">
+    <div class="form-group row autreMesureWrap" style="display:none;">
         <label class="col-sm-4 control-label">@lang('Préciser cette autre mesure qui répondrait mieux au cas que vous avez identifié')</label>
         <div class="col-xs-12 col-sm-8">
-            <input type="text" name="enfants[{{ $index }}][autreMesure]" class="form-control js-required-visible" value="{{ $enfant->autreMesure ?? '' }}" required @if($readonly) disabled @endif>
+            <input type="text" name="enfants[{{ $index }}][autreMesure]" class="form-control js-required-visible" value="{{ $enfant->autreMesure ?? '' }}" @if($readonly) disabled @endif>
         </div>
     </div>
 </div>

@@ -29,6 +29,7 @@ use App\Models\LivraisonScelle;
 use App\Models\LivraisonPayment;
 use App\Models\LivraisonProduct;
 use App\Exports\ExportLivraisons;
+use App\Imports\StockMagasinSectionImport;
 use App\Models\AdminNotification;
 use Illuminate\Support\Facades\DB;
 use App\Models\StockMagasinCentral;
@@ -85,6 +86,25 @@ class LivraisonController extends Controller
         $magasins  = MagasinSection::joinRelationship('section')->where('cooperative_id', $staff->cooperative_id)->get();
         $sections = Section::get();
         return view('manager.livraison.stock', compact('pageTitle', 'stocks', 'total', 'sections', 'magasins'));
+    }
+
+    public function uploadContent(Request $request)
+    {
+        $request->validate([
+            'uploaded_file' => 'required|file|mimes:xls,xlsx',
+        ]);
+
+        try {
+            $import = new StockMagasinSectionImport(auth()->user());
+            Excel::import($import, $request->file('uploaded_file'));
+
+            $notify[] = ['success', "{$import->importedRows} ligne(s) importee(s), {$import->createdStocks} stock(s) cree(s)."];
+            return back()->withNotify($notify);
+        } catch (\Throwable $e) {
+            report($e);
+            $notify[] = ['error', $e->getMessage()];
+            return back()->withNotify($notify);
+        }
     }
 
     public function create()
@@ -336,6 +356,17 @@ $campagne = Campagne::where('id', $request->campagne)->first();
         $producteurs = $request->producteurs ?? [];
         $parcelle    = $request->parcelle ?? [];
         $certificat  = $request->certificat ?? [];
+
+        $totalQuantite = array_sum($quantite);
+        if ($totalQuantite <= 0) {
+            $notify[] = ['error', 'La quantite totale doit etre superieure a 0.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        if (abs($totalQuantite - (float) $request->poidsnet) > 0.01) {
+            $notify[] = ['error', 'Le poids net doit correspondre au total des quantites saisies.'];
+            return back()->withNotify($notify)->withInput();
+        }
 
         // Validation préalable : s'assurer qu'aucune quantité ne dépasse le stock disponible
         foreach ($producteurs as $i => $item) {

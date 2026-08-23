@@ -204,7 +204,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@lang('Importer des parcelles')</h5>
+                    <h5 class="modal-title">@lang('Importer / mettre a jour des parcelles')</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <i class="las la-times"></i> </button>
                 </div>
@@ -214,6 +214,9 @@
                     <div class="modal-body">
                         <p>Fichier d'exemple à utiliser :<a href="{{ asset('assets/parcelle-import-exemple.xlsx') }}"
                                 target="_blank">@lang('parcelle-import-exemple.xlsx')</a></p>
+                        <p class="small text-muted">
+                            @lang('Si la colonne codeparcelle correspond a une parcelle existante, ses informations seront mises a jour. Sinon, une nouvelle parcelle sera creee.')
+                        </p>
 
                         <div class="form-group row">
                             {{ Form::label(__('Fichier(.xls, .xlsx)'), null, ['class' => 'control-label col-sm-4']) }}
@@ -240,7 +243,7 @@
     <a href="{{ route('manager.traca.parcelle.create') }}" class="btn  btn-outline--primary h-45 addNewCooperative">
         <i class="las la-plus"></i>@lang('Ajouter nouveau')
     </a>
-    <a class="btn btn-outline--info h-45 addType"><i class="las la-cloud-upload-alt"></i> @lang('Importer des Parcelles')</a>
+    <a class="btn btn-outline--info h-45 addType"><i class="las la-cloud-upload-alt"></i> @lang('Importer / Mettre a jour')</a>
     <a href="{{ route('manager.traca.parcelle.uploadkml') }}" class="btn btn-danger h-45"><i
             class="las la-cloud-upload-alt"></i> @lang('Importer un Fichier KML')</a>
     <a href="{{ route('manager.traca.parcelle.exportExcel.parcelleAll') }}" class="btn  btn-outline--warning h-45"><i

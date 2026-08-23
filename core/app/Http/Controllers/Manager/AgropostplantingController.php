@@ -35,13 +35,17 @@ class AgropostplantingController extends Controller
         $pageTitle      = "Evaluation Post-Planting";
         $manager   = auth()->user();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->get();
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->orderBy('nom')->get();
         $postplanting = Agropostplanting::dateFilter()->searchable([])->latest('id')->joinRelationship('producteur.localite.section')->where('sections.cooperative_id', $manager->cooperative_id)->where(function ($q) {
             if (request()->localite != null) {
                 $q->where('localite_id', request()->localite);
             }
-        })->paginate(getPaginate());
+            if (request()->campagne != null) {
+                $q->where('agropostplanting.campagne_id', request()->campagne);
+            }
+        })->with('campagne')->paginate(getPaginate());
 
-        return view('manager.postplanting.index', compact('pageTitle', 'postplanting', 'localites'));
+        return view('manager.postplanting.index', compact('pageTitle', 'postplanting', 'localites', 'campagnes'));
     }
 
     public function create()
@@ -61,13 +65,15 @@ class AgropostplantingController extends Controller
 
         $sections = Section::get();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id', $manager->cooperative_id], ['localites.status', 1]])->orderBy('nom')->get();
-        return view('manager.postplanting.create', compact('pageTitle', 'producteurs', 'localites', 'sections'));
+        $campagnes = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->orderBy('nom')->get();
+        return view('manager.postplanting.create', compact('pageTitle', 'producteurs', 'localites', 'sections', 'campagnes'));
     }
 
     public function store(Request $request)
     {
         $validationRule = [
             'quantite' => 'required|array',
+            'campagne' => 'required|exists:campagnes,id',
         ];
 
 
@@ -80,8 +86,13 @@ class AgropostplantingController extends Controller
             $distribution = new Agropostplanting();
         }
         $manager   = auth()->user();
-        $campagne = Campagne::active()->first();
+        $campagne = Campagne::active()->where([['id', $request->campagne], ['cooperative_id', $manager->cooperative_id]])->first();
+        if (!$campagne) {
+            $notify[] = ['error', 'La campagne selectionnee est invalide pour votre cooperative.'];
+            return back()->withNotify($notify)->withInput();
+        }
         $distribution->cooperative_id = $manager->cooperative_id;
+        $distribution->campagne_id = $campagne->id;
         $distribution->producteur_id = $request->producteur;
         $distribution->quantite =  $request->total;
         $distribution->quantitePlantee =  $request->qteplante;
@@ -151,10 +162,10 @@ class AgropostplantingController extends Controller
     {
         $pageTitle = "Mise à jour de la distribution";
         $manager   = auth()->user();
-        $campagne = Campagne::active()->first();
         $distribution   = Agropostplanting::findOrFail($id);
-        $total = Agroevaluation::where('producteur_id', $distribution->producteur_id)->sum('quantite');
-        $evaluation = Agroevaluation::where('producteur_id', $distribution->producteur_id)->first();
+        $campagne = $distribution->campagne ?: Campagne::active()->where('cooperative_id', $manager->cooperative_id)->first();
+        $total = Agroevaluation::where('producteur_id', $distribution->producteur_id)->when($campagne, fn($q) => $q->where('campagne_id', $campagne->id))->sum('quantite');
+        $evaluation = Agroevaluation::where('producteur_id', $distribution->producteur_id)->when($campagne, fn($q) => $q->where('campagne_id', $campagne->id))->first();
         $somme = AgropostplantingEspece::where([['Agropostplanting_id', $id]])->sum('total');
 
         $especes = AgroapprovisionnementEspece::joinRelationship('agroapprovisionnement', 'agroespecesarbre')->where([['cooperative_id', $manager->cooperative_id], ['campagne_id', $campagne->id]])->get();
@@ -191,7 +202,9 @@ class AgropostplantingController extends Controller
                 if ($existe != null) {
                     $nombre = $existe->total;
                 }
-                $qte = AgroevaluationEspece::where([['agroespecesarbre_id', $data->agroespecesarbre_id], ['agroevaluation_id', $evaluation->id]])->select('total')->first();
+                $qte = $evaluation
+                    ? AgroevaluationEspece::where([['agroespecesarbre_id', $data->agroespecesarbre_id], ['agroevaluation_id', $evaluation->id]])->select('total')->first()
+                    : null;
 
                 $idespeces[] = $data->agroespecesarbre_id;
                 $results .= '<tr><td>' . $data->agroespecesarbre->nom . '</td>';
@@ -221,11 +234,11 @@ class AgropostplantingController extends Controller
         $request->validate($validationRule);
 
         $manager   = auth()->user();
-        $campagne = Campagne::active()->first();
-
         $k = 0;
         $i = 0;
         $distributionID = $request->id;
+        $distribution = Agropostplanting::findOrFail($distributionID);
+        $campagne = $distribution->campagne ?: Campagne::active()->where('cooperative_id', $manager->cooperative_id)->first();
 
         if ($request->quantite) {
             $updateappro = AgropostplantingEspece::where('Agropostplanting_id', $distributionID)->get();
@@ -287,14 +300,15 @@ class AgropostplantingController extends Controller
         $input = request()->all();
         $totalrecu = 0;
         $producteurId = request()->producteur;
+        $campagneId = request()->campagne;
 
-        if(request()->producteur !=null){
+        if(request()->producteur !=null && $campagneId != null){
 
         $especes = AgrodistributionEspece::joinRelationship('agrodistribution')->joinRelationship('agroespecesarbre')->where('producteur_id', request()->producteur)->get();
 
 
         if (count($especes)) {
-            $existe = Agropostplanting::where('producteur_id', request()->producteur)->latest('id')->first();
+            $existe = Agropostplanting::where([['producteur_id', request()->producteur]])->latest('id')->first();
 
             if($existe !=null)
             {
@@ -350,7 +364,7 @@ class AgropostplantingController extends Controller
                 text-align: center;
                 color: #f70000;
                 font-weight: bold;
-            ">Veuillez choisir un producteur.</span>';
+            ">Veuillez choisir une campagne et un producteur.</span>';
         }
 
         $contents['tableau'] = $results;

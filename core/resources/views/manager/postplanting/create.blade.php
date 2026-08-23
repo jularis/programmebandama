@@ -14,6 +14,19 @@
                     ]) !!}
 
                     <div class="form-group row">
+                        <label class="col-sm-4 control-label">@lang('Selectionner une campagne')</label>
+                        <div class="col-xs-12 col-sm-8">
+                            <select class="form-control" name="campagne" id="campagne" required>
+                                <option value="">@lang('Selectionner une option')</option>
+                                @foreach ($campagnes as $campagne)
+                                    <option value="{{ $campagne->id }}" @selected(old('campagne') == $campagne->id)>
+                                        {{ $campagne->nom }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
                         <label class="col-sm-4 control-label">@lang('Selectionner une section')</label>
                         <div class="col-xs-12 col-sm-8">
                             <select class="form-control" name="section" id="section" required>
@@ -120,9 +133,17 @@
 
 @push('script')
     <script type="text/javascript">
-        $('#producteur').change(function() {
+        $('#campagne, #producteur').change(function() {
 
             var urlsend = '{{ route('manager.agro.postplanting.getAgroParcellesArbres') }}';
+
+            if (!$('#campagne').val() || !$('#producteur').val()) {
+                $('#listeespece').html('');
+                $("#total").val('');
+                $("#qteplante").val('');
+                $("#qtesurvecue").val('');
+                return;
+            }
 
             $.ajax({
                 type: 'GET',

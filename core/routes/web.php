@@ -636,6 +636,7 @@ Route::middleware('auth')->group(function () {
             Route::get('edit/{id}', [LivraisonController::class,'edit'])->name('edit');
             Route::get('list', [LivraisonController::class,'livraisonInfo'])->name('index');
             Route::get('stock', [LivraisonController::class,'stockSection'])->name('stock.section');
+            Route::post('stock/uploadcontent', [LivraisonController::class,'uploadContent'])->name('stock.section.uploadcontent');
             Route::post('stock/store', [LivraisonController::class,'sectionStore'])->name('section.store');
             Route::get('stock/create', [LivraisonController::class,'stockSectionCreate'])->name('stock.section.create');
             Route::get('parcelle', [LivraisonController::class,'getParcelle'])->name('get.parcelle');

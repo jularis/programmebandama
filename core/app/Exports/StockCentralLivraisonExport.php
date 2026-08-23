@@ -15,11 +15,13 @@ class StockCentralLivraisonExport implements FromView, WithTitle
 
     protected $date;
     protected $magasin;
+    protected $search;
 
-    public function __construct($date = null, $magasin = null)
+    public function __construct($date = null, $magasin = null, $search = null)
     {
         $this->date    = $date;
         $this->magasin = $magasin;
+        $this->search  = $search;
     }
 
     public function view(): View
@@ -29,7 +31,11 @@ class StockCentralLivraisonExport implements FromView, WithTitle
             ->orderBy('id', 'desc');
 
         if ($this->magasin) {
-            $query->where('magasin_section_id', $this->magasin);
+            $query->where('magasin_centraux_id', $this->magasin);
+        }
+
+        if ($this->search) {
+            $query->where('numero_connaissement', 'like', "%{$this->search}%");
         }
 
         if ($this->date) {

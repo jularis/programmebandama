@@ -80,7 +80,10 @@ class LivraisonCentraleController extends Controller
         $baseQuery = StockMagasinCentral::dateFilter()
             ->where('cooperative_id', $staff->cooperative_id)
             ->when(request()->magasin, function ($query, $magasin) {
-                $query->where('magasin_section_id', $magasin);
+                $query->where('magasin_centraux_id', $magasin);
+            })
+            ->when(request()->search, function ($query, $search) {
+                $query->where('numero_connaissement', 'like', "%$search%");
             });
 
         $total  = (clone $baseQuery)->sum('stocks_mag_entrant');
@@ -250,22 +253,34 @@ class LivraisonCentraleController extends Controller
         $parcelle             = $request->parcelle;
         $stock_magasin_central = $request->stock_magasin_central;
 
+        $totalQuantite = array_sum($quantite);
+        if ($totalQuantite <= 0) {
+            $notify[] = ['error', 'La quantite totale doit etre superieure a 0.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        if (abs($totalQuantite - (float) $request->poidsnet) > 0.01) {
+            $notify[] = ['error', 'Le poids net doit correspondre au total des volumes selectionnes.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
         // Vérification du stock disponible avant tout enregistrement
         foreach ($producteurs as $i => $item) {
             $qty = (float) ($quantite[$i] ?? 0);
             if ($qty <= 0) continue;
+            $rowType = $request->typeproduit[$i] ?? $typeproduit;
             $prod = LivraisonMagasinCentralProducteur::where([
                 ['campagne_id',            $request->campagne],
                 ['stock_magasin_central_id', $stock_magasin_central[$i]],
                 ['producteur_id',          $item],
                 ['parcelle_id',            $parcelle[$i]],
-                ['type_produit',           $typeproduit],
+                ['type_produit',           $rowType],
             ])->first();
             $disponible = $prod ? (float) $prod->quantite : 0;
-            // Bloquer uniquement si le stock disponible est positif et dépasse la demande
-            if ($disponible > 0 && $qty > $disponible) {
+            // Bloquer si la ligne de stock est introuvable ou si la demande depasse le disponible.
+            if ($prod === null || $qty > $disponible) {
                 $notify[] = ['error', "Stock insuffisant : quantité demandée ({$qty} kg) dépasse le stock disponible ({$disponible} kg) pour la ligne " . ($i + 1) . "."];
-                return back()->withNotify($notify);
+                return back()->withNotify($notify)->withInput();
             }
         }
 
@@ -295,6 +310,7 @@ class LivraisonCentraleController extends Controller
         foreach ($producteurs as $item) {
 
             if ($quantite[$i] > 0) {
+                $rowType = $request->typeproduit[$i] ?? $typeproduit;
                 $data[] = [
                     'connaissement_id'       => $livraison->id,
                     'producteur_id'          => $item,
@@ -302,12 +318,12 @@ class LivraisonCentraleController extends Controller
                     'campagne_periode_id'    => $request->periode,
                     'quantite'               => $quantite[$i],
                     'stock_magasin_central_id' => $stock_magasin_central[$i],
-                    'type_produit'           => $typeproduit,
+                    'type_produit'           => $rowType,
                     'certificat'             => $certificat,
                     'parcelle_id'            => $parcelle[$i],
                     'created_at'             => now(),
                 ];
-                $prod = LivraisonMagasinCentralProducteur::where([['campagne_id', $request->campagne], ['stock_magasin_central_id', $stock_magasin_central[$i]], ['producteur_id', $item], ['parcelle_id', $parcelle[$i]], ['type_produit', $typeproduit]])->first();
+                $prod = LivraisonMagasinCentralProducteur::where([['campagne_id', $request->campagne], ['stock_magasin_central_id', $stock_magasin_central[$i]], ['producteur_id', $item], ['parcelle_id', $parcelle[$i]], ['type_produit', $rowType]])->first();
                 if ($prod != null) {
                     $prod->quantite          = max(0, $prod->quantite - $quantite[$i]);
                     $prod->quantite_sortant  = $prod->quantite_sortant + $quantite[$i];
@@ -610,6 +626,6 @@ class LivraisonCentraleController extends Controller
     public function exportExcel()
     {
         $filename = 'stock-magasin-central-' . gmdate('dmYhms') . '.xlsx';
-        return Excel::download(new ExportStockMagasinCentral(request()->date, request()->magasin), $filename);
+        return Excel::download(new ExportStockMagasinCentral(request()->date, request()->magasin, request()->search), $filename);
     }
 }

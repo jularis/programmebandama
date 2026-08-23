@@ -62,7 +62,17 @@ class ApisuiviformationController extends Controller
             $formation = new SuiviFormation();
         }
 
-        $campagne = Campagne::active()->first();
+        $localite = Localite::with('section')->find($request->localite);
+        $campagne = Campagne::active()
+            ->when($localite && $localite->section, function ($query) use ($localite) {
+                $query->where('cooperative_id', $localite->section->cooperative_id);
+            })
+            ->first();
+
+        if (!$campagne) {
+            return response()->json(['message' => 'Aucune campagne active trouvée pour la coopérative de cette localité.'], 422);
+        }
+
         $formation->localite_id  = $request->localite;
         $formation->campagne_id  = $campagne->id;
         $formation->user_id  = $request->staff;

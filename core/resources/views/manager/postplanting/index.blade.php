@@ -21,6 +21,15 @@
                                 </select>
                             </div> 
                             <div class="flex-grow-1">
+                                <label>@lang('Campagne')</label>
+                                <select name="campagne" class="form-control">
+                                    <option value="">@lang('Toutes')</option>
+                                    @foreach($campagnes as $campagne)
+                                    <option value="{{ $campagne->id }}" @selected(request()->campagne == $campagne->id)>{{ $campagne->nom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="flex-grow-1">
                                 <label>@lang('Date')</label>
                                 <input name="date" type="text" class="dates form-control" placeholder="@lang('Date de début - Date de fin')" autocomplete="off" value="{{ request()->date }}">
                             </div>
@@ -38,6 +47,7 @@
                             <thead>
                                 <tr> 
                                     <th>@lang('Localite')</th> 
+                                    <th>@lang('Campagne')</th>
                                     <th>@lang('Producteur')</th>
                                     <th>@lang('Quantite reçue')</th> 
                                     <th>@lang('Quantite plantee')</th> 
@@ -52,6 +62,9 @@
                                         <td>
                                             <span class="fw-bold">{{ $data->producteur->localite->nom }}</span>
                                         </td> 
+                                        <td>
+                                            <span>{{ $data->campagne->nom ?? 'N/A' }}</span>
+                                        </td>
                                         <td> 
                                             <span class="small">
                                             {{ $data->producteur->nom }} {{ $data->producteur->prenoms }}
@@ -148,4 +161,3 @@
         })(jQuery)
     </script>
 @endpush
-

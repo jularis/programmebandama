@@ -397,7 +397,7 @@
             });
         });
 
-        $('#flocal').change('keyup change blur', function() {
+        $('#flocal').on('input keyup change blur', '.quantity, #nombresacs', function() {
             update_amounts();
         });
 

@@ -415,10 +415,15 @@
             $('#listeprod > tr').each(function() {
                 var $qtyInput = $(this).find('.quantity');
                 var qty = parseFloat($qtyInput.val()) || 0;
+                var maxQty = parseFloat($qtyInput.data('max')) || 0;
 
                 if (qty < 0) {
                     qty = 0;
                     $qtyInput.val(0);
+                }
+                if (qty > maxQty) {
+                    qty = maxQty;
+                    $qtyInput.val(maxQty);
                 }
                 sum += qty;
             });
@@ -426,12 +431,23 @@
         }
 
         $('#flocal').on('submit', function(e) {
+            update_amounts();
             var poids = parseFloat($('#poidsnet').val()) || 0;
             var sacs  = parseFloat($('#nombresacs').val());
+            var totalLignes = 0;
+
+            $('#listeprod .quantity').each(function() {
+                totalLignes += parseFloat($(this).val()) || 0;
+            });
 
             if (poids <= 0) {
                 e.preventDefault();
                 alert('Le poids total doit être supérieur à 0. Veuillez sélectionner des lots avec un stock disponible.');
+                return false;
+            }
+            if (Math.abs(poids - totalLignes) > 0.01) {
+                e.preventDefault();
+                alert('Le poids total doit correspondre au total des volumes selectionnes.');
                 return false;
             }
             if (isNaN(sacs) || sacs < 0) {

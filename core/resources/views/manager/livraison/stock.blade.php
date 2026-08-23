@@ -102,6 +102,37 @@
             </div>
         </div>
     </div>
+    <div id="importModel" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@lang('Importer le stock magasin de section')</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="las la-times"></i>
+                    </button>
+                </div>
+                <form action="{{ route('manager.livraison.stock.section.uploadcontent') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-body">
+                        <p class="mb-2">@lang('Colonnes attendues') :</p>
+                        <p class="small text-muted mb-3">
+                            campagne, periode, magasin_section, code_producteur, code_parcelle, type_produit, quantite.
+                            @lang('Colonnes optionnelles') : numero_connaissement, certificat, date_livraison, sender_staff.
+                        </p>
+                        <div class="form-group row">
+                            {{ Form::label(__('Fichier(.xls, .xlsx)'), null, ['class' => 'control-label col-sm-4']) }}
+                            <div class="col-xs-12 col-sm-8 col-md-8">
+                                <input type="file" name="uploaded_file" accept=".xls,.xlsx" class="form-control dropify-fr" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn--primary w-100 h-45">@lang('Importer')</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('breadcrumb-plugins') 
@@ -111,6 +142,9 @@
 <a href="{{ route('manager.livraison.stock.section.create') }}" class="btn  btn-outline--primary h-45 addNewCooperative">
         <i class="las la-plus"></i>@lang("Enregistrer Connaissement brousse vers Magasin Central")
     </a>
+<button type="button" class="btn btn-outline--info h-45 importStock">
+        <i class="las la-cloud-upload-alt"></i> @lang('Importer Excel')
+    </button>
 <a href="{{ route('manager.livraison.exportExcel.livraisonAll') }}" class="btn  btn-outline--warning h-45"><i class="las la-cloud-download-alt"></i> Exporter en Excel</a>
 @endpush
 
@@ -127,6 +161,10 @@
 
             $('.addType').on('click', function() {
                 $('#typeModel').modal('show');
+            });
+
+            $('.importStock').on('click', function() {
+                $('#importModel').modal('show');
             });
 
             $('.dates').datepicker({
