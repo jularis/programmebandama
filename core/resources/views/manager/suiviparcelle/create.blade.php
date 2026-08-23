@@ -24,6 +24,13 @@
                         </div>
 
                         <div class="form-group row">
+                            <?php echo Form::label(__('Production de la campagne précédente'), null, ['class' => 'col-sm-4 control-label']); ?>
+                            <div class="col-xs-12 col-sm-8">
+                                <?php echo Form::number('productionCampagnePrecedente', old('productionCampagnePrecedente'), ['placeholder' => __('Production'), 'class' => 'form-control', 'min' => '0', 'step' => '0.01']); ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Section')</label>
                             <div class="col-xs-12 col-sm-8">
                                 <select class="form-control" name="section" id="section" required>
@@ -723,7 +730,7 @@
                                                 <div class="col-xs-12 col-sm-6">
                                                     <div class="form-group row">
                                                         {{ Form::label(__('Quantite'), null, ['class' => '']) }}
-                                                        <?php echo Form::select('nombreinsectesAmis[]', ['Faible' => __('Faible'), 'Moyen' => __('Moyen'), 'Elevé' => _('Elevé')], null, ['class' => 'form-control nombreinsectesAmis', 'id' => 'nombreinsectesAmis-1']); ?>
+                                                        <?php echo Form::select('nombreinsectesAmis[]', ['Faible' => __('Faible'), 'Moyen' => __('Moyen'), 'Elevé' => __('Elevé')], null, ['class' => 'form-control nombreinsectesAmis', 'id' => 'nombreinsectesAmis-1']); ?>
                                                     </div>
                                                 </div>
 
@@ -1021,7 +1028,7 @@
                 }
             });
 
-            //Pesticide lannee derniere 
+            //Pesticide lannee derniere
 
             var pesticidesCount = $("#pesticidesAnneDerniere_area tr").length;
             $(document).on('click', '#addRowPesticidesAnneDerniere', function() {
@@ -1270,7 +1277,7 @@
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div class="col-md-3">
                     <div class="input-group mb-3">
                         <input type="number" class="form-control quantity" placeholder="@lang('Nombre')"  name="items[${length}][nombre]"  required>
@@ -1325,7 +1332,7 @@
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div class="col-md-3">
                     <div class="input-group mb-3">
                         <input type="number" class="form-control quantity" placeholder="@lang('Nombre')"  name="items[${length}][nombre]"  required>

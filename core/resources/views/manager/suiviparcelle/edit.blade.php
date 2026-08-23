@@ -26,6 +26,13 @@
                         </div>
 
                         <div class="form-group row">
+                            <?php echo Form::label(__('Production de la campagne précédente'), null, ['class' => 'col-sm-4 control-label']); ?>
+                            <div class="col-xs-12 col-sm-8">
+                                <?php echo Form::number('productionCampagnePrecedente', null, ['placeholder' => __('Production'), 'class' => 'form-control', 'min' => '0', 'step' => '0.01']); ?>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
                             <label class="col-sm-4 control-label">@lang('Section')</label>
                             <div class="col-xs-12 col-sm-8">
                                 <select class="form-control" name="section" id="section" required>

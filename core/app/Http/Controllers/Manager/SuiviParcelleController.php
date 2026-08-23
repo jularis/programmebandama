@@ -69,8 +69,17 @@ class SuiviParcelleController extends Controller
         $localites = $cooperative->sections->flatMap->localites->filter(function ($localite) {
             return $localite->active();
         });
-        $campagnes = Campagne::active()->pluck('nom', 'id');
-        $parcelles  = Parcelle::with('producteur')->get();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
+        $parcelles  = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->with('producteur')
+            ->get();
         $arbres = Agroespecesarbre::all();
         return view('manager.suiviparcelle.create', compact('pageTitle', 'producteurs', 'localites', 'campagnes', 'parcelles', 'sections', 'arbres'));
     }
@@ -79,7 +88,8 @@ class SuiviParcelleController extends Controller
     {
         $validationRule = [
             'parcelle_id'    => 'required|exists:parcelles,id',
-            'campagne_id' => 'required|max:255',
+            'campagne_id' => 'required|exists:campagnes,id',
+            'productionCampagnePrecedente' => 'nullable|numeric|min:0',
             'dateVisite'  => 'required|max:255',
             'items.*.arbre'     => 'required|integer',
             'items.*.nombre'     => 'required|integer',
@@ -115,6 +125,27 @@ class SuiviParcelleController extends Controller
 
         $request->validate($validationRule);
 
+        $manager = auth()->user();
+        $campagne = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->where('id', $request->campagne_id)
+            ->first();
+
+        if (!$campagne) {
+            $notify[] = ['error', 'La campagne sélectionnée n’est pas liée à votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        $parcelle = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->where('parcelles.id', $request->parcelle_id)
+            ->first();
+
+        if (!$parcelle) {
+            $notify[] = ['error', 'La parcelle sélectionnée n’est pas liée à votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
         $localite = Localite::where('id', $request->localite)->first();
 
         if ($localite->status == Status::NO) {
@@ -129,8 +160,9 @@ class SuiviParcelleController extends Controller
             $suivi_parcelle = new SuiviParcelle();
         }
 
-        $suivi_parcelle->parcelle_id  = $request->parcelle_id;
-        $suivi_parcelle->campagne_id  = $request->campagne_id;
+        $suivi_parcelle->parcelle_id  = $parcelle->id;
+        $suivi_parcelle->campagne_id  = $campagne->id;
+        $suivi_parcelle->productionCampagnePrecedente  = $request->productionCampagnePrecedente;
         $suivi_parcelle->nombreSauvageons  = $request->nombreSauvageons;
         $suivi_parcelle->recuArbreAgroForestier  = $request->recuArbreAgroForestier;
         $suivi_parcelle->activiteTaille  = $request->activiteTaille;
@@ -355,8 +387,17 @@ class SuiviParcelleController extends Controller
         $localites = $cooperative->sections->flatMap->localites->filter(function ($localite) {
             return $localite->active();
         });
-        $campagnes = Campagne::active()->pluck('nom', 'id');
-        $parcelles  = Parcelle::with('producteur')->get();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
+        $parcelles  = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->with('producteur')
+            ->get();
         $suiviparcelle   = SuiviParcelle::findOrFail($id);
         $pesticidesAnneDerniere = $suiviparcelle->pesticidesAnneDerniere;
         $intrantsAnneDerniere = $suiviparcelle->intrantsAnneDerniere;
@@ -381,8 +422,17 @@ class SuiviParcelleController extends Controller
         $localites = $cooperative->sections->flatMap->localites->filter(function ($localite) {
             return $localite->active();
         });
-        $campagnes = Campagne::active()->pluck('nom', 'id');
-        $parcelles  = Parcelle::with('producteur')->get();
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
+        $parcelles  = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->with('producteur')
+            ->get();
         $suiviparcelle   = SuiviParcelle::findOrFail($id);
         $pesticidesAnneDerniere = $suiviparcelle->pesticidesAnneDerniere;
         $intrantsAnneDerniere = $suiviparcelle->intrantsAnneDerniere;

@@ -63,6 +63,7 @@ class ApisuiviparcelleController extends Controller
 
         $suivi_parcelle->parcelle_id  = $request->parcelle_id;
         $suivi_parcelle->campagne_id  = $request->campagne_id;
+        $suivi_parcelle->productionCampagnePrecedente  = $request->productionCampagnePrecedente;
         $suivi_parcelle->nombreSauvageons  = $request->nombreSauvageons;
         $suivi_parcelle->recuArbreAgroForestier  = $request->recuArbreAgroForestier;
         $suivi_parcelle->activiteTaille  = $request->activiteTaille;

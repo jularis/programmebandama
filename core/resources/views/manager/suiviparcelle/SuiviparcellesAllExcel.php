@@ -42,6 +42,7 @@
 <td>Pente</td>
 <td>Variete Abres</td>
 <td>Nombre Sauvageons</td>
+<td>Production Campagne Precedente</td>
 <td>Arbres Agroforestiers</td>
 <td>Activite Taille</td>
 <td>Activite Egourmandage</td>
@@ -95,6 +96,7 @@
 <td><?php echo $c->pente; ?></td>
 <td><?php echo $c->varieteAbres; ?></td>
 <td><?php echo $c->nombreSauvageons; ?></td>
+<td><?php echo $c->productionCampagnePrecedente; ?></td>
 <td><?php echo $c->arbresagroforestiers; ?></td>
 <td><?php echo $c->activiteTaille; ?></td>
 <td><?php echo $c->activiteEgourmandage; ?></td>

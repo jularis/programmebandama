@@ -34,7 +34,16 @@ class EstimationController extends Controller
             }
         })->with('parcelle');
 
-        $campagne = Campagne::active()->latest()->first();
+        $campagne = Campagne::active()->where('cooperative_id', $manager->cooperative_id)->latest()->first();
+
+        if (!$campagne) {
+            $estimationsFiltre = $estimations->get();
+            $estimations = $estimations->paginate(getPaginate());
+            $total_estimation_calculee = 0;
+            $total_estimation_estimee = 0;
+
+            return view('manager.estimation.index', compact('pageTitle', 'estimations','localites','total_estimation_calculee','total_estimation_estimee'));
+        }
    
         $estimationsFiltre = $estimations->get();
         $estimations = $estimations->paginate(getPaginate());
@@ -52,7 +61,13 @@ class EstimationController extends Controller
         $producteurs  = Producteur::joinRelationship('localite.section')
         ->where([['cooperative_id', $manager->cooperative_id],['producteurs.status', 1]])->with('localite')->get();
         $localites = Localite::joinRelationship('section')->where([['cooperative_id',$manager->cooperative_id],['localites.status',1]])->get();
-        $campagnes = Campagne::active()->pluck('nom','id');
+        $campagnes = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->orderByDesc('id')
+            ->get()
+            ->unique('nom')
+            ->sortBy('nom')
+            ->pluck('nom', 'id');
         $typeEstimation = array('Rendement calculé','Rendement estimé');
         $parcelles  = Parcelle::joinRelationship('producteur.localite.section')
         ->where([['cooperative_id', $manager->cooperative_id],['producteurs.status', 1]])->with('producteur')->get();
@@ -63,13 +78,34 @@ class EstimationController extends Controller
     {
         $validationRule = [
             'parcelle'    => 'required|exists:parcelles,id',
-            'campagne' => 'required|max:255', 
+            'campagne' => 'required|exists:campagnes,id',
             'RF'  => 'required|max:255',
             'EsP'  => 'required|max:255', 
             'date_estimation'  => 'required|max:255', 
         ];
 
         $request->validate($validationRule);
+
+        $manager = auth()->user();
+        $campagne = Campagne::active()
+            ->where('cooperative_id', $manager->cooperative_id)
+            ->where('id', $request->campagne)
+            ->first();
+
+        if (!$campagne) {
+            $notify[] = ['error', 'La campagne sélectionnée n’est pas liée à votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
+
+        $parcelle = Parcelle::joinRelationship('producteur.localite.section')
+            ->where('sections.cooperative_id', $manager->cooperative_id)
+            ->where('parcelles.id', $request->parcelle)
+            ->first();
+
+        if (!$parcelle) {
+            $notify[] = ['error', 'La parcelle sélectionnée n’est pas liée à votre coopérative.'];
+            return back()->withNotify($notify)->withInput();
+        }
 
         // $localite = Localite::where('id', $request->localite)->first();
 
@@ -82,15 +118,15 @@ class EstimationController extends Controller
             $estimation = Estimation::findOrFail($request->id);
             $message = "L'estimation a été mise à jour avec succès";
         } else {
-            $estimation = Estimation::where([['campagne_id',$request->campagne],['parcelle_id',$request->parcelle]])->first();
+            $estimation = Estimation::where([['campagne_id',$campagne->id],['parcelle_id',$parcelle->id]])->first();
             if($estimation ==null){
                 $estimation = new Estimation(); 
             }
              
         } 
         
-        $estimation->parcelle_id  = $request->parcelle;  
-        $estimation->campagne_id  = $request->campagne;
+        $estimation->parcelle_id  = $parcelle->id;
+        $estimation->campagne_id  = $campagne->id;
         $estimation->EA1  = $request->EA1;
         $estimation->EA2  = $request->EA2;
         $estimation->EA3  = $request->EA3;
