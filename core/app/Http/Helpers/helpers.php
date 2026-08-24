@@ -736,18 +736,25 @@ if (!function_exists('export_collecting_agent')) {
             return '';
         }
 
-        if (!empty($model->nomEnqueteur)) {
-            return $model->nomEnqueteur;
-        }
-
         if (!empty($model->userid)) {
-            $user = \App\Models\User::find($model->userid);
+            static $users = [];
+            $userId = $model->userid;
+
+            if (!array_key_exists($userId, $users)) {
+                $users[$userId] = \App\Models\User::find($userId);
+            }
+
+            $user = $users[$userId];
 
             if ($user) {
                 $name = trim(($user->lastname ?? '') . ' ' . ($user->firstname ?? ''));
 
                 return $name !== '' ? $name : ($user->name ?? '');
             }
+        }
+
+        if (!empty($model->nomEnqueteur)) {
+            return $model->nomEnqueteur;
         }
 
         foreach ([
